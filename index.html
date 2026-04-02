@@ -1433,5 +1433,15 @@ function signOut() {
 })();
 </script>
 </div><!-- /app-shell -->
+
+<!-- NOTE: Script block is intentionally placed inside app-shell for DOM access.
+     All auth functions (attemptLogin, signOut, bootApp) are globally scoped
+     via the window object assignment below. -->
+<script>
+  // Re-expose auth functions to global scope for onclick handlers on login screen
+  // (which lives outside #app-shell)
+  window.attemptLogin = attemptLogin;
+  window.signOut = signOut;
+</script>
 </body>
 </html>
