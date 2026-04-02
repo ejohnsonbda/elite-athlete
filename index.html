@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Elite Athlete Sponsorship Applications 2025 — Bermuda</title>
+  <title>Elite Athlete Sponsorship Applications 2026 — Bermuda</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
@@ -489,7 +489,7 @@
   <div class="login-box">
     <div class="login-logo">🏅</div>
     <h1>Elite Athlete Sponsorship</h1>
-    <p>Bermuda Department of Youth, Sport &amp; Recreation<br>2025 Applications Dashboard</p>
+    <p>Bermuda Department of Youth, Sport &amp; Recreation<br>2026 Applications Dashboard</p>
     <input class="login-input" id="access-code-input" type="password"
       placeholder="Enter Access Code"
       onkeydown="if(event.key==='Enter')attemptLogin()"
@@ -507,7 +507,7 @@
     <div class="header-logo">🏅</div>
     <div class="header-text">
       <h1>Elite Athlete Sponsorship Applications</h1>
-      <p>Bermuda Department of Youth, Sport &amp; Recreation — 2025</p>
+      <p>Bermuda Department of Youth, Sport &amp; Recreation — 2026</p>
     </div>
     <div class="header-stats">
       <div class="hstat">
@@ -1164,7 +1164,7 @@ function exportCSV(data) {
   const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = 'elite_athlete_sponsorship_2025.csv'; a.click();
+  a.href = url; a.download = 'elite_athlete_sponsorship_2026.csv'; a.click();
   URL.revokeObjectURL(url);
   showToast('CSV exported — ' + data.length + ' applicants', 'success');
 }
@@ -1172,7 +1172,7 @@ function exportJSON(data) {
   const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = 'elite_athlete_sponsorship_2025.json'; a.click();
+  a.href = url; a.download = 'elite_athlete_sponsorship_2026.json'; a.click();
   URL.revokeObjectURL(url);
   showToast('JSON exported', 'success');
 }
@@ -1188,7 +1188,7 @@ function exportPrint(data) {
     <td>${appStatuses[a.id]||'Pending'}</td>
     <td>${a.uploadedFiles.length} file(s)</td>
   </tr>`).join('');
-  win.document.write(`<!DOCTYPE html><html><head><title>Elite Athlete Sponsorship 2025</title>
+  win.document.write(`<!DOCTYPE html><html><head><title>Elite Athlete Sponsorship 2026</title>
   <style>body{font-family:Arial,sans-serif;font-size:11px;}
   table{width:100%;border-collapse:collapse;}
   th{background:rgb(25,25,112);color:white;padding:8px;text-align:left;}
@@ -1197,7 +1197,7 @@ function exportPrint(data) {
   h1{color:rgb(25,25,112);font-size:16px;}
   .meta{color:#666;font-size:10px;margin-bottom:12px;}
   </style></head><body>
-  <h1>Elite Athlete Sponsorship Applications 2025</h1>
+  <h1>Elite Athlete Sponsorship Applications 2026</h1>
   <p class="meta">Bermuda Department of Youth, Sport &amp; Recreation | Exported: ${new Date().toLocaleDateString()} | Total: ${data.length} applicants</p>
   <table><thead><tr><th>#</th><th>Athlete</th><th>Sport</th><th>NSGB</th><th>Amount</th><th>Period</th><th>Status</th><th>Documents</th></tr></thead>
   <tbody>${rows}</tbody></table></body></html>`);
