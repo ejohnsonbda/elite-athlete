@@ -37,18 +37,33 @@
     /* ===== LOGIN SCREEN ===== */
     #login-screen {
       position: fixed; inset: 0; z-index: 9999;
-      background: linear-gradient(135deg, #1565C0 0%, #0D47A1 55%, #1a1060 100%);
+      background: #0D47A1;
       display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    #login-video-bg {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      z-index: 0;
+      opacity: 0.55;
+    }
+    #login-video-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(21,101,192,0.65) 0%, rgba(13,71,161,0.72) 55%, rgba(26,16,96,0.78) 100%);
+      z-index: 1;
     }
     .login-box {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.15);
+      position: relative;
+      z-index: 2;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.20);
       border-radius: 20px;
       padding: 48px 40px;
       width: 100%; max-width: 420px;
       text-align: center;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 8px 48px rgba(0,0,0,0.5);
     }
     .login-logo {
       width: 72px; height: 72px;
@@ -465,6 +480,12 @@
 
 <!-- ===== LOGIN SCREEN ===== -->
 <div id="login-screen">
+  <!-- Video background -->
+  <video id="login-video-bg" autoplay muted loop playsinline preload="auto">
+    <source src="login-bg.mp4" type="video/mp4">
+  </video>
+  <!-- Color overlay -->
+  <div id="login-video-overlay"></div>
   <div class="login-box">
     <div class="login-logo">🏅</div>
     <h1>Elite Athlete Sponsorship</h1>
