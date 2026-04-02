@@ -10,8 +10,8 @@
     /* ===== RESET & BASE ===== */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --navy:   #1565C0;
-      --navy2:  #1976D2;
+      --navy:   rgb(25,25,112);
+      --navy2:  rgb(40,40,140);
       --white:  #FFFFFF;
       --gold:   #E91E8C;
       --gold2:  #F06AB0;
@@ -21,8 +21,8 @@
       --gray3:  #9BA3B8;
       --text:   #1A2340;
       --border: #D0D5E8;
-      --shadow: 0 2px 12px rgba(21,101,192,0.10);
-      --shadow2: 0 4px 24px rgba(21,101,192,0.18);
+      --shadow: 0 2px 12px rgba(25,25,112,0.12);
+      --shadow2: 0 4px 24px rgba(25,25,112,0.20);
       --green:  #2e7d32;
       --red:    #c62828;
     }
@@ -37,7 +37,7 @@
     /* ===== LOGIN SCREEN ===== */
     #login-screen {
       position: fixed; inset: 0; z-index: 9999;
-      background: #0D47A1;
+      background: rgb(25,25,112);
       display: flex; align-items: center; justify-content: center;
       overflow: hidden;
     }
@@ -50,7 +50,7 @@
     }
     #login-video-overlay {
       position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(21,101,192,0.65) 0%, rgba(13,71,161,0.72) 55%, rgba(26,16,96,0.78) 100%);
+      background: linear-gradient(135deg, rgba(233,30,140,0.40) 0%, rgba(25,25,112,0.40) 100%);
       z-index: 1;
     }
     .login-box {
@@ -1191,10 +1191,10 @@ function exportPrint(data) {
   win.document.write(`<!DOCTYPE html><html><head><title>Elite Athlete Sponsorship 2025</title>
   <style>body{font-family:Arial,sans-serif;font-size:11px;}
   table{width:100%;border-collapse:collapse;}
-  th{background:#1565C0;color:white;padding:8px;text-align:left;}
+  th{background:rgb(25,25,112);color:white;padding:8px;text-align:left;}
   td{padding:6px 8px;border-bottom:1px solid #eee;}
   tr:nth-child(even){background:#fce4f0;}
-  h1{color:#1565C0;font-size:16px;}
+  h1{color:rgb(25,25,112);font-size:16px;}
   .meta{color:#666;font-size:10px;margin-bottom:12px;}
   </style></head><body>
   <h1>Elite Athlete Sponsorship Applications 2025</h1>
@@ -1208,8 +1208,8 @@ function exportPrint(data) {
 // CHARTS
 // ============================================================
 function initCharts() {
-  const navy='#1565C0', gold='#E91E8C', navy2='#1976D2', gold2='#F06AB0';
-  const colors=['#E91E8C','#1565C0','#F06AB0','#1976D2','#9C27B0','#0288D1','#F48FB1','#42A5F5','#CE93D8','#26C6DA','#AD1457','#1E88E5','#E040FB','#039BE5','#880E4F'];
+  const navy='rgb(25,25,112)', gold='#E91E8C', navy2='rgb(40,40,140)', gold2='#F06AB0';
+  const colors=['#E91E8C','rgb(25,25,112)','#F06AB0','rgb(40,40,140)','#9C27B0','#0288D1','#F48FB1','#42A5F5','#CE93D8','#26C6DA','#AD1457','#1E88E5','#E040FB','#039BE5','#880E4F'];
 
   // Sports
   const sportCounts={};
@@ -1284,7 +1284,7 @@ function initCharts() {
   new Chart(document.getElementById('chart-status'),{
     type:'doughnut',
     data:{labels:Object.keys(statusCounts),datasets:[{data:Object.values(statusCounts),
-      backgroundColor:[gold,'#1565C0','#2e7d32','#c62828'],borderWidth:2,borderColor:'#fff'}]},
+      backgroundColor:[gold,'rgb(25,25,112)','#2e7d32','#c62828'],borderWidth:2,borderColor:'#fff'}]},
     options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:14}}}}
   });
