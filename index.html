@@ -1340,58 +1340,95 @@ async function dbClearShortlist() {
 // ============================================================
 // AUTH
 // ============================================================
-const ACCESS_CODES = [
-  'juren','safehands'
-];
+
+// Valid access codes (case-insensitive — stored and compared in lowercase)
+const ACCESS_CODES = ['juren', 'safehands'];
+
+// Normalise any input to lowercase for comparison
+function normaliseCode(raw) {
+  return (raw || '').trim().toLowerCase();
+}
+
+// Boot the app shell for a validated code
+async function bootApp(code) {
+  currentUserCode = code;
+  // Persist session so page refresh keeps the user logged in
+  sessionStorage.setItem('eas_auth', '1');
+  sessionStorage.setItem('eas_code', code);
+  // Load local session cache first for instant render
+  loadShortlist();
+  loadStatuses();
+  // Then sync from Supabase (per-user scoped by access code)
+  await dbLoadUserData(code);
+  // Show app, hide login
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app-shell').style.display = 'block';
+  renderTable();
+  updateStats();
+  document.getElementById('shortlist-count-badge').textContent = shortlisted.size + ' shortlisted';
+}
+
 async function attemptLogin() {
   const input = document.getElementById('access-code-input');
   const errEl = document.getElementById('login-error');
   const btn   = document.getElementById('login-btn');
-  const code  = input.value.trim().toLowerCase();
+  const code  = normaliseCode(input.value);
+
   if (ACCESS_CODES.includes(code)) {
-    btn.textContent = 'Loading...'; btn.disabled = true;
-    currentUserCode = code;
-    sessionStorage.setItem('eas_auth','1');
-    sessionStorage.setItem('eas_code', code);
-    loadShortlist();
-    loadStatuses();
-    await dbLoadUserData(code);
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app-shell').style.display = 'block';
+    // Valid — show loading state and boot
+    btn.textContent = 'Loading…'; btn.disabled = true;
     errEl.textContent = '';
-    btn.textContent = 'Sign In'; btn.disabled = false;
-    renderTable(); updateStats();
-    document.getElementById('shortlist-count-badge').textContent = shortlisted.size + ' shortlisted';
+    try {
+      await bootApp(code);
+    } catch (e) {
+      console.error('Boot error:', e);
+      showToast('Login error — please try again', 'info');
+    } finally {
+      btn.textContent = 'Sign In'; btn.disabled = false;
+    }
   } else {
+    // Invalid — shake and clear
     errEl.textContent = 'Invalid access code. Please try again.';
     input.classList.add('error');
     input.value = '';
-    setTimeout(() => input.classList.remove('error'), 600);
-    input.focus();
+    setTimeout(() => { input.classList.remove('error'); input.focus(); }, 600);
   }
 }
+
 function signOut() {
+  // Clear all session state
   sessionStorage.removeItem('eas_auth');
   sessionStorage.removeItem('eas_code');
+  sessionStorage.removeItem('eas_shortlist');
+  sessionStorage.removeItem('eas_statuses');
   currentUserCode = null;
   shortlisted = new Set();
   appStatuses = {};
+  chartsInitialized = false;
+  // Reset UI
   document.getElementById('app-shell').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('access-code-input').value = '';
   document.getElementById('login-error').textContent = '';
+  // Reset nav to Applications tab
+  document.querySelectorAll('.nav-tab').forEach((t, i) => t.classList.toggle('active', i === 0));
+  document.querySelectorAll('.view').forEach((v, i) => v.classList.toggle('active', i === 0));
 }
-(async function() {
-  const code = sessionStorage.getItem('eas_code');
-  if (sessionStorage.getItem('eas_auth') === '1' && code) {
-    currentUserCode = code;
-    loadShortlist();
-    loadStatuses();
-    await dbLoadUserData(code);
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app-shell').style.display = 'block';
-    renderTable(); updateStats();
-    document.getElementById('shortlist-count-badge').textContent = shortlisted.size + ' shortlisted';
+
+// Auto-restore session on page load
+(async function initSession() {
+  const savedCode = sessionStorage.getItem('eas_code');
+  const isAuthed  = sessionStorage.getItem('eas_auth') === '1';
+  // Guard: only restore if the saved code is still a valid access code
+  if (isAuthed && savedCode && ACCESS_CODES.includes(normaliseCode(savedCode))) {
+    try {
+      await bootApp(normaliseCode(savedCode));
+    } catch (e) {
+      console.error('Session restore error:', e);
+      // If restore fails, fall back to login screen cleanly
+      sessionStorage.removeItem('eas_auth');
+      sessionStorage.removeItem('eas_code');
+    }
   }
 })();
 </script>
