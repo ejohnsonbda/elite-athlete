@@ -1341,14 +1341,13 @@ async function dbClearShortlist() {
 // AUTH
 // ============================================================
 const ACCESS_CODES = [
-  'EAS001','EAS002','EAS003','EAS004','EAS005',
-  'ELITE1','ELITE2','ELITE3','ADMIN1','REVIEW1'
+  'juren','safehands'
 ];
 async function attemptLogin() {
   const input = document.getElementById('access-code-input');
   const errEl = document.getElementById('login-error');
   const btn   = document.getElementById('login-btn');
-  const code  = input.value.trim().toUpperCase();
+  const code  = input.value.trim().toLowerCase();
   if (ACCESS_CODES.includes(code)) {
     btn.textContent = 'Loading...'; btn.disabled = true;
     currentUserCode = code;
