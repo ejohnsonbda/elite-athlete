@@ -66,6 +66,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--gray);color:var(--
 
 /* ── APP SHELL ── */
 #app-shell{display:none}
+#app-shell.visible{display:block!important}
 
 /* ── HEADER ── */
 .app-header{
@@ -445,8 +446,8 @@ function attemptLogin() {
 function bootApp() {
   const ls = document.getElementById('login-screen');
   const shell = document.getElementById('app-shell');
-  if (ls) ls.style.cssText = 'display:none!important';
-  if (shell) { shell.style.display = 'block'; shell.style.visibility = 'visible'; }
+  if (ls) ls.style.display = 'none';
+  if (shell) shell.classList.add('visible');
   filtered = [...REGISTRATIONS];
   renderTable();
   renderReports();
