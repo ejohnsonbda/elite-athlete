@@ -443,8 +443,10 @@ function attemptLogin() {
 }
 
 function bootApp() {
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app-shell').style.display = 'block';
+  const ls = document.getElementById('login-screen');
+  const shell = document.getElementById('app-shell');
+  if (ls) ls.style.cssText = 'display:none!important';
+  if (shell) { shell.style.display = 'block'; shell.style.visibility = 'visible'; }
   filtered = [...REGISTRATIONS];
   renderTable();
   renderReports();
@@ -456,9 +458,6 @@ function signOut() {
   ['portal_auth','portal_code'].forEach(k => sessionStorage.removeItem(k));
   currentUserCode = null;
   window.location.href = 'index.html';
-} else {
-    window.location.href = 'index.html';
-  }
 }
 
 // ── STATE ─────────────────────────────────────────────────────────────────
