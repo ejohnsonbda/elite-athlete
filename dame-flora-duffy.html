@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dame Flora Duffy Award 2026</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <style>
+    :root {
+      --navy: rgb(25,25,112);
+      --navy-light: rgba(25,25,112,0.08);
+      --pink: #E91E8C;
+      --pink-light: rgba(233,30,140,0.10);
+      --pink-mid: rgba(233,30,140,0.25);
+      --white: #ffffff;
+      --gray-50: #f8f9fa;
+      --gray-100: #f0f2f5;
+      --gray-200: #e2e6ea;
+      --gray-300: #ced4da;
+      --gray-500: #6c757d;
+      --gray-700: #495057;
+      --gray-900: #212529;
+      --gold: #E91E8C;
+      --shadow: 0 2px 12px rgba(25,25,112,0.10);
+      --shadow-lg: 0 8px 32px rgba(25,25,112,0.15);
+      --radius: 10px;
+      --radius-sm: 6px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--gray-100); color: var(--gray-900); min-height: 100vh; }
+
+    /* HEADER */
+    .header { background: linear-gradient(135deg, var(--navy) 0%, rgb(40,40,140) 100%); color: white; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 64px; box-shadow: var(--shadow-lg); position: sticky; top: 0; z-index: 100; }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .back-btn { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s; }
+    .back-btn:hover { background: rgba(255,255,255,0.25); }
+    .header-title { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+    .header-sub { font-size: 12px; opacity: 0.75; margin-top: 1px; }
+    .header-stats { display: flex; gap: 28px; align-items: center; }
+    .stat-item { text-align: center; }
+    .stat-num { font-size: 20px; font-weight: 800; color: var(--pink); line-height: 1; }
+    .stat-label { font-size: 10px; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+    .sign-out-btn { background: rgba(233,30,140,0.2); border: 1px solid rgba(233,30,140,0.4); color: white; padding: 7px 16px; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s; }
+    .sign-out-btn:hover { background: rgba(233,30,140,0.35); }
+
+    /* TABS */
+    .tabs { background: white; border-bottom: 2px solid var(--gray-200); display: flex; padding: 0 24px; gap: 4px; }
+    .tab { padding: 14px 20px; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--gray-500); border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
+    .tab.active { color: var(--navy); border-bottom-color: var(--pink); font-weight: 700; }
+    .tab:hover:not(.active) { color: var(--navy); background: var(--gray-50); }
+
+    /* CONTENT */
+    .content { padding: 24px; max-width: 1400px; margin: 0 auto; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* TOOLBAR */
+    .toolbar { background: white; border-radius: var(--radius); padding: 16px 20px; margin-bottom: 20px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; box-shadow: var(--shadow); }
+    .search-box { flex: 1; min-width: 200px; padding: 9px 14px; border: 1.5px solid var(--gray-200); border-radius: var(--radius-sm); font-size: 14px; outline: none; transition: border-color 0.2s; }
+    .search-box:focus { border-color: var(--pink); }
+    .filter-select { padding: 9px 12px; border: 1.5px solid var(--gray-200); border-radius: var(--radius-sm); font-size: 13px; outline: none; background: white; cursor: pointer; }
+    .filter-select:focus { border-color: var(--pink); }
+    .results-count { font-size: 13px; color: var(--gray-500); white-space: nowrap; margin-left: auto; }
+    .btn-primary { background: var(--pink); color: white; border: none; padding: 9px 18px; border-radius: var(--radius-sm); cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s; white-space: nowrap; }
+    .btn-primary:hover { background: #c4186e; transform: translateY(-1px); }
+    .btn-secondary { background: white; color: var(--navy); border: 1.5px solid var(--gray-200); padding: 9px 18px; border-radius: var(--radius-sm); cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s; }
+    .btn-secondary:hover { border-color: var(--navy); background: var(--navy-light); }
+
+    /* TABLE */
+    .table-wrap { background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead th { background: var(--navy); color: white; padding: 12px 14px; text-align: left; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+    tbody tr { border-bottom: 1px solid var(--gray-100); transition: background 0.15s; }
+    tbody tr:hover { background: var(--gray-50); }
+    tbody tr.shortlisted { background: var(--pink-light); }
+    tbody td { padding: 12px 14px; vertical-align: middle; }
+    .star-btn { background: none; border: none; cursor: pointer; font-size: 18px; color: var(--gray-300); transition: all 0.2s; padding: 2px 6px; }
+    .star-btn.active { color: var(--pink); }
+    .star-btn:hover { transform: scale(1.2); }
+    .sport-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; background: var(--navy-light); color: var(--navy); white-space: nowrap; }
+    .amount { font-weight: 700; color: var(--pink); }
+    .file-chip { display: inline-block; background: #e3f0ff; color: #1565C0; border-radius: 4px; padding: 2px 8px; font-size: 11px; margin: 2px; text-decoration: none; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
+    .file-chip:hover { background: #bbdefb; }
+    .status-select { padding: 5px 8px; border: 1.5px solid var(--gray-200); border-radius: var(--radius-sm); font-size: 12px; background: white; cursor: pointer; min-width: 120px; }
+    .status-select:focus { border-color: var(--pink); outline: none; }
+    .view-btn { background: var(--navy); color: white; border: none; padding: 5px 12px; border-radius: var(--radius-sm); cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s; }
+    .view-btn:hover { background: var(--pink); }
+
+    /* SHORTLIST TAB */
+    .shortlist-info { background: white; border-radius: var(--radius); padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .shortlist-info h3 { font-size: 16px; color: var(--navy); }
+    .shortlist-actions { display: flex; gap: 10px; }
+    .shortlist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+    .shortlist-card { background: white; border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); border-left: 4px solid var(--pink); }
+    .shortlist-card h4 { font-size: 15px; color: var(--navy); margin-bottom: 4px; }
+    .shortlist-card .meta { font-size: 12px; color: var(--gray-500); margin-bottom: 8px; }
+    .shortlist-card .amount { font-size: 16px; font-weight: 800; color: var(--pink); }
+    .shortlist-empty { text-align: center; padding: 60px 20px; color: var(--gray-500); }
+    .shortlist-empty .icon { font-size: 48px; margin-bottom: 12px; }
+
+    /* ANALYTICS */
+    .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 20px; }
+    .chart-card { background: white; border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
+    .chart-card h3 { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .chart-wrap { position: relative; height: 260px; }
+
+    /* MODAL */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(25,25,112,0.55); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: white; border-radius: 14px; max-width: 780px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 64px rgba(25,25,112,0.25); }
+    .modal-header { background: linear-gradient(135deg, var(--navy), rgb(40,40,140)); color: white; padding: 24px 28px; border-radius: 14px 14px 0 0; position: sticky; top: 0; z-index: 1; }
+    .modal-header h2 { font-size: 20px; font-weight: 800; }
+    .modal-header .sub { font-size: 13px; opacity: 0.8; margin-top: 4px; }
+    .modal-close { position: absolute; top: 18px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+    .modal-close:hover { background: rgba(255,255,255,0.35); }
+    .modal-body { padding: 28px; }
+    .modal-section { margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--gray-100); }
+    .modal-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .modal-section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--pink); background: var(--pink-light); padding: 6px 12px; border-radius: 4px; margin-bottom: 14px; display: inline-block; }
+    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .modal-field label { font-size: 11px; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 3px; }
+    .modal-field p { font-size: 14px; color: var(--gray-900); font-weight: 500; }
+    .modal-field.full { grid-column: 1 / -1; }
+    .modal-field p.long { font-size: 13px; line-height: 1.6; color: var(--gray-700); white-space: pre-wrap; }
+    .modal-file-btn { display: inline-flex; align-items: center; gap: 6px; background: #e3f0ff; color: #1565C0; border-radius: 6px; padding: 6px 12px; font-size: 12px; text-decoration: none; margin: 4px; transition: background 0.2s; }
+    .modal-file-btn:hover { background: #bbdefb; }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 24px; right: 24px; background: var(--pink); color: white; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; z-index: 9999; opacity: 0; transform: translateY(10px); transition: all 0.3s; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 768px) {
+      .header { flex-wrap: wrap; height: auto; padding: 12px; gap: 8px; }
+      .header-stats { display: none; }
+      .modal-grid { grid-template-columns: 1fr; }
+      .charts-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <a href="portal.html" class="back-btn">← Portal</a>
+    <div>
+      <div class="header-title">Dame Flora Duffy Award 2026</div>
+      <div class="header-sub">2026 Applications Dashboard</div>
+    </div>
+  </div>
+  <div class="header-stats">
+    <div class="stat-item"><div class="stat-num" id="hTotalApps">3</div><div class="stat-label">Applications</div></div>
+    <div class="stat-item"><div class="stat-num" id="hTotalAmt">$20,000K</div><div class="stat-label">Requested</div></div>
+    <div class="stat-item"><div class="stat-num">3</div><div class="stat-label">Sports</div></div>
+  </div>
+  <button class="sign-out-btn" onclick="signOut()">Sign Out</button>
+</div>
+
+<div class="tabs">
+  <div class="tab active" id="tab-applications" onclick="switchTab('applications')">Applications</div>
+  <div class="tab" id="tab-shortlist" onclick="switchTab('shortlist')">Shortlist <span id="shortlistCount"></span></div>
+  <div class="tab" id="tab-analytics" onclick="switchTab('analytics')">Analytics</div>
+</div>
+
+<div class="content">
+
+  <!-- APPLICATIONS TAB -->
+  <div class="tab-panel active" id="panel-applications">
+    <div class="toolbar">
+      <input type="text" id="searchBox" class="search-box" placeholder="Search athlete, NSGB, sport..." oninput="applyFilters()">
+      <select id="filterSport" class="filter-select" onchange="applyFilters()">
+        <option value="">All Sports</option>
+        <option value="Athletics">Athletics</option>
+<option value="Equestrian">Equestrian</option>
+<option value="Sailing">Sailing</option>
+      </select>
+      <select id="filterStatus" class="filter-select" onchange="applyFilters()">
+        <option value="">All Statuses</option>
+        <option value="Pending">Pending</option>
+        <option value="Under Review">Under Review</option>
+        <option value="Approved">Approved</option>
+        <option value="Declined">Declined</option>
+      </select>
+      <span class="results-count" id="resultsCount"></span>
+      <button class="btn-primary" onclick="exportCSV()">Export CSV</button>
+    </div>
+    <div class="table-wrap">
+      <table id="appTable">
+        <thead>
+          <tr>
+            <th></th>
+            <th>#</th>
+            <th>Athlete</th>
+            <th>Sport</th>
+            <th>NSGB</th>
+            <th>Level</th>
+            <th>Amount</th>
+            <th>Documents</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="appTableBody"></tbody>
+      </table>
+    </div>
+    <div id="pagination" style="display:flex;gap:8px;justify-content:center;margin-top:20px;"></div>
+  </div>
+
+  <!-- SHORTLIST TAB -->
+  <div class="tab-panel" id="panel-shortlist">
+    <div class="shortlist-info">
+      <h3>Shortlisted Athletes — <span id="shortlistTotal">0</span> selected</h3>
+      <div class="shortlist-actions">
+        <button class="btn-secondary" onclick="clearShortlist()">Clear All</button>
+        <button class="btn-primary" onclick="exportShortlistCSV()">Export Shortlist CSV</button>
+        <button class="btn-secondary" onclick="printShortlist()">Print</button>
+      </div>
+    </div>
+    <div id="shortlistContent"></div>
+  </div>
+
+  <!-- ANALYTICS TAB -->
+  <div class="tab-panel" id="panel-analytics">
+    <div class="charts-grid">
+      <div class="chart-card"><h3>Applications by Sport</h3><div class="chart-wrap"><canvas id="chartSport"></canvas></div></div>
+      <div class="chart-card"><h3>Amount Requested by Sport ($)</h3><div class="chart-wrap"><canvas id="chartAmount"></canvas></div></div>
+      <div class="chart-card"><h3>Application Status Overview</h3><div class="chart-wrap"><canvas id="chartStatus"></canvas></div></div>
+      <div class="chart-card"><h3>Documents Submitted</h3><div class="chart-wrap"><canvas id="chartDocs"></canvas></div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ===== AUTH =====
+  const ACCESS_CODES = ['juren','safehands'];
+  function normaliseCode(c) { return (c||'').trim().toLowerCase(); }
+  let currentUserCode = '';
+
+  (function initAuth() {
+    const auth = sessionStorage.getItem('portal_auth');
+    const code = normaliseCode(sessionStorage.getItem('portal_code'));
+    if (auth !== '1' || !ACCESS_CODES.includes(code)) {
+      window.location.href = 'index.html'; return;
+    }
+    currentUserCode = code;
+  })();
+
+  // ===== SUPABASE (lazy) =====
+  const SUPA_URL = 'https://urrarxkxwvrettozogtz.supabase.co';
+  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVycmFyeGt4d3ZyZXR0b3pvZ3R6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1NTM5MDksImV4cCI6MjA1OTEyOTkwOX0.yRFBfkTrJTjCgwBMiKBEAMTEJbqJGEJhGLaJnxYT3Ys';
+  let _supabase = null;
+  function getSupabase() {
+    if (!_supabase) _supabase = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+    return _supabase;
+  }
+
+  // ===== DATA =====
+  const APPLICANTS = [{"id": 1, "submissionId": "6522815826579112687", "submissionDate": "Apr 17, 2026", "nsgb": "Bermuda Equestrian Federation", "orgEmail": "lpmahoney@northrock.bm", "contacts": [{"name": "Carla Stempel", "email": "befcarla@gmail.com", "phone": ""}, {"name": "Lauren Mahoney", "email": "LPMahoney@northrock.bm", "phone": ""}, {"name": "Kristy Rego", "email": "kristybef@gmail.com", "phone": ""}], "athleteName": "Jessica Hosier", "athleteEmail": "", "sport": "Equestrian", "level": "", "programLocation": "", "programDetails": "Over the next 12-24 months, Jessica's focus is to further establish consistency at 1.30m level and continue improving her results in international competition, she aims to produce regular, clear rounds and competitive placings, while continuing to develop her partnership with her horse and progressing to higher levels. She aims to represent Bermuda at upcoming international competitions in the Netherlands, Belgium, Spain and the UK. She is working towards competing in the Under-25 Championships at Royal Windsor and at the London International Horse show. These prestigious classes represent key milestones in her development over the next two years.", "coaches": "Jocasta Symons - qualifications to be sent separately\nHarrison Hatteea - qualifications to be sent separately", "ltadStage": "", "pathwayAlignment": "", "outcomes": "Continued training and competition at the FEI level, internationally.", "fiscalYear": "FY27 (April 2026 - March 2027)", "amountRequested": "TBD", "totalAmountNum": 0.0, "remainingCosts": "", "repName": "Lauren Mahoney", "repPosition": "Board Member", "repDate": "Apr 17, 2026", "docFolder": "docs/dame-flora/The Dame Flora Duffy Award/6522815826579112687Jessica Hosier Bermuda Equestrian Federation", "uploadedFiles": ["J Hosier_Passport.docx", "Bermuda-Equestrian-Federation-04-17-2026.pdf"], "uploadedFilePaths": ["docs/dame-flora/The Dame Flora Duffy Award/6522815826579112687Jessica Hosier Bermuda Equestrian Federation/J Hosier_Passport.docx", "docs/dame-flora/The Dame Flora Duffy Award/6522815826579112687Jessica Hosier Bermuda Equestrian Federation/Bermuda-Equestrian-Federation-04-17-2026.pdf"], "hasDocuments": true}, {"id": 2, "submissionId": "6522670028254950850", "submissionDate": "Apr 17, 2026", "nsgb": "Bermuda National Athletics Association", "orgEmail": "athleticsbda@gmail.com", "contacts": [{"name": "Jarita Vickers", "email": "jarita.vickers@deloitte.com", "phone": "441-524-1309"}, {"name": "Syriah Lottimore", "email": "athleticsbda@gmail.com", "phone": "441-335-3313"}], "athleteName": "Nirobi Smith-Mills", "athleteEmail": "", "sport": "Athletics", "level": "", "programLocation": "", "programDetails": "Training camp dates (Provisional) - End of December - Beginning of January (Spain).  The focus of the camp in Spain will be warm weather training due to the cold months the UK experiences the warmer weather would be ideal for speed training leading up to the indoor season.\n\nEnd of March - Middle of April (South Africa).  The warm weather and higher altitude will be important is developing endurance and better physiological adaptations for the outdoor season that would fall soon after camp.", "coaches": "Coach : Kyle Bennett (Head Endurance Coach at Loughborough University). Coaching Qualifications: Level 3 Performance Coach England Athletics", "ltadStage": "", "pathwayAlignment": "", "outcomes": "1. Qulify for the Pan American Games and reach the Finals in 2027.\n2. Qualify for the 2028 Olympic Games and reach the semi finals for Bermuda. \n3. Break the Bermuda 800m national record which currently stands at 1:46.2 (personal best is 1:47.6)", "fiscalYear": "2026", "amountRequested": "$10,000.00", "totalAmountNum": 10000.0, "remainingCosts": "", "repName": "Jarita Vickers", "repPosition": "President", "repDate": "Apr 16, 2026", "docFolder": "docs/dame-flora/The Dame Flora Duffy Award/6522670028254950850Nirobi Smith-Mills Bermuda National Athletics Association", "uploadedFiles": ["Elite Athlete Sponsorship Budget Request (Nirobi Smith-Mills).xlsx", "Season Calendar 2026 Nirobi Smith-Mills.xlsx", "Bermuda-National-Athletics-Association-04-16-2026.pdf", "Nirobi Smith-Mills Passport.pdf"], "uploadedFilePaths": ["docs/dame-flora/The Dame Flora Duffy Award/6522670028254950850Nirobi Smith-Mills Bermuda National Athletics Association/Elite Athlete Sponsorship Budget Request (Nirobi Smith-Mills).xlsx", "docs/dame-flora/The Dame Flora Duffy Award/6522670028254950850Nirobi Smith-Mills Bermuda National Athletics Association/Season Calendar 2026 Nirobi Smith-Mills.xlsx", "docs/dame-flora/The Dame Flora Duffy Award/6522670028254950850Nirobi Smith-Mills Bermuda National Athletics Association/Bermuda-National-Athletics-Association-04-16-2026.pdf", "docs/dame-flora/The Dame Flora Duffy Award/6522670028254950850Nirobi Smith-Mills Bermuda National Athletics Association/Nirobi Smith-Mills Passport.pdf"], "hasDocuments": true}, {"id": 3, "submissionId": "6521477641428311058", "submissionDate": "Apr 16, 2026", "nsgb": "Bermuda Sailing Association", "orgEmail": "president@sailing.bm", "contacts": [{"name": "P. Somers Cooper", "email": "president@sailing.bm", "phone": "441 705 0955"}], "athleteName": "Sebastian Kempe", "athleteEmail": "", "sport": "Sailing", "level": "", "programLocation": "", "programDetails": "Format: A hybrid \"Elite Touring\" model. Sebastian operates within an international high-performance training group, providing access to world-class sparring partners that the local Bermudian fleet cannot replicate. Extensive travel is involved attending training camps and major regattas.  Training also often includes local camps with overseas elite sailors attending.\nDuration: Full-time professional cycle (48–50 weeks/year).\nFocus:\nTechnical: Refining \"vitals\" (leeway control, kinetic pumping techniques, and heavy-air hiking endurance) specific to the ILCA 7.\nTactical: Mastery of high-density fleet management—specifically starting line positioning and \"lanes\" in 60-boat Gold Fleet scenarios.\nData-Driven Review: Use of GPS tracking and video analysis to compare VMG (Velocity Made Good) against top-ranked peers.", "coaches": "Lead Coach: Charles Baillie Strong, Olympic Sailing Coach. An elite-level coach with a distinguished pedigree, Charles Baillie Strong brings the experience of four consecutive Olympic cycles, having coached athletes from emerging nations through to the world-class Podium programs of Great Britain. He leverages this diverse campaign experience to implement a high-performance framework centered on physical conditioning, technical mastery, and rigorous data analysis. A critical strategic asset is Baillie Strong’s extensive international network, which facilitates consistent high-level training opportunities alongside the world's top-ranked ILCA 7 athletes.", "ltadStage": "", "pathwayAlignment": "", "outcomes": "For the Athlete:\nPerformance: Consistent Top 15 finishes at ILCA 7 major regattas.\nQualification: Securing the LA28 Olympic spot for Bermuda at the earliest possible qualification regatta (2027 Worlds).\nRanking: Ascending to the Top 20 of the World Sailing Senior Rankings (currently ranked 26th).\n\nFor the NSGB (Bermuda Sailing Association):\nInspiration: Creating a visible, successful pathway that encourages the next generation of Bermudian youth sailors to stay in the sport.\nMetric Validation: Providing \"Proof of Concept\" to stakeholders and donors that the high-performance investment is yielding world-class results.\nOrganizational Growth: Strengthening ties with World Sailing and other Tier-1 nations through elite-level collaboration.", "fiscalYear": "2026-2027", "amountRequested": "$10,000.00", "totalAmountNum": 10000.0, "remainingCosts": "", "repName": "P. Somers Cooper", "repPosition": "President", "repDate": "Apr 16, 2026", "docFolder": "docs/dame-flora/The Dame Flora Duffy Award/6521477641428311058Sebastian Kempe Bermuda Sailing Association", "uploadedFiles": ["SK - Accomodation - 2026 World Championships.pdf", "SK - Example Invoice - Coaching.pdf", "BER - Passport - Sebastian.pdf", "SK - Itemized Budget_8864.pdf", "SK - 2027 Worlds - Travel.pdf", "Bermuda-Sailing-Association-04-16-2026.pdf", "SK - 2026 Worlds - Entry Fee and Charter - Item 5 and 6.pdf", "SK - 2026 Worlds - Travel.pdf"], "uploadedFilePaths": ["docs/dame-flora/The Dame Flora Duffy Award/6521477641428311058Sebastian Kempe Bermuda Sailing Association/SK - Accomodation - 2026 World Championships.pdf", "docs/dame-flora/The Dame Flora Duffy Award/6521477641428311058Sebastian Kempe Bermuda Sailing Association/SK - Example Invoice - Coaching.pdf", "docs/dame-flora/The Dame Flora Duffy Award/6521477641428311058Sebastian Kempe Bermuda Sailing Association/BER - Passport - Sebastian.pdf", "docs/dame-flora/The Dame Flora Duffy Award/6521477641428311058Sebastian Kempe Bermuda Sailing Association/SK - Itemized Budget_8864.pdf", "docs/dame-flora/The Dame Flora Duffy Award/6521477641428311058Sebastian Kempe Bermuda Sailing Association/SK - 2027 Worlds - Travel.pdf", "docs/dame-flora/The Dame Flora Duffy Award/6521477641428311058Sebastian Kempe Bermuda Sailing Association/Bermuda-Sailing-Association-04-16-2026.pdf", "docs/dame-flora/The Dame Flora Duffy Award/6521477641428311058Sebastian Kempe Bermuda Sailing Association/SK - 2026 Worlds - Entry Fee and Charter - Item 5 and 6.pdf", "docs/dame-flora/The Dame Flora Duffy Award/6521477641428311058Sebastian Kempe Bermuda Sailing Association/SK - 2026 Worlds - Travel.pdf"], "hasDocuments": true}];
+
+  const TABLE_PREFIX = 'dfd'; // dame flora duffy
+  const PAGE_SIZE = 20;
+  let statuses = {};
+  let shortlisted = new Set();
+  let filtered = [];
+  let currentPage = 1;
+  let chartsInit = false;
+
+  // ===== DB SYNC =====
+  async function loadDB() {
+    try {
+      const sb = getSupabase();
+      const [{data: sl}, {data: st}] = await Promise.all([
+        sb.from('dfd_shortlists').select('applicant_id').eq('access_code', currentUserCode),
+        sb.from('dfd_statuses').select('applicant_id,status').eq('access_code', currentUserCode)
+      ]);
+      if (sl) sl.forEach(r => shortlisted.add(r.applicant_id));
+      if (st) st.forEach(r => { statuses[r.applicant_id] = r.status; });
+      renderTable();
+      renderShortlist();
+    } catch(e) { console.warn('DB load failed', e); }
+  }
+
+  async function dbToggleShortlist(id, add) {
+    try {
+      const sb = getSupabase();
+      if (add) {
+        await sb.from('dfd_shortlists').upsert({access_code: currentUserCode, applicant_id: id}, {onConflict: 'access_code,applicant_id'});
+      } else {
+        await sb.from('dfd_shortlists').delete().eq('access_code', currentUserCode).eq('applicant_id', id);
+      }
+    } catch(e) { console.warn('Shortlist sync failed', e); }
+  }
+
+  async function dbSaveStatus(id, status) {
+    try {
+      const sb = getSupabase();
+      await sb.from('dfd_statuses').upsert({access_code: currentUserCode, applicant_id: id, status}, {onConflict: 'access_code,applicant_id'});
+    } catch(e) { console.warn('Status sync failed', e); }
+  }
+
+  // ===== FILTERS =====
+  function applyFilters() {
+    const q = document.getElementById('searchBox').value.toLowerCase();
+    const sport = document.getElementById('filterSport').value;
+    const status = document.getElementById('filterStatus').value;
+    filtered = APPLICANTS.filter(a => {
+      const matchQ = !q || [a.athleteName, a.nsgb, a.sport, a.level].join(' ').toLowerCase().includes(q);
+      const matchSport = !sport || a.sport === sport;
+      const matchStatus = !status || (statuses[a.id] || 'Pending') === status;
+      return matchQ && matchSport && matchStatus;
+    });
+    currentPage = 1;
+    renderTable();
+  }
+
+  // ===== RENDER TABLE =====
+  function renderTable() {
+    const start = (currentPage-1)*PAGE_SIZE;
+    const page = filtered.slice(start, start+PAGE_SIZE);
+    const tbody = document.getElementById('appTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = page.map(a => {
+      const isSL = shortlisted.has(a.id);
+      const status = statuses[a.id] || 'Pending';
+      const docs = (a.uploadedFiles||[]).map((f,i) =>
+        `<a href="${a.uploadedFilePaths[i]}" target="_blank" class="file-chip" title="${f}">${f.length>18?f.substring(0,18)+'…':f}</a>`
+      ).join('');
+      return `<tr class="${isSL?'shortlisted':''}">
+        <td><button class="star-btn ${isSL?'active':''}" onclick="toggleShortlist(${a.id})" title="Shortlist">${isSL?'★':'☆'}</button></td>
+        <td>${a.id}</td>
+        <td><strong>${a.athleteName||'—'}</strong><br><small style="color:#6c757d">${a.athleteEmail||''}</small></td>
+        <td><span class="sport-badge">${a.sport||'—'}</span></td>
+        <td>${a.nsgb||'—'}</td>
+        <td>${a.level||'—'}</td>
+        <td class="amount">${a.amountRequested||'TBD'}</td>
+        <td>${docs||'<span style="color:#aaa;font-size:11px">None</span>'}</td>
+        <td><select class="status-select" onchange="setStatus(${a.id},this.value)">
+          ${['Pending','Under Review','Approved','Declined'].map(s=>`<option value="${s}" ${status===s?'selected':''}>${s}</option>`).join('')}
+        </select></td>
+        <td><button class="view-btn" onclick="openModal(${a.id})">View</button></td>
+      </tr>`;
+    }).join('');
+    document.getElementById('resultsCount').textContent = `${filtered.length} of ${APPLICANTS.length} applications`;
+    renderPagination();
+  }
+
+  function renderPagination() {
+    const total = Math.ceil(filtered.length / PAGE_SIZE);
+    const pg = document.getElementById('pagination');
+    if (!pg) return;
+    if (total <= 1) { pg.innerHTML = ''; return; }
+    pg.innerHTML = Array.from({length: total}, (_,i) =>
+      `<button onclick="goPage(${i+1})" style="padding:6px 12px;border-radius:6px;border:1.5px solid ${currentPage===i+1?'var(--pink)':'var(--gray-200)'};background:${currentPage===i+1?'var(--pink)':'white'};color:${currentPage===i+1?'white':'var(--navy)'};cursor:pointer;font-weight:600">${i+1}</button>`
+    ).join('');
+  }
+
+  function goPage(p) { currentPage = p; renderTable(); window.scrollTo(0,0); }
+
+  // ===== SHORTLIST =====
+  function toggleShortlist(id) {
+    const add = !shortlisted.has(id);
+    if (add) shortlisted.add(id); else shortlisted.delete(id);
+    dbToggleShortlist(id, add);
+    renderTable();
+    renderShortlist();
+    updateShortlistCount();
+    showToast(add ? '★ Added to shortlist' : 'Removed from shortlist');
+  }
+
+  function updateShortlistCount() {
+    const el = document.getElementById('shortlistCount');
+    if (el) el.textContent = shortlisted.size > 0 ? `(${shortlisted.size})` : '';
+    const tot = document.getElementById('shortlistTotal');
+    if (tot) tot.textContent = shortlisted.size;
+  }
+
+  function renderShortlist() {
+    updateShortlistCount();
+    const container = document.getElementById('shortlistContent');
+    if (!container) return;
+    const items = APPLICANTS.filter(a => shortlisted.has(a.id));
+    if (items.length === 0) {
+      container.innerHTML = `<div class="shortlist-empty"><div class="icon">☆</div><p>No athletes shortlisted yet.</p><p style="margin-top:8px;font-size:13px">Click the star icon on any application to add them here.</p></div>`;
+      return;
+    }
+    container.innerHTML = `<div class="shortlist-grid">${items.map(a => `
+      <div class="shortlist-card">
+        <h4>${a.athleteName||a.nsgb}</h4>
+        <div class="meta">${a.sport} · ${a.nsgb}</div>
+        <div class="meta">${a.level||''} · Submitted ${a.submissionDate}</div>
+        <div class="amount">${a.amountRequested}</div>
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button class="view-btn" onclick="openModal(${a.id})">View</button>
+          <button class="btn-secondary" style="padding:5px 12px;font-size:12px" onclick="toggleShortlist(${a.id})">Remove</button>
+        </div>
+      </div>`).join('')}</div>`;
+  }
+
+  function clearShortlist() {
+    if (!confirm('Remove all athletes from shortlist?')) return;
+    shortlisted.forEach(id => dbToggleShortlist(id, false));
+    shortlisted.clear();
+    renderTable();
+    renderShortlist();
+    showToast('Shortlist cleared');
+  }
+
+  function exportShortlistCSV() {
+    const items = APPLICANTS.filter(a => shortlisted.has(a.id));
+    if (items.length === 0) { showToast('No athletes shortlisted'); return; }
+    const headers = ['#','Athlete','Email','Sport','NSGB','Level','Amount','Status','Submitted'];
+    const rows = items.map(a => [a.id, a.athleteName||'', a.athleteEmail||'', a.sport||'', a.nsgb||'', a.level||'', a.amountRequested||'', statuses[a.id]||'Pending', a.submissionDate||'']);
+    const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('
+');
+    const blob = new Blob([csv], {type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'DFD_Shortlist_2026.csv'; a.click();
+    URL.revokeObjectURL(url);
+    showToast('Shortlist exported!');
+  }
+
+  function printShortlist() {
+    const items = APPLICANTS.filter(a => shortlisted.has(a.id));
+    if (items.length === 0) { showToast('No athletes shortlisted'); return; }
+    const win = window.open('','_blank');
+    win.document.write(`<html><head><title>DFD Shortlist 2026</title><style>body{font-family:sans-serif;padding:20px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px;font-size:12px}th{background:#191970;color:white}</style></head><body>
+      <h2>Dame Flora Duffy Award 2026 — Shortlist</h2>
+      <p>Generated: ${new Date().toLocaleDateString()}</p>
+      <table><thead><tr><th>#</th><th>Athlete</th><th>Sport</th><th>NSGB</th><th>Level</th><th>Amount</th><th>Status</th></tr></thead>
+      <tbody>${items.map(a=>`<tr><td>${a.id}</td><td>${a.athleteName||''}</td><td>${a.sport||''}</td><td>${a.nsgb||''}</td><td>${a.level||''}</td><td>${a.amountRequested}</td><td>${statuses[a.id]||'Pending'}</td></tr>`).join('')}</tbody></table>
+    </body></html>`);
+    win.document.close(); win.print();
+  }
+
+  // ===== STATUS =====
+  function setStatus(id, status) {
+    statuses[id] = status;
+    dbSaveStatus(id, status);
+    showToast(`Status updated to ${status}`);
+  }
+
+  // ===== EXPORT =====
+  function exportCSV() {
+    const headers = ['#','Athlete','Email','Sport','NSGB','Level','Amount','Status','Documents','Submitted'];
+    const rows = filtered.map(a => [a.id, a.athleteName||'', a.athleteEmail||'', a.sport||'', a.nsgb||'', a.level||'', a.amountRequested||'', statuses[a.id]||'Pending', (a.uploadedFiles||[]).join('; '), a.submissionDate||'']);
+    const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('
+');
+    const blob = new Blob([csv], {type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'DFD_Applications_2026.csv'; a.click();
+    URL.revokeObjectURL(url);
+    showToast('Exported!');
+  }
+
+  // ===== MODAL =====
+  function openModal(id) {
+    const a = APPLICANTS.find(x => x.id === id);
+    if (!a) return;
+    const docs = (a.uploadedFiles||[]).map((f,i) =>
+      `<a href="${a.uploadedFilePaths[i]}" target="_blank" class="modal-file-btn">📄 ${f}</a>`
+    ).join('');
+    const contacts = (a.contacts||[]).map(c =>
+      `<div style="font-size:13px;margin-bottom:4px"><strong>${c.name}</strong> ${c.email?'· '+c.email:''} ${c.phone?'· '+c.phone:''}</div>`
+    ).join('');
+    document.getElementById('modalContent').innerHTML = `
+      <div class="modal-header" style="position:relative">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <h2>${a.athleteName||a.nsgb}</h2>
+        <div class="sub">${a.sport} · ${a.nsgb} · ${a.amountRequested}</div>
+      </div>
+      <div class="modal-body">
+        <div class="modal-section">
+          <span class="modal-section-title">Organisation</span>
+          <div class="modal-grid">
+            <div class="modal-field"><label>NSGB</label><p>${a.nsgb||'—'}</p></div>
+            <div class="modal-field"><label>Email</label><p>${a.orgEmail||'—'}</p></div>
+            <div class="modal-field full"><label>Contacts</label>${contacts||'<p>—</p>'}</div>
+          </div>
+        </div>
+        <div class="modal-section">
+          <span class="modal-section-title">Athlete</span>
+          <div class="modal-grid">
+            <div class="modal-field"><label>Name</label><p>${a.athleteName||'—'}</p></div>
+            <div class="modal-field"><label>Email</label><p>${a.athleteEmail||'—'}</p></div>
+            <div class="modal-field"><label>Sport</label><p>${a.sport||'—'}</p></div>
+            <div class="modal-field"><label>Level</label><p>${a.level||'—'}</p></div>
+          </div>
+        </div>
+        <div class="modal-section">
+          <span class="modal-section-title">Development Programme</span>
+          <div class="modal-grid">
+            <div class="modal-field full"><label>Location</label><p>${a.programLocation||'—'}</p></div>
+            <div class="modal-field full"><label>Programme Details</label><p class="long">${a.programDetails||'—'}</p></div>
+            <div class="modal-field full"><label>Coaches</label><p class="long">${a.coaches||'—'}</p></div>
+            <div class="modal-field full"><label>LTAD Stage</label><p class="long">${a.ltadStage||'—'}</p></div>
+            <div class="modal-field full"><label>Pathway Alignment</label><p class="long">${a.pathwayAlignment||'—'}</p></div>
+            <div class="modal-field full"><label>Expected Outcomes (2 years)</label><p class="long">${a.outcomes||'—'}</p></div>
+          </div>
+        </div>
+        <div class="modal-section">
+          <span class="modal-section-title">Budget</span>
+          <div class="modal-grid">
+            <div class="modal-field"><label>Amount Requested</label><p style="color:var(--pink);font-weight:800;font-size:18px">${a.amountRequested}</p></div>
+            <div class="modal-field"><label>Fiscal Year</label><p>${a.fiscalYear||'—'}</p></div>
+            <div class="modal-field full"><label>Remaining Cost Arrangements</label><p class="long">${a.remainingCosts||'—'}</p></div>
+          </div>
+        </div>
+        ${docs ? `<div class="modal-section"><span class="modal-section-title">Documents</span><div style="margin-top:4px">${docs}</div></div>` : ''}
+        <div class="modal-section">
+          <span class="modal-section-title">Authorisation</span>
+          <div class="modal-grid">
+            <div class="modal-field"><label>Representative</label><p>${a.repName||'—'}</p></div>
+            <div class="modal-field"><label>Position</label><p>${a.repPosition||'—'}</p></div>
+            <div class="modal-field"><label>Date</label><p>${a.repDate||'—'}</p></div>
+          </div>
+        </div>
+      </div>`;
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+
+  function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+  function closeModalOutside(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+
+  // ===== TABS =====
+  function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-'+tab).classList.add('active');
+    document.getElementById('panel-'+tab).classList.add('active');
+    if (tab === 'shortlist') renderShortlist();
+    if (tab === 'analytics' && !chartsInit) { chartsInit = true; renderCharts(); }
+  }
+
+  // ===== CHARTS =====
+  function renderCharts() {
+    const COLORS = ['#E91E8C','rgb(25,25,112)','#42A5F5','#66BB6A','#FFA726','#AB47BC','#26C6DA','#EC407A','#7E57C2','#26A69A'];
+    const sportMap = {};
+    const amountMap = {};
+    APPLICANTS.forEach(a => {
+      const s = a.sport||'Other';
+      sportMap[s] = (sportMap[s]||0) + 1;
+      amountMap[s] = (amountMap[s]||0) + (a.totalAmountNum||0);
+    });
+    const statusMap = {};
+    APPLICANTS.forEach(a => {
+      const s = statuses[a.id]||'Pending';
+      statusMap[s] = (statusMap[s]||0) + 1;
+    });
+    const withDocs = APPLICANTS.filter(a => a.hasDocuments).length;
+    const noDocs = APPLICANTS.length - withDocs;
+
+    new Chart(document.getElementById('chartSport'), {type:'bar',data:{labels:Object.keys(sportMap),datasets:[{data:Object.values(sportMap),backgroundColor:COLORS}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}});
+    new Chart(document.getElementById('chartAmount'), {type:'bar',data:{labels:Object.keys(amountMap),datasets:[{data:Object.values(amountMap),backgroundColor:COLORS}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+    new Chart(document.getElementById('chartStatus'), {type:'doughnut',data:{labels:Object.keys(statusMap),datasets:[{data:Object.values(statusMap),backgroundColor:['#E91E8C','rgb(25,25,112)','#66BB6A','#EF5350']}]},options:{plugins:{legend:{position:'bottom'}}}});
+    new Chart(document.getElementById('chartDocs'), {type:'doughnut',data:{labels:['With Documents','No Documents'],datasets:[{data:[withDocs,noDocs],backgroundColor:['#E91E8C','#e0e0e0']}]},options:{plugins:{legend:{position:'bottom'}}}});
+  }
+
+  // ===== SIGN OUT =====
+  function signOut() {
+    ['portal_auth','portal_code','dfd_shortlist','dfd_statuses'].forEach(k => sessionStorage.removeItem(k));
+    window.location.href = 'index.html';
+  }
+
+  // ===== TOAST =====
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  // ===== INIT =====
+  filtered = [...APPLICANTS];
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      renderTable();
+      renderShortlist();
+      loadDB().catch(e => console.warn('DB sync failed', e));
+    });
+  } else {
+    renderTable();
+    renderShortlist();
+    loadDB().catch(e => console.warn('DB sync failed', e));
+  }
+</script>
+</body>
+</html>
