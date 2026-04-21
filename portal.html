@@ -173,7 +173,6 @@
         <p>Department of Youth, Sport &amp; Recreation — 2026</p>
       </div>
       <div class="header-right">
-        <div class="user-badge" id="userBadge">—</div>
         <button class="signout-btn" onclick="signOut()">Sign Out</button>
       </div>
     </div>
@@ -211,13 +210,13 @@
         </div>
       </a>
 
-      <!-- National Junior Athlete / Coaches Award -->
-      <a class="portal-card" href="junior-athlete.html">
+      <!-- National Junior Athlete — Coaches Award -->
+      <a class="portal-card" href="coaches-award.html">
         <div class="card-header">
-          <div class="card-icon blue">&#127891;</div>
+          <div class="card-icon blue">&#127941;</div>
           <div>
-            <div class="card-title">National Junior Athlete &amp; Coaches Award</div>
-            <div class="card-subtitle">2026 Applications</div>
+            <div class="card-title">National Junior Athlete — Coaches Award</div>
+            <div class="card-subtitle">2026 NSGB Applications</div>
           </div>
         </div>
         <div class="card-body">
@@ -230,6 +229,29 @@
         </div>
         <div class="card-footer">
           <span class="card-tag blue">Active</span>
+          <span class="card-arrow">&#8594;</span>
+        </div>
+      </a>
+
+      <!-- National Junior Athlete — Athletes Award -->
+      <a class="portal-card" href="athletes-award.html">
+        <div class="card-header">
+          <div class="card-icon green">&#127939;</div>
+          <div>
+            <div class="card-title">National Junior Athlete — Athletes Award</div>
+            <div class="card-subtitle">2026 Individual Applications</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Review individual athlete applications for junior development funding covering training, travel, competition entry, and pathway progression.</p>
+        </div>
+        <div class="card-stats">
+          <div class="cstat"><div class="cstat-num">10</div><div class="cstat-label">Athletes</div></div>
+          <div class="cstat"><div class="cstat-num">$45K</div><div class="cstat-label">Requested</div></div>
+          <div class="cstat"><div class="cstat-num">7</div><div class="cstat-label">Sports</div></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-tag green">Active</span>
           <span class="card-arrow">&#8594;</span>
         </div>
       </a>
@@ -259,7 +281,7 @@
         window.location.href = 'index.html';
         return;
       }
-      document.getElementById('userBadge').textContent = code;
+      // user badge removed for privacy
     })();
   </script>
 </body>

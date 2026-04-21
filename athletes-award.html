@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>National Junior Athlete Sponsorship — Athletes Award 2026</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: rgb(25,25,112);
+      --navy2: rgb(40,40,140);
+      --gold: #E91E63;
+      --gold2: #C2185B;
+      --bg: #f4f6f9;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --gray: #e2e8f0;
+      --gray2: #94a3b8;
+      --gray3: #64748b;
+      --shadow: 0 2px 12px rgba(25,25,112,0.10);
+      --shadow2: 0 8px 32px rgba(25,25,112,0.18);
+    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    .header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+      color: #fff; position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 16px rgba(25,25,112,0.25);
+    }
+    .header-inner {
+      max-width: 1600px; margin: 0 auto;
+      padding: 16px 32px; display: flex; align-items: center; gap: 18px;
+    }
+    .back-btn {
+      background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);
+      color: #fff; padding: 7px 14px; border-radius: 8px;
+      font-size: 0.82rem; font-weight: 600; cursor: pointer;
+      text-decoration: none; transition: background 0.2s; flex-shrink: 0;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.25); }
+    .header-text h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.3px; }
+    .header-text p { font-size: 0.78rem; opacity: 0.70; margin-top: 2px; }
+    .header-stats { margin-left: auto; display: flex; gap: 28px; }
+    .hstat { text-align: center; }
+    .hstat-num { font-size: 1.4rem; font-weight: 800; color: var(--gold2); line-height: 1; }
+    .hstat-label { font-size: 0.68rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px; }
+    .header-right { display: flex; align-items: center; gap: 12px; margin-left: 24px; }
+    .signout-btn {
+      background: rgba(233,30,99,0.25); border: 1px solid rgba(233,30,99,0.4);
+      color: #fff; padding: 6px 14px; border-radius: 8px;
+      font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: background 0.2s;
+    }
+    .signout-btn:hover { background: rgba(233,30,99,0.45); }
+
+    .nav-tabs { background: var(--navy); border-top: 1px solid rgba(255,255,255,0.08); }
+    .nav-inner { max-width: 1600px; margin: 0 auto; padding: 0 32px; display: flex; gap: 4px; }
+    .nav-tab {
+      padding: 12px 20px; color: rgba(255,255,255,0.65);
+      font-size: 0.88rem; font-weight: 600; cursor: pointer;
+      border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap;
+    }
+    .nav-tab:hover { color: #fff; }
+    .nav-tab.active { color: #fff; border-bottom-color: var(--gold); }
+
+    .main { max-width: 1600px; margin: 0 auto; padding: 24px 32px; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+    .search-box {
+      flex: 1; min-width: 200px; padding: 9px 14px;
+      border: 1px solid var(--gray); border-radius: 8px;
+      font-size: 0.88rem; outline: none; background: var(--card-bg);
+    }
+    .search-box:focus { border-color: var(--gold); }
+    .filter-select {
+      padding: 9px 12px; border: 1px solid var(--gray);
+      border-radius: 8px; font-size: 0.85rem; background: var(--card-bg); cursor: pointer; outline: none;
+    }
+    .filter-select:focus { border-color: var(--gold); }
+    .btn-primary {
+      padding: 9px 18px; background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
+      color: #fff; border: none; border-radius: 8px;
+      font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-secondary {
+      padding: 9px 18px; background: var(--card-bg);
+      color: var(--text); border: 1px solid var(--gray);
+      border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: background 0.2s;
+    }
+    .btn-secondary:hover { background: #f1f5f9; }
+    .results-count { color: var(--gray3); font-size: 0.85rem; white-space: nowrap; }
+
+    .table-wrap { overflow-x: auto; border-radius: 12px; box-shadow: var(--shadow); }
+    table { width: 100%; border-collapse: collapse; background: var(--card-bg); }
+    th {
+      background: var(--navy); color: #fff; padding: 12px 14px; text-align: left;
+      font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap;
+    }
+    td { padding: 12px 14px; border-bottom: 1px solid var(--gray); font-size: 0.88rem; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8fafc; }
+    tr.shortlisted td { background: #fce4ec; }
+
+    .sport-badge {
+      display: inline-block; padding: 3px 10px; border-radius: 20px;
+      font-size: 0.75rem; font-weight: 600; color: #fff; white-space: nowrap;
+    }
+    .status-select {
+      padding: 4px 8px; border-radius: 6px; border: 1px solid var(--gray);
+      font-size: 0.80rem; font-weight: 600; cursor: pointer; outline: none;
+    }
+    .status-Pending { background: #fef3c7; color: #b45309; }
+    .status-Under-Review { background: #e0f2fe; color: #0369a1; }
+    .status-Approved { background: #dcfce7; color: #15803d; }
+    .status-Declined { background: #fee2e2; color: #b91c1c; }
+    .star-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 2px 4px; transition: transform 0.15s; }
+    .star-btn:hover { transform: scale(1.2); }
+    .file-chip {
+      display: inline-block; padding: 2px 8px; margin: 2px;
+      background: #e3f2fd; color: #1565c0; border-radius: 4px;
+      font-size: 0.72rem; text-decoration: none; white-space: nowrap;
+    }
+    .file-chip:hover { background: #bbdefb; }
+    .view-btn {
+      padding: 5px 12px; background: var(--navy); color: #fff; border: none; border-radius: 6px;
+      font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: background 0.2s; white-space: nowrap;
+    }
+    .view-btn:hover { background: var(--navy2); }
+
+    .pagination { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 20px; }
+    .page-btn { padding: 6px 12px; border: 1px solid var(--gray); background: var(--card-bg); border-radius: 6px; font-size: 0.85rem; cursor: pointer; transition: all 0.15s; }
+    .page-btn:hover { background: #f1f5f9; }
+    .page-btn.active { background: var(--gold); color: #fff; border-color: var(--gold); }
+    .page-info { color: var(--gray3); font-size: 0.85rem; }
+
+    .shortlist-empty { text-align: center; padding: 60px 20px; color: var(--gray2); font-size: 1rem; }
+
+    .charts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 24px; }
+    .chart-card { background: var(--card-bg); border-radius: 12px; box-shadow: var(--shadow); padding: 24px; }
+    .chart-card h3 { font-size: 0.95rem; font-weight: 700; color: var(--navy); margin-bottom: 18px; }
+
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--card-bg); border-radius: 18px; width: 100%; max-width: 760px;
+      max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow2);
+    }
+    .modal-header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+      color: #fff; padding: 22px 28px; display: flex; align-items: center; gap: 16px;
+      border-radius: 18px 18px 0 0; position: sticky; top: 0; z-index: 10;
+    }
+    .modal-avatar {
+      width: 52px; height: 52px; border-radius: 50%; background: rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .modal-header-text h2 { font-size: 1.1rem; font-weight: 700; }
+    .modal-header-text p { font-size: 0.80rem; opacity: 0.75; margin-top: 2px; }
+    .modal-close {
+      margin-left: auto; background: rgba(255,255,255,0.15); border: none; color: #fff;
+      width: 34px; height: 34px; border-radius: 50%; font-size: 1.1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; transition: background 0.2s; flex-shrink: 0;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.3); }
+    .modal-body { padding: 28px; }
+    .modal-section {
+      background: #fce4ec22; border-radius: 10px; padding: 16px 18px; margin-bottom: 16px;
+      border-left: 3px solid var(--gold);
+    }
+    .modal-section h4 {
+      font-size: 0.78rem; font-weight: 700; color: var(--gold);
+      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;
+    }
+    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .modal-field label {
+      display: block; font-size: 0.75rem; color: var(--gray3);
+      font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 3px;
+    }
+    .modal-field p { font-size: 0.88rem; color: var(--text); white-space: pre-wrap; line-height: 1.5; }
+    .modal-field.full { grid-column: 1 / -1; }
+    .modal-file-btn {
+      display: inline-block; padding: 6px 12px; margin: 4px;
+      background: #e3f2fd; color: #1565c0; border-radius: 6px;
+      font-size: 0.80rem; font-weight: 600; text-decoration: none;
+    }
+    .modal-file-btn:hover { background: #bbdefb; }
+
+    @media (max-width: 768px) {
+      .header-inner { padding: 12px 16px; }
+      .header-stats { display: none; }
+      .main { padding: 16px; }
+      .modal-grid { grid-template-columns: 1fr; }
+      .charts-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-inner">
+      <a class="back-btn" href="portal.html">&#8592; Portal</a>
+      <div class="header-text">
+        <h1>National Junior Athlete Sponsorship &#8212; Athletes Award</h1>
+        <p>2026 Applications Dashboard</p>
+      </div>
+      <div class="header-stats">
+        <div class="hstat">
+          <div class="hstat-num" id="hTotalApps">10</div>
+          <div class="hstat-label">Applicants</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-num">$45K</div>
+          <div class="hstat-label">Requested</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-num">7</div>
+          <div class="hstat-label">Sports</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <button class="signout-btn" onclick="signOut()">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="nav-tabs">
+    <div class="nav-inner">
+      <div class="nav-tab active" onclick="switchTab('applications',this)">Applications</div>
+      <div class="nav-tab" onclick="switchTab('shortlist',this)">Shortlist <span id="shortlistCount"></span></div>
+      <div class="nav-tab" onclick="switchTab('analytics',this)">Analytics</div>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- APPLICATIONS TAB -->
+    <div class="tab-panel active" id="tab-applications">
+      <div class="toolbar">
+        <input class="search-box" id="searchBox" placeholder="Search athlete, NSGB, sport..." oninput="applyFilters()" />
+        <select class="filter-select" id="filterSport" onchange="applyFilters()">
+          <option value="">All Sports</option>
+          <option value="Athletics">Athletics</option><option value="Hockey">Hockey</option><option value="Motorsport">Motorsport</option><option value="Rugby">Rugby</option><option value="Sailing">Sailing</option><option value="Volleyball">Volleyball</option><option value="Wushu">Wushu</option>
+        </select>
+        <select class="filter-select" id="filterStatus" onchange="applyFilters()">
+          <option value="">All Statuses</option>
+          <option value="Pending">Pending</option>
+          <option value="Under Review">Under Review</option>
+          <option value="Approved">Approved</option>
+          <option value="Declined">Declined</option>
+        </select>
+        <span class="results-count" id="resultsCount"></span>
+        <button class="btn-primary" onclick="exportCSV()">Export CSV</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>#</th>
+              <th>Athlete</th>
+              <th>Sport</th>
+              <th>NSGB</th>
+              <th>Age</th>
+              <th>Level</th>
+              <th>Amount</th>
+              <th>Documents</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+
+    <!-- SHORTLIST TAB -->
+    <div class="tab-panel" id="tab-shortlist">
+      <div class="toolbar">
+        <span class="results-count" id="shortlistInfo"></span>
+        <button class="btn-primary" onclick="exportShortlistCSV()">Export Shortlist CSV</button>
+        <button class="btn-secondary" onclick="clearShortlist()">Clear All</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Athlete</th><th>Sport</th><th>NSGB</th><th>Amount</th><th>Status</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="shortlistBody"></tbody>
+        </table>
+      </div>
+      <div id="shortlistEmpty" class="shortlist-empty" style="display:none">No athletes shortlisted yet. Star an athlete in the Applications tab to add them here.</div>
+    </div>
+
+    <!-- ANALYTICS TAB -->
+    <div class="tab-panel" id="tab-analytics">
+      <div class="charts-grid">
+        <div class="chart-card"><h3>Applications by Sport</h3><canvas id="chartSport"></canvas></div>
+        <div class="chart-card"><h3>Amount Requested by Sport</h3><canvas id="chartAmount"></canvas></div>
+        <div class="chart-card"><h3>Application Status Overview</h3><canvas id="chartStatus"></canvas></div>
+        <div class="chart-card"><h3>Documents Submitted</h3><canvas id="chartDocs"></canvas></div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+    <div class="modal" id="modalContent"></div>
+  </div>
+
+  <script>
+  const ACCESS_CODES = ['juren','safehands'];
+  function normaliseCode(c) { return (c||'').trim().toLowerCase(); }
+  function signOut() {
+    ['portal_auth','portal_code'].forEach(k => sessionStorage.removeItem(k));
+    window.location.href = 'portal.html';
+  }
+
+  let currentUserCode = '';
+  (function initAuth() {
+    const auth = sessionStorage.getItem('portal_auth');
+    const code = normaliseCode(sessionStorage.getItem('portal_code'));
+    if (auth !== '1' || !ACCESS_CODES.includes(code)) {
+      window.location.href = 'index.html'; return;
+    }
+    currentUserCode = code;
+  })();
+
+  const SUPA_URL = 'https://urrarxkxwvrettozogtz.supabase.co';
+  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVycmFyeGt4d3ZyZXR0b3pvZ3R6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1NTM5MDksImV4cCI6MjA1OTEyOTkwOX0.yRFBfkTrJTjCgwBMiKBEAMTEJbqJGEJhGLaJnxYT3Ys';
+  const supabase = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+  const APPLICANTS = [{"id": 1, "submissionId": "6522900868612851191", "submissionDate": "Apr 17, 2026", "nsgb": "Bermuda Rugby Football Union", "nsgbEmail": "gemma@whitfield.bm", "firstName": "Nisaiah", "lastName": "Berkeley", "name": "Nisaiah Berkeley", "dob": "", "age": "", "gender": "", "phone": "", "address": "", "email": "nisaiahberkeley4@gmail.com", "bermudian": "Yes", "school": "Wheeling University", "grade": "GPA 3.8 (Senior)", "sportDiscipline": "Rugby (7s + XVs)", "sport": "Rugby", "yearsCompeting": "7", "competitionLevel": "International", "achievements": [{"event": "US National Championship", "date": "2024", "result": "National Champion (15s)"}, {"event": "US All Stars", "date": "2026", "result": "All Stars Champion"}, {"event": "Tropical 7s", "date": "2024", "result": "Tropical 7s Champion (with Lander)"}, {"event": "RAN 7s Mexico", "date": "2022", "result": "Represented Bermuda"}, {"event": "All Stars Programme", "date": "2025", "result": "Selected for the first High Performance 15s All Stars programme"}, {"event": "NCR Division 1 All-American", "date": "2026", "result": "Named NCR Division 1 All-American"}], "programName": "D1 varsity Wheeling Women’s Rugby Team (through NCAA)", "programDetails": "Nisaiah is continuing her rugby development during her senior year at Wheeling University, where she competes within a structured collegiate high-performance environment in the United States. In addition to her university commitments, she is also engaged with a competitive club rugby programme, allowing her to train and play year-round at a high level.\n\nHer weekly schedule includes multiple on-field training sessions focused on technical skill development, tactical understanding, and match preparation, alongside a comprehensive strength and conditioning programme designed to support performance, durability, and injury prevention. This dual commitment ensures consistent exposure to high-intensity competition and elite training standards.\n\nBeing named an NCR Division 1 All-American is a significant achievement, recognising her as one of the top collegiate players in the United States. With continued dedication to both her on-field performance and off-field physical development, she is well positioned to pursue further opportunities within the US rugby system while continuing to represent Bermuda at the international level.", "coachesInvolved": "Kenneth Pape - Past Coach (World Rugby Level 1 Coach: Coached us to National Championship at Lander and at Wheeling (where they won). 15 years of coaching experience.\n\nInterim Coach: Mike Geibel (USA Level 300/world rugby Level 2 rugby coach)\n\nCasey Killbane; Strength and conditioning coach", "ltadStage": "", "pathway": "The programme strongly aligns with Bermuda Rugby’s national pathway by placing Nisaiah in a competitive ecosystem that mirrors the demands of international rugby. Regular exposure to high-calibre collegiate and club competition in the United States accelerates her development and prepares her for the pace, physicality, and decision-making required at the international level.\n\nHer recognition as an NCR Division 1 All-American highlights her standing within this system and reinforces her readiness to contribute at an elite level. The combination of structured university programming and additional club competition ensures continuity of development throughout the year, which is essential given Bermuda’s limited domestic competition window.\n\nThis pathway supports her continued involvement in Bermuda’s national programmes, with the expectation that she will remain a key contributor to both 7s and 15s squads, bringing back enhanced experience, leadership, and performance standards to the national environment.", "outcomes": "Over the next two years, the expected outcomes for Nisaiah include continued progression as a high-performance athlete competing at the top tier of collegiate rugby in the United States, alongside sustained involvement in competitive club rugby. She is expected to further develop her physical capacity, technical consistency, and tactical leadership, positioning her for ongoing individual recognition and potential advancement within elite playing environments.\n\nFor Bermuda Rugby (NSGB), the programme is expected to yield a more experienced, physically prepared, and competition-ready national team player who can contribute meaningfully in regional and international competitions. Nisaiah’s continued development will strengthen the national squad depth and performance standards, while also serving as a visible example of the overseas pathway for emerging Bermudian athletes.\n\nAdditionally, her success supports Bermuda Rugby’s broader strategic objective of building sustainable high-performance pathways, demonstrating the value of aligning local development with international training environments to elevate the overall standard of the game.", "fiscalYear": "2026", "amountRequested": "4016.50", "totalNJASP": "4016.5", "totalAmountNum": 4016.5, "totalAmount": "$4,016.50", "remainingCosts": "", "repName": "Gemma Godfrey", "repPosition": "President", "repDate": "Apr 17, 2026", "repSignature": "https://www.jotform.com/uploads/Umindesign/260876077900867/6522900868612851191/6522900868612851191_signature_47.png", "travelItems": [{"item": "Pittsburgh - BDA - Pittsburgh", "details": "BDA v CAY", "total": "$1,800"}, {"item": "Pittsburgh - TTO - Pittsburgh", "details": "RAN 7s", "total": "$1,219"}, {"item": "TTO Accommdation", "details": "RAN 7s", "total": "747.50"}, {"item": "Food Stipend ($50 p/day)", "details": "RAN 7s", "total": "$250"}], "coachingItems": [], "otherItems": [], "docFolder": "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6522900868612851191 Nisaiah Berkeley", "uploadedFiles": ["WhatsApp Image 2026-04-17 at 23.29.56.jpeg", "Nisaiah Berkeley Passport_3583.jpeg", "Nisaiah Berkeley Passport.jpeg"], "uploadedFilePaths": ["docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6522900868612851191 Nisaiah Berkeley/WhatsApp Image 2026-04-17 at 23.29.56.jpeg", "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6522900868612851191 Nisaiah Berkeley/Nisaiah Berkeley Passport_3583.jpeg", "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6522900868612851191 Nisaiah Berkeley/Nisaiah Berkeley Passport.jpeg"], "hasDocuments": true}, {"id": 2, "submissionId": "6522896068251112702", "submissionDate": "Apr 17, 2026", "nsgb": "Bermuda National Athletics Association", "nsgbEmail": "athleticsbda@gmail.com", "firstName": "Surii", "lastName": "Russell", "name": "Surii Russell", "dob": "", "age": "", "gender": "", "phone": "", "address": "", "email": "charmainenicole@gmail.com", "bermudian": "Yes", "school": "Bermuda Institute", "grade": "Year 11", "sportDiscipline": "Athletics", "sport": "Athletics", "yearsCompeting": "3", "competitionLevel": "Regional", "achievements": [{"event": "Flying Angels Classic (Canada)", "date": "July 5 2025", "result": "50.58"}, {"event": "Carifta Games 2025", "date": "APril 20 2025", "result": "2:00.57"}], "programName": "Nike Camp - NY / Internation Youth Championships - MD / Russell E Blunt East Coast Invitational - NC", "programDetails": "Camp - Nike Running Camp with Hazel Clark - July 13 - 16, 2026\nThis is a comprehensive training camp program which focuses on track and field and/or cross country fundamentals including drills, pacing, strength endurance, speed and core strengthening as well as the mental edge necessary for top athletic performances.\n\nThe Hazel Clark Running Camp offers expert instruction from staff of Olympic stars in a challenging, fun and inspiring environment.\n\nOverseas Track Event\n1. International Youth Track Championships (Landover, Maryland, US) - July 17-19, 2026. This is immediately after the Camp. \n2. Travel to Russell E Blunt East Coast Invitational with Pacers Track Club", "coachesInvolved": "Camp Director - Hazel Clark\nHazel was a 800 meters middle distance specialist and a member of the U.S. Olympic team in 2000, 2004 and 2008. She has won six national titles and two USA Olympic Trials events during her career", "ltadStage": "", "pathway": "Attendance at the Nike Junior Training Camp in Tarrytown, NY will play an important role in supporting the athlete’s progression toward elite performance and potential national representation.\n\nThe camp provides high-quality, event-specific coaching, advanced technical instruction, and structured training sessions that will help the athlete refine fundamental skills and address current performance gaps. Exposure to experienced coaches and Olympic-level guest speakers will also offer valuable insight into the standards, discipline, and mindset required to compete at an elite level.", "outcomes": "Given that the athlete narrowly missed the qualifying standard for this year’s CARIFTA Games, this opportunity comes at a pivotal time in their development. The focused training and mentorship gained through the camp are expected to directly contribute to improved performance outcomes and better prepare the athlete for upcoming qualification targets, including CARIFTA 2027, the Youth Commonwealth Games, and the Pan Am Junior Games.\nWe are aiming for Surii to reach 1:52 in the 800M and 48 in the 400M.", "fiscalYear": "5,000", "amountRequested": "5,000", "totalNJASP": "5000", "totalAmountNum": 5000.0, "totalAmount": "$5,000.00", "remainingCosts": "", "repName": "Jarita Vickers", "repPosition": "President", "repDate": "Apr 17, 2026", "repSignature": "https://www.jotform.com/uploads/Umindesign/260876077900867/6522896068251112702/6522896068251112702_signature_47.png", "travelItems": [{"item": "Airfaire Nike Camp", "details": "", "total": "$500"}, {"item": "Accomodations for 8 nights @ $250/night", "details": "For Camp duration and travel to the International Youth Champtionships", "total": "$2,000"}, {"item": "Transportation  - rental car", "details": "Transportation to and from Camp and to IYC in Maryland", "total": "$600"}, {"item": "Food @ $75 per day for 3 meals", "details": "", "total": "$600"}, {"item": "Airfaire to Russell E Blunt Trackmeet", "details": "", "total": "$500"}], "coachingItems": [{"item": "Camp Fee - Nike", "details": "", "total": "770"}, {"item": "Registration fees for IYC Meet", "details": "", "total": "30"}], "otherItems": [], "docFolder": "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6522896068251112702 Surii Russell", "uploadedFiles": ["Estimated Flight for Camp.docx", "Surii Russell Passport_4767.pdf", "Nike Running Camp with Hazel Clark at T...pdf", "International Youth Track Championships.pdf"], "uploadedFilePaths": ["docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6522896068251112702 Surii Russell/Estimated Flight for Camp.docx", "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6522896068251112702 Surii Russell/Surii Russell Passport_4767.pdf", "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6522896068251112702 Surii Russell/Nike Running Camp with Hazel Clark at T...pdf", "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6522896068251112702 Surii Russell/International Youth Track Championships.pdf"], "hasDocuments": true}, {"id": 3, "submissionId": "6522664759717238774", "submissionDate": "Apr 17, 2026", "nsgb": "Bermuda Sanshou Association", "nsgbEmail": "wushubermuda@gmail.com", "firstName": "Geraldine", "lastName": "Sidders", "name": "Geraldine Sidders", "dob": "", "age": "", "gender": "", "phone": "", "address": "", "email": "geraldinesidders@gmail.com", "bermudian": "Yes", "school": "Warwick Academy", "grade": "10", "sportDiscipline": "Wushu", "sport": "Wushu", "yearsCompeting": "4 years", "competitionLevel": "International", "achievements": [{"event": "10th World Wushu Championships, Tianjin, China", "date": "March 23-31, 2026", "result": "21st - Group A Female Longfist"}, {"event": "10th World Wushu Championships, Tianjin, China", "date": "March 23-31, 2026", "result": "32nd - Group A Female Staff"}, {"event": "Bermuda Open Wushu Championships", "date": "October 18, 2025", "result": "1st - Boys/Girls Openhand"}, {"event": "Bermuda Open Wushu Championships", "date": "October 18, 2025", "result": "1st - Boys/Girls Weapons"}, {"event": "Canada Wushu National Championships", "date": "August 2-3, 2025", "result": "4th - Group B Female Longfist"}, {"event": "Canada Wushu National Championships", "date": "August 2-3, 2025", "result": "11th - Group B Longfist"}], "programName": "Presidential Wushu Cup/Orleans Wushu Centre/Candian Wushu Nationals", "programDetails": "Geraldine intends to compete in the Presidential Wushu Cup where her Canada based coach Daria Kanel will also be attending with some of her Canada based students. She then intends to train at Orleans Wushu Centre with Coach Daria for approximately 4 weeks before competing in the Canadian Wushu Nationals before heading home. Part of the training will include a Summer Training Camp while in Ottawa with other top athletes. This is all in the build-up to the Pan American Wushu Championships being held in Argentina in October and ultimately the Youth Olympics in Senegal in November.", "coachesInvolved": "Daria Kanel is a prominent Wushu coach and athlete based in Ottawa, Canada, who has played a significant role in developing the local and national competitive Wushu scene. \nProfessional Role & Contributions\nWushu Coach: She is the head coach at Wushu Ottawa, where she hosts and organises competitive events like the Wushu Ottawa Junior Championship.\nEvent Organiser: Kanel is known for fostering community growth through invitations to local clubs, such as the Ottawa Xinqiao Wushu team, to participate in junior-level Taolu competitions.\nNational Involvement: She is affiliated with WushuCanada, the national sport governing body, and has been involved in high-level events like the 2026 World Junior Wushu Championships.", "ltadStage": "", "pathway": "This program is a very intense training program designed to get Geraldine in peak form to place well at the Pan American Wushu Championships and have a strong performance at the Youth Olympics. With the training taking place over summer school break, the training will be at a level equivalent to her international counterparts.", "outcomes": "Geraldine is now is Group A (15-17yrs) and has three full years competing in this category. As she grows physically stronger and her skill improves, we expect her to definitely medal in the 2028 Pan American Wushu Championships and place in the top ten in the Junior World Wushu Championships.", "fiscalYear": "2026", "amountRequested": "$2,844.41", "totalNJASP": "2844.41", "totalAmountNum": 2844.41, "totalAmount": "$2,844.41", "remainingCosts": "", "repName": "Garon Wilkinson", "repPosition": "President", "repDate": "Apr 17, 2026", "repSignature": "https://www.jotform.com/uploads/Umindesign/260876077900867/6522664759717238774/6522664759717238774_signature_47.png", "travelItems": [{"item": "Bermuda to Baltimore", "details": "BermudAIR", "total": "$573.12"}, {"item": "Flights Washington to Montreal to Bermuda", "details": "Air Canada", "total": "$636.18"}, {"item": "Presidential Wushu Cup Hotel", "details": "Marriott - June 25 to 28", "total": "$505.11"}], "coachingItems": [{"item": "Orleans Wushu Centre Proforma Invoice", "details": "Training and Summer Camp with Daria Kanel", "total": "$810"}, {"item": "Presidential Wushu Cup Entry Fee", "details": "Openhand and Staff", "total": "$160"}, {"item": "Canadian Wushu Nationals Entry Feel", "details": "Openhand and Staff", "total": "$160"}], "otherItems": [], "docFolder": "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6522664759717238774 Geraldine Sidders", "uploadedFiles": ["Orleans Wushu Centre Pro Forma Invoice.pdf", "Geraldine Sidders Passport Copy.pdf", "Wasington to TOR to BDA flights.pdf", "Flights Bermuda to Baltimore.pdf", "Presidential Wushu Cup hotel.pdf"], "uploadedFilePaths": ["docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6522664759717238774 Geraldine Sidders/Orleans Wushu Centre Pro Forma Invoice.pdf", "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6522664759717238774 Geraldine Sidders/Geraldine Sidders Passport Copy.pdf", "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6522664759717238774 Geraldine Sidders/Wasington to TOR to BDA flights.pdf", "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6522664759717238774 Geraldine Sidders/Flights Bermuda to Baltimore.pdf", "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6522664759717238774 Geraldine Sidders/Presidential Wushu Cup hotel.pdf"], "hasDocuments": true}, {"id": 4, "submissionId": "6522456140021245191", "submissionDate": "Apr 17, 2026", "nsgb": "Bermuda Motocross Association", "nsgbEmail": "bdamotocrossclub@gmail.com", "firstName": "Z'Naz", "lastName": "Jones", "name": "Z'Naz Jones", "dob": "", "age": "", "gender": "", "phone": "", "address": "", "email": "mjonesjr1282@gmail.com", "bermudian": "Yes", "school": "Berkeley Institute", "grade": "Y11", "sportDiscipline": "", "sport": "Motorsport", "yearsCompeting": "10", "competitionLevel": "Local", "achievements": [{"event": "BDA Holiday Racing", "date": "Jan 1 2025", "result": "3rd place"}, {"event": "2023/24 Season Racing", "date": "June 22 2024", "result": "3rd Place"}, {"event": "Memorial Day Race 2023", "date": "Nov 2023", "result": "2nd Place"}, {"event": "2022/23 Trophy Series", "date": "July 15 2023", "result": "2nd Place"}], "programName": "MotoPark Camp Canada", "programDetails": "August 24-28 2026\nTraining Duration- 9:00 AM – 4:00 PM\n\nMP Camp helps build a good foundation for riders and make them much more aware and professional as to how they approach the sport. These qualities are essential towards building a healthy attitude and respect for the sport and their fellow competitors.\n\nMP Camp covers all the fundamentals such as body position, braking, berms, ruts, jumping, uphills & downhills, starts, passing, slippery surfaces and racing lines. As well, we discuss maintenance and setup of the riders motorcycle. Students are split into groups based on their riding ability. All the above aspects are covered in each group.", "coachesInvolved": "Zeb Dennis- Zeb Dennis is the Chief Instructor for our Summer Camps. Zeb is a United States Motorcycle Coaching Association (USMCA) Certified Coach. \nHe is a Firefighter with West Grey Fire Services, Durham Ontario. \nZeb is also a licensed official for International Motocross events with the Geneva based Federation Internationale Motocyclisme (FIM). Zeb’s career in Motocross spans more than 25 years. He is also a Freestyle Motocross and BMX rider and has performed at various shows and events in Canada and the U.S.\n\nKyle King- Kyle is a United States Motorcycle Coaching Association Certified Coach. He races in the Pro class in Canada. Kyle has trained riders here at Motopark as well as both the Jimmy Weinert Motocross Training Facility in North Carolina and Waldo Motorsports in Florida. Kyle is first aid, cpr and concussion awareness trained\n\nSeth Hughes- Seth is 24 years old and has been riding and racing since the age of 4. He spent 4 years training with the Motopark Academy and noticed massive improvements in his riding. Seth is currently a pro rider and has been competing in the National Triple Crown Series the past 4 years. Seth has always had a passion for teaching riders and has taken a step back from his Canadian racing to concentrate on taking a run at the U.S. Nationals at Loretta Lynn’s in 2025, This allows him time to share his knowledge of racing/riding with the next generation of up and coming riders at Motopark’s Summer Camps.", "ltadStage": "", "pathway": "The motocross development program is deliberately aligned with national and international motocross pathways to ensure riders can progress from grassroots participation to elite competition and national representation. The program follows Long‑Term Athlete Development (LTAD) principles while integrating the technical, physical, mental, and environmental demands unique to motocross.", "outcomes": "This program is designed to deliver measurable athlete performance improvements while strengthening the NSGB’s national motocross pathway, talent depth, and high‑performance readiness.\n\n1. Expected Outcomes for the Athlete\nYear 1 Outcomes\n-Technical & Physical Development\n-Competitive Progression\n-Mental & Behavioral Development\n\nOutcome: Athletes demonstrate readiness to transition into higher‑level competition and talent identification environments.\n\nYear 2 Outcomes\n-Performance & Elite Readiness\n-Pathway Advancement\n \nOutcome: Athletes are competitive, resilient, and prepared for elite‑level motocross pathways and national representation.\n\n2. Expected Outcomes for the NSGB\nPathway Strengthening\nParticipation & Retention\nHigh‑Performance Impact\nSystem Sustainability", "fiscalYear": "2026/27", "amountRequested": "", "totalNJASP": "4360.39", "totalAmountNum": 4360.39, "totalAmount": "$4,360.39", "remainingCosts": "", "repName": "Zakiya Jones", "repPosition": "Assistant Secretary", "repDate": "Apr 17, 2026", "repSignature": "https://www.jotform.com/uploads/Umindesign/260876077900867/6522456140021245191/6522456140021245191_signature_47.png", "travelItems": [{"item": "Airfare", "details": "Child & Parent", "total": "$1234.14"}, {"item": "Car Rental", "details": "", "total": "$1068"}], "coachingItems": [{"item": "Training Camp", "details": "", "total": "$1158.25"}], "otherItems": [{"item": "Bike Rental", "details": "", "total": "$900"}], "docFolder": "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6522456140021245191 Z_Naz  Jones", "uploadedFiles": ["Airfare-MotoCamp.png", "Total Camp Fees- MotoCamp.png", "Car Rental- MotoCamp.png", "Camp Fee- MotoCamp.png", "Z_Naz Jones Passport.pdf"], "uploadedFilePaths": ["docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6522456140021245191 Z_Naz  Jones/Airfare-MotoCamp.png", "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6522456140021245191 Z_Naz  Jones/Total Camp Fees- MotoCamp.png", "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6522456140021245191 Z_Naz  Jones/Car Rental- MotoCamp.png", "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6522456140021245191 Z_Naz  Jones/Camp Fee- MotoCamp.png", "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6522456140021245191 Z_Naz  Jones/Z_Naz Jones Passport.pdf"], "hasDocuments": true}, {"id": 5, "submissionId": "6522223476111036279", "submissionDate": "Apr 17, 2026", "nsgb": "Bermuda Sailing Association", "nsgbEmail": "president@sailing.bm", "firstName": "Miguel", "lastName": "Power", "name": "Miguel Power", "dob": "", "age": "", "gender": "", "phone": "", "address": "", "email": "simonsbda@gmail.com", "bermudian": "Yes", "school": "Warwick Academy", "grade": "Year 12", "sportDiscipline": "Sailing", "sport": "Sailing", "yearsCompeting": "8", "competitionLevel": "International", "achievements": [{"event": "Bermuda ILCA6 National Championship", "date": "April 11-12, 2026", "result": "1st / 11"}, {"event": "ILCA6 UK Nationals Open 2", "date": "March 21-22, 2026", "result": "6th / 80"}, {"event": "ILCA6 UK Nationals Open 3", "date": "March 28-29, 2026", "result": "37th / 80"}, {"event": "Orange Bowl Int’l Youth Regatta ILCA6", "date": "December 27-30, 2025", "result": "16th / 85"}, {"event": "Optimist World Championship, 2024", "date": "December 5-15, 2024", "result": "122nd / 255"}, {"event": "Optimist North American Championship, 2024", "date": "July 13-20, 2024", "result": "21st / 180"}], "programName": "RHADC Bermuda – sailing training & Evans Performance Strength and Conditioning (based at Warwick Academy Weights Room)", "programDetails": "RHADC Bermuda – sailing training 3 times per week, Tuesday, Thursday, Saturday. 7 hours total\nOn water boating skills which include sailing skills (upwind, downwind, takings), wind shift\nidentification, heavy seas handling\nEvans Performance: training 3 times per week. 6 hours total. Weights room at Warwick Academy.\nSessions are targeted to specific muscle groups needed for optimum performance in a sail boat:\nlegs, torso, upper back.\n\nApplied to be a part of the World Sailing Youth Emerging Nations Program – this six-month training program includes:\n- Online Coaching: Structured sessions for athletes and their coaches focused on Youth Worlds\nperformance.\n- Pre-Event Training: A four-day camp with World Sailing coaches, prior to the Youth Sailing World\nChampionships in Vilamoura, Portugal (11–19 December 2026).", "coachesInvolved": "Pablo Sanguinetti, RHADC. Local club coach. Qualifications\n- RYA Senior Instructor\n- University Institute of Physical Education of the U de A (Colombia) Sports Training Level 1 & 2\n- ISAF Level 3 Technical Course for Coaches\n- Int’l Olympic Committee Sailing Technical Course (Uruguay)\n- Sport Psychology Course for High Performance Coaches\n-Polytechnic Higher inst. of Colombia - Diploma in Management Fundamentals for Sports\nOrganisations (Colombia)\n\nLiam Evans, Evans Performance Training; strength and conditioning\n- BSc Exercise Science\n- MSc Exercise Science\n- NSCA Certified Strength & Conditioning Specialist\n\nRory Wilson, GP Watercraft Int’l coach based in the UK", "ltadStage": "", "pathway": "Continued sail training and strength training as well as overseas regatta experience will continuously improve the athlete’s skills and ability to compete. Exposure to as many overseas regattas as possible put the athlete in varying weather conditions. The more adverse / different conditions encountered, the more skills gained.", "outcomes": "Expected outcomes for the next 2 years are to compete in as many overseas regattas as possible and work towards a medal finish in the ILCA6 at the World Sailing Youth Worlds and other major championships.  Beyond that, transition into the Mens ILCA7 fleet.", "fiscalYear": "2026/27", "amountRequested": "2324", "totalNJASP": "$2,324", "totalAmountNum": 2324.0, "totalAmount": "$2,324.00", "remainingCosts": "", "repName": "P. Somers Cooper", "repPosition": "President", "repDate": "Apr 17, 2026", "repSignature": "https://www.jotform.com/uploads/Umindesign/260876077900867/6522223476111036279/6522223476111036279_signature_47.png", "travelItems": [{"item": "Athlete Airline", "details": "Bda – Faro, Portugal", "total": "2074"}, {"item": "Accomodation", "details": "Gatwick overnight", "total": "150"}, {"item": "Ground transportation", "details": "airport transfer", "total": "100"}], "coachingItems": [], "otherItems": [], "docFolder": "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6522223476111036279 Miguel Power", "uploadedFiles": ["miguel power passport certified.pdf"], "uploadedFilePaths": ["docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6522223476111036279 Miguel Power/miguel power passport certified.pdf"], "hasDocuments": true}, {"id": 6, "submissionId": "6521568814583945321", "submissionDate": "Apr 16, 2026", "nsgb": "Bermuda Volleyball Association", "nsgbEmail": "bmdsousa@hotmail.com", "firstName": "Marcus", "lastName": "Rodrigues", "name": "Marcus Rodrigues", "dob": "", "age": "", "gender": "", "phone": "", "address": "", "email": "marcusrodrigues0707@gmail.com", "bermudian": "Yes", "school": "Bermuda College", "grade": "Freshman", "sportDiscipline": "Beach Volleyball", "sport": "Volleyball", "yearsCompeting": "7", "competitionLevel": "Local\nRegional\nInternational", "achievements": [{"event": "Local Tournament", "date": "2023-2026", "result": "Top Power Hitter (BWR)"}, {"event": "ECVA U21 Beach Championships", "date": "2024", "result": "6th Place"}, {"event": "2025 NIKE Boston Volleyball Tournament", "date": "2025", "result": "2nd Place"}, {"event": "Bermuda Next Gen Beach National Team", "date": "2024-26", "result": "Selected"}, {"event": "Bermuda Men's National Beach Team", "date": "2025-26", "result": "Selected"}], "programName": "Eastern Caribbean Volleyball Association (ECVA) U20 Beach Volleyball Training Camp", "programDetails": "U20 ECVA Beach Volleyball training camp: This is a training camp for athletes who will be competing in the U20 ECVA Beach Championships. There will an estimated 13 countries in attendance with athletes. The camp will have a morning and afternoon training session each day. The Camp will include lecture sessions that will focus on performance psychology, nutrition and body mechanics specific to beach volleyball. The athletes will play with and against all other countries athletes and also will have the opportunity to be coached by other countries coaches as well as their own coach during this camp. Following the training camp, the athletes will compete in the 2026 U20 ECVA Beach Volleyball Championships. \n\nTraining Camp is scheduled for - July 6th - 12th, 2026\nLocation - St. Kitts & Nevis", "coachesInvolved": "We expect there will be (2) FIVB certified beach coaches.\n\nCurrently we can confirm that Rick Bevis, FIVB certified Coach and Coach Evaluator, with an extensive resume including Head Coach for Team BC Men's U20 Games, 3x National Coach of the Year, Michigan State University coach, etc. \n\nThe program directors have indicated that there may be other high-performance coaches there as well.", "ltadStage": "", "pathway": "The high-performance training camp facilitates Marcus’s progression by providing a professionalized environment where he can refine elite-level technical skills under the guidance of multiple international experts. \n\nFurthermore, the integration of specialized lecture sessions ensures his tactical and mental growth matches his physical capabilities, while the resulting regional ranking points establish a concrete pathway for future national representation and advanced career opportunities.", "outcomes": "Goals \n1) Earn a top 5 finish at regional (ECVA) tournament in 2026\n2) Athlete to make selections for U23 NORCECA event in Aug 2026\n3) Represent Bermuda in a Senior NORCECA Beach Tour Stop in the next 2 years. \n\nThe NSGB will benefit from this athlete attending as many training camps as possible off island, as this provides much needed competition experience prior to competing under the pressure of the extremely high level found at NORCECA events. This athlete is a valuable part of the pipeline to our Senior National Team", "fiscalYear": "2026-2027", "amountRequested": "5000", "totalNJASP": "5000", "totalAmountNum": 5000.0, "totalAmount": "$5,000.00", "remainingCosts": "", "repName": "Brandon Sousa", "repPosition": "Co-President", "repDate": "Apr 16, 2026", "repSignature": "https://www.jotform.com/uploads/Umindesign/260876077900867/6521568814583945321/6521568814583945321_signature_47.png", "travelItems": [{"item": "American Airlines", "details": "(BDA- SKB)", "total": "1,200"}, {"item": "St Kitts Marriott Beach Resort", "details": "July 6-13, 2026 Accomodation", "total": "2,090"}], "coachingItems": [{"item": "Traning Camp Fees", "details": "5-Day Training Camp", "total": "1,500"}], "otherItems": [{"item": "Training/Competition Uniform", "details": "2 Competition Uniforms", "total": "110"}, {"item": "Training Ball", "details": "2 Training Balls", "total": "100"}], "docFolder": "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6521568814583945321 Marcus Rodrigues", "uploadedFiles": ["Marcus Rodrigues - BDA Passport_712.jpg", "Marcus Rodrigues - BDA Passport.jpg", "St. Kitts Marriott - Accomodation Estimate .png", "AA- BDA-SKB July 2026.png"], "uploadedFilePaths": ["docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6521568814583945321 Marcus Rodrigues/Marcus Rodrigues - BDA Passport_712.jpg", "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6521568814583945321 Marcus Rodrigues/Marcus Rodrigues - BDA Passport.jpg", "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6521568814583945321 Marcus Rodrigues/St. Kitts Marriott - Accomodation Estimate .png", "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6521568814583945321 Marcus Rodrigues/AA- BDA-SKB July 2026.png"], "hasDocuments": true}, {"id": 7, "submissionId": "6521116638509341530", "submissionDate": "Apr 15, 2026", "nsgb": "Bermuda Rugby Football Union", "nsgbEmail": "jase@brfu.bm", "firstName": "Asher", "lastName": "Wheddon", "name": "Asher Wheddon", "dob": "", "age": "", "gender": "", "phone": "", "address": "", "email": "ajwheddon15@cedarbridge.doe.bm", "bermudian": "Yes", "school": "Cedarbridge Academy", "grade": "S3", "sportDiscipline": "Rugby", "sport": "Rugby", "yearsCompeting": "3", "competitionLevel": "Local\nRegional\nInternational", "achievements": [{"event": "Bermuda Youth Player of the Year", "date": "2025", "result": "1st"}, {"event": "Bermuda U19 team", "date": "2025", "result": ""}, {"event": "Teachers 1st Team", "date": "2025", "result": "1st"}], "programName": "RAN U19 Caribbean Championships, Queretaro, Mexico", "programDetails": "Training - 3 month prep, 2 times a week going up to 3 times as the tournament approaches. \nTournament format - 3 games over the course of a week -  highest level in the region for this age group, includes USA South, Mexico and Caribbean nations.", "coachesInvolved": "Chris Naylor - irb Level 2, PANAM High Performance Coach, Masters in Education", "ltadStage": "", "pathway": "U19 Caribbean Championships is a vital stepping stone to the full senior National Team", "outcomes": "Asher has another year in this age group so will hopefully develop into the leadership group of the squad next year. Within two years we will look to him to step up to the Men's team.", "fiscalYear": "3010", "amountRequested": "3010", "totalNJASP": "3010", "totalAmountNum": 3010.0, "totalAmount": "$3,010.00", "remainingCosts": "", "repName": "Chris Naylor", "repPosition": "U19 National Coach", "repDate": "Apr 15, 2026", "repSignature": "https://www.jotform.com/uploads/Umindesign/260876077900867/6521116638509341530/6521116638509341530_signature_47.png", "travelItems": [{"item": "Flights to Queretaro, Mexico", "details": "", "total": "1740"}, {"item": "Accommodation", "details": "7 nights", "total": "880"}], "coachingItems": [{"item": "N/A", "details": "", "total": "0"}], "otherItems": [{"item": "Playing Kit", "details": "", "total": "150"}, {"item": "Training Kit", "details": "", "total": "150"}, {"item": "Travel kit", "details": "", "total": "90"}], "docFolder": "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6521116638509341530 Asher Wheddon", "uploadedFiles": ["Asher.jpg"], "uploadedFilePaths": ["docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6521116638509341530 Asher Wheddon/Asher.jpg"], "hasDocuments": true}, {"id": 8, "submissionId": "6520697742613249124", "submissionDate": "Apr 15, 2026", "nsgb": "Bermuda Hockey Federation", "nsgbEmail": "treasurer@bermudafieldhockey.com", "firstName": "Issac", "lastName": "Graham", "name": "Issac Graham", "dob": "", "age": "", "gender": "", "phone": "", "address": "", "email": "", "bermudian": "Yes", "school": "Somersfield Academy", "grade": "YR 12", "sportDiscipline": "Field Hockey", "sport": "Hockey", "yearsCompeting": "6", "competitionLevel": "Local\nInternational", "achievements": [{"event": "CAC Games", "date": "2025", "result": ""}, {"event": "Griffins", "date": "2024-2026", "result": ""}, {"event": "Coached Funstix", "date": "2025-2026", "result": ""}, {"event": "Mixed Leage", "date": "2024-2026", "result": ""}, {"event": "BSSF Team", "date": "2023-2026", "result": ""}], "programName": "FIH World Hockey & Goalie Camp 2026 - Amsterdam", "programDetails": "The level of learning at a Top Hockey week is unparalleled. At these camps, they get a top-level field hockey program. With tactical sessions, challenging clinics, and amazing demos, they will have to work to master the latest techniques.\n\nWith over 5 hours of field hockey a day, they will give their field hockey skills a tremendous boost. The player will experience innovative forms of training and train their adaptability. During a Top Hockey Camp, they will show players what real top-level field hockey is, so they can use it in their own league games.", "coachesInvolved": "FIH certieid Level 2 and 3 coaches", "ltadStage": "", "pathway": "Isssacc was a late addition to the most recent Men's National CAC Team. We continue to grow this space, and his hard work has been rewarded.", "outcomes": "Issacc we hope wil continue to represent Bermuda on the global stage and play hockey in his secnondary eduction", "fiscalYear": "2026-2027", "amountRequested": "5000.00", "totalNJASP": "5711.5", "totalAmountNum": 5711.5, "totalAmount": "$5,711.50", "remainingCosts": "", "repName": "Jennifer Beech", "repPosition": "Treasurer", "repDate": "Apr 15, 2026", "repSignature": "https://www.jotform.com/uploads/Umindesign/260876077900867/6520697742613249124/6520697742613249124_signature_47.png", "travelItems": [{"item": "Airfare", "details": "British airways", "total": "2,458.17"}, {"item": "Ground Transport", "details": "Misc.", "total": "500.00"}], "coachingItems": [{"item": "Sportways", "details": "Camp", "total": "976.94"}], "otherItems": [{"item": "Stick", "details": "New Princess stick", "total": "306.39"}, {"item": "Goal Keeping Kit", "details": "Longstreth OBO goalie bundle", "total": "1095.0"}, {"item": "Chest and Pants", "details": "Longstregth TK check and pants", "total": "375.0"}], "docFolder": "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6520697742613249124 Issac Graham", "uploadedFiles": ["NJSAP Quotes 2026-2027.docx"], "uploadedFilePaths": ["docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6520697742613249124 Issac Graham/NJSAP Quotes 2026-2027.docx"], "hasDocuments": true}, {"id": 9, "submissionId": "6519378878126150178", "submissionDate": "Apr 13, 2026", "nsgb": "Bermuda Motorcycle Racing Association - BMRA", "nsgbEmail": "amtbmra@gmail.com", "firstName": "Kannen", "lastName": "Morris-Dickinson", "name": "Kannen Morris-Dickinson", "dob": "", "age": "", "gender": "", "phone": "", "address": "", "email": "keokid@hotmail.com", "bermudian": "Yes", "school": "Bermuda Institute", "grade": "Grade 10", "sportDiscipline": "Motorcycle Racing", "sport": "Motorsport", "yearsCompeting": "1.5 years", "competitionLevel": "Local", "achievements": [{"event": "Motorcycle Racing", "date": "2025 Season", "result": "2nd Place in his Class"}], "programName": "Bermuda Motorcycle Racing Association (BMRA), Junior Development Programme, Southside, St. David's", "programDetails": "The Bermuda Motorcycle Racing Association (BMRA) Junior Development Programme is a structured, year-round initiative designed to develop young riders through a combination of on-track training, technical education, and personal development.\n\nTraining sessions are held weekly, with increased frequency during the racing season (May–October), and focus on progressive skill-building. Sessions include:\n\nOn-track riding (cornering, braking, race starts, positioning)\nRace simulation and performance evaluation\nMechanical training (bike setup, maintenance, safety checks)\nPhysical conditioning and rider fitness awareness\n\nThe programme operates on a long-term development model, ensuring athletes build foundational skills before advancing to higher levels of competition. Emphasis is placed on discipline, safety, consistency, and race craft.\n\nOff-season training (November–April) focuses on skill refinement, technical understanding, and preparation for competitive racing.", "coachesInvolved": "The BMRA Junior Development Programme is supported by a team of experienced coaches and mentors with strong backgrounds in motorcycle racing, rider development, and technical training:\n\nDavid Jones – President & Race Director, former international competitor with experience racing in the United States, including Daytona International Speedway. Trained at California Superbike School and certified motorcycle mechanic (American Motorcycle Institute, Daytona).\n\nBilly Dunn – Vice President & Youth Programme Coordinator, providing leadership in youth development, coaching, and technical support through hands-on instruction.\n\nCarlston Burgess – Coach supporting youth rider training, with a focus on skill development, safety, and performance progression.\nBruce DeGrilla Jr. – Coach within the BMRA Junior Development Programme, actively involved in youth rider development through on-track instruction, race preparation, and mentorship. He has participated in structured coaching development initiatives, including the OLEVI: Power of Coaching Programme, gaining training in effective coaching practices and athlete development. He continues to apply these principles in delivering structured and progressive coaching sessions.\n\nThe coaching team combines practical racing experience with a commitment to ongoing development. Plans are in place for coaches to pursue further coaching certification and training opportunities; however, funding constraints currently limit access to these programmes.", "ltadStage": "", "pathway": "Kannen Morris-Dickinson is an emerging young rider within the Bermuda Motorcycle Racing Association (BMRA) Junior Development Programme. Through consistent participation in club training and racing, he has demonstrated steady progression in skill, confidence, and race awareness.\n\nCompeting within the BMRA race programme, Kannen continues to develop his technical riding ability, racecraft, and overall performance. Notably, he achieved 2nd place overall in his class, reflecting his competitiveness and ability to perform at a high level within his category.\n\nThrough regular training and local competition, Kannen is building a strong foundation that supports progression into regional and international racing opportunities.\n\nThe programme supports this pathway by:\n\nIdentifying and developing high-potential riders\nProviding structured competition experience\nPreparing athletes for international racing standards\nEncouraging representation of Bermuda in overseas competitions\n\nThis structured pathway ensures that Kannen is equipped with the skills, experience, and discipline required to progress to higher levels of competition and represent Bermuda on the international stage.", "outcomes": "For the Athlete:\n\nContinued improvement in race performance, building on a 2nd place overall class finish\nSuccessful transition into the 250cc class for the 2026 racing season\nIncreased confidence and consistency in competitive racing\nFurther development of racecraft, discipline, and technical understanding\nProgression toward higher levels of competition over time\n\nFor BMRA (NSGB):\n\nStrengthening of the junior development pipeline\nIncreased youth participation and retention\nEnhanced opportunities for athlete progression\nContinued development of a structured and sustainable national programme", "fiscalYear": "2026/2027", "amountRequested": "$5000.00", "totalNJASP": "3350", "totalAmountNum": 3350.0, "totalAmount": "$3,350.00", "remainingCosts": "", "repName": "Angiliee Tyrell", "repPosition": "Secretary", "repDate": "Apr 11, 2026", "repSignature": "https://www.jotform.com/uploads/Umindesign/260876077900867/6519378878126150178/6519378878126150178_signature_47.png", "travelItems": [{"item": "N/A", "details": "N/A", "total": "0"}], "coachingItems": [{"item": "Training Camp", "details": "$75 x 26 weeks", "total": "$1950"}, {"item": "Registration Fee", "details": "$400", "total": "$400"}, {"item": "Motorcycle Deposit", "details": "$500", "total": "$500"}], "otherItems": [{"item": "Equipment", "details": "Boots", "total": "$250"}, {"item": "Equipment", "details": "Helmet", "total": "$200"}, {"item": "Equipment", "details": "Gloves", "total": "$50"}], "docFolder": "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6519378878126150178 Kannen Morris-Dickinson", "uploadedFiles": ["Kannen Morris-Dickinson - Passport_3667.pdf", "Kannen Morris-Dickinson - Passport.pdf"], "uploadedFilePaths": ["docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6519378878126150178 Kannen Morris-Dickinson/Kannen Morris-Dickinson - Passport_3667.pdf", "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6519378878126150178 Kannen Morris-Dickinson/Kannen Morris-Dickinson - Passport.pdf"], "hasDocuments": true}, {"id": 10, "submissionId": "6519349058125025447", "submissionDate": "Apr 13, 2026", "nsgb": "The Bermuda Motorcycle Racing Association - BMRA", "nsgbEmail": "amtbmra@gmail.com", "firstName": "Nevaeh", "lastName": "Edwards (Gaugain)", "name": "Nevaeh Edwards (Gaugain)", "dob": "", "age": "", "gender": "", "phone": "", "address": "", "email": "nevaehguagain@gmail.com", "bermudian": "Yes", "school": "Bermuda Institute", "grade": "Grade 10", "sportDiscipline": "Motorcycle Racing", "sport": "Motorsport", "yearsCompeting": "Approx 6 years", "competitionLevel": "Local\nInternational", "achievements": [{"event": "MotoAmerica MiniCup Series", "date": "2023", "result": "Highest finish was 7th."}], "programName": "Bermuda Motorcycle Racing Association (BMRA), Junior Development Programme, Southside, St. David's", "programDetails": "The Bermuda Motorcycle Racing Association (BMRA) Junior Development Programme is a structured, year-round initiative designed to develop young riders through a combination of on-track training, technical education, and personal development.\n\nTraining sessions are held weekly, with increased frequency during the racing season (May–October), and focus on progressive skill-building. Sessions include:\n\nOn-track riding (cornering, braking, race starts, positioning)\nRace simulation and performance evaluation\nMechanical training (bike setup, maintenance, safety checks)\nPhysical conditioning and rider fitness awareness\n\nThe programme operates on a long-term development model, ensuring athletes build foundational skills before advancing to higher levels of competition. Emphasis is placed on discipline, safety, consistency, and race craft.\n\nOff-season training (November–April) focuses on skill refinement, technical understanding, and preparation for competitive racing.", "coachesInvolved": "The BMRA Junior Development Programme is supported by a team of experienced coaches and mentors with strong backgrounds in motorcycle racing, rider development, and technical training:\n\nDavid Jones – President & Race Director, former international competitor with racing experience in the United States, including Daytona International Speedway. Trained at California Superbike School and certified motorcycle mechanic (American Motorcycle Institute, Daytona).\nBilly Dunn – Vice President & Youth Programme Coordinator, actively involved in rider development, coaching, and technical support through hands-on instruction and mentorship.\nBruce DeGrilla Jr. – Coach and mentor supporting youth rider development through practical instruction, race preparation, and on-track guidance.\nCarlston Burgess – Coach assisting with youth training, focusing on rider safety, skill progression, and performance development.\n\nThe coaching team provides a combination of practical racing experience, technical knowledge, and mentorship, ensuring athletes are developed within a structured, safe, and performance-focused environment.\n\nThe programme is also committed to continuous coach development. Plans are in place for coaches to pursue formal overseas coaching certification and training to further enhance the quality of instruction provided. However, access to funding remains a current limitation in advancing these professional development opportunities.", "ltadStage": "", "pathway": "Nevaeh Gaugain is a developing rider within the Bermuda Motorcycle Racing Association (BMRA) Junior Development Programme who has already gained valuable international racing experience. In 2023, he competed in the United States in the MotoAmerica Mini Cup Series in the Ovale 160 GP class, participating in 4 of 6 rounds held in South Carolina, Alabama, New Jersey, and Pennsylvania. He achieved top 10 finishes in all four rounds, with the highest finish of 7th place, demonstrating consistency and competitiveness at an international level.\n\nIn 2024 and 2025, Nevaeh continued his development locally through BMRA club racing, competing in the 400cc class. This has allowed him to refine his technical riding ability, strengthen his race craft, and build consistency within a structured and competitive environment.\n\nThrough regular training and local competition, Nevaeh is consolidating his skills and preparing for progression back into regional and international racing opportunities.\n\nThe programme supports this pathway by:\n\nIdentifying and developing high-potential riders\nProviding structured competition experience\nPreparing athletes for international racing standards\nEncouraging representation of Bermuda in overseas competitions\n\nThis structured pathway ensures that Nevaeh is equipped with the skills, experience, and discipline required to progress to higher levels of competition and represent Bermuda on the international stage.", "outcomes": "For the Athlete:\n\nContinued improvement in race performance and consistency within the 400cc class\nSuccessful transition into the 250cc class for the 2026 racing season\nFurther refinement of technical skills and race strategy\nPreparation for re-entry into international competition\nDevelopment toward representing Bermuda at higher levels of motorsport\n\nFor BMRA (NSGB):\n\nStrengthening of the junior development pipeline\nIncreased youth participation and retention\nEnhanced opportunities for international representation\nContinued development of a structured and sustainable national programme", "fiscalYear": "$5000", "amountRequested": "$5000.00", "totalNJASP": "$9462", "totalAmountNum": 9462.0, "totalAmount": "$9,462.00", "remainingCosts": "", "repName": "Angiliee Tyrell", "repPosition": "Secretary", "repDate": "Apr 13, 2026", "repSignature": "https://www.jotform.com/uploads/Umindesign/260876077900867/6519349058125025447/6519349058125025447_signature_47.png", "travelItems": [{"item": "South Carolina, Alabama, New Jersey, & Pennsylvania", "details": "airfare/travel via car", "total": "$1807"}, {"item": "South Carolina, Alabama, New Jersey, & Pennsylvania", "details": "Accommodation", "total": "$1415"}], "coachingItems": [], "otherItems": [{"item": "MotoAmerica MiniCup Series", "details": "Race Series Entry Fees", "total": "$2280"}, {"item": "MotoAmerica MiniCup Series", "details": "Race tires for the eries", "total": "$750"}, {"item": "MotoAmerica MiniCup Series", "details": "Race fuel", "total": "$250"}, {"item": "MotoAmerica MiniCup Series", "details": "misc bike parts", "total": "$1200"}], "docFolder": "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6519349058125025447 Nevaeh Edwards (Gaugain)", "uploadedFiles": ["Nevaeh Edwards (Gaugain) - Bda Passport_5154.pdf", "Nevaeh Edwards (Gaugain) - Bda Passport.pdf"], "uploadedFilePaths": ["docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6519349058125025447 Nevaeh Edwards (Gaugain)/Nevaeh Edwards (Gaugain) - Bda Passport_5154.pdf", "docs/athletes-award/2026 National Junior Athlete Sponsorship Application Athletes Award/6519349058125025447 Nevaeh Edwards (Gaugain)/Nevaeh Edwards (Gaugain) - Bda Passport.pdf"], "hasDocuments": true}];
+
+  const SPORT_COLORS = {"Athletics": "#0d47a1", "Rugby": "#bf360c", "Wushu": "#c62828", "Motorsport": "#37474f", "Sailing": "#01579b", "Volleyball": "#558b2f", "Hockey": "#1a237e", "Football": "#2e7d32", "Swimming": "#006064", "Cricket": "#1565c0", "Golf": "#4a148c", "Other": "#546e7a"};
+
+  let shortlisted = new Set();
+  let statuses = {};
+  let filtered = [...APPLICANTS];
+  let currentPage = 1;
+  const PAGE_SIZE = 20;
+  let chartsInit = false;
+
+  // ===== SUPABASE SYNC =====
+  async function loadDB() {
+    try {
+      const [{data: sl}, {data: st}] = await Promise.all([
+        supabase.from('njas_shortlists').select('applicant_id').eq('access_code', currentUserCode),
+        supabase.from('njas_statuses').select('applicant_id,status').eq('access_code', currentUserCode)
+      ]);
+      if (sl) sl.forEach(r => shortlisted.add(r.applicant_id));
+      if (st) st.forEach(r => { statuses[r.applicant_id] = r.status; });
+    } catch(e) { console.warn('DB load error', e); }
+    renderTable();
+    renderShortlist();
+  }
+
+  async function dbToggleShortlist(id) {
+    if (shortlisted.has(id)) {
+      shortlisted.delete(id);
+      await supabase.from('njas_shortlists').delete().eq('access_code', currentUserCode).eq('applicant_id', id);
+    } else {
+      shortlisted.add(id);
+      await supabase.from('njas_shortlists').upsert({access_code: currentUserCode, applicant_id: id}, {onConflict: 'access_code,applicant_id'});
+    }
+    renderTable(); renderShortlist();
+  }
+
+  async function dbSetStatus(id, status) {
+    statuses[id] = status;
+    await supabase.from('njas_statuses').upsert({access_code: currentUserCode, applicant_id: id, status}, {onConflict: 'access_code,applicant_id'});
+  }
+
+  // ===== TABS =====
+  function switchTab(name, el) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    el.classList.add('active');
+    if (name === 'analytics' && !chartsInit) { initCharts(); chartsInit = true; }
+    if (name === 'shortlist') renderShortlist();
+  }
+
+  // ===== FILTERS =====
+  function applyFilters() {
+    const q = document.getElementById('searchBox').value.toLowerCase();
+    const sport = document.getElementById('filterSport').value;
+    const status = document.getElementById('filterStatus').value;
+    filtered = APPLICANTS.filter(a => {
+      const matchQ = !q || [a.name, a.nsgb, a.sport, a.sportDiscipline, a.school].join(' ').toLowerCase().includes(q);
+      const matchSport = !sport || a.sport === sport;
+      const matchStatus = !status || (statuses[a.id] || 'Pending') === status;
+      return matchQ && matchSport && matchStatus;
+    });
+    currentPage = 1;
+    renderTable();
+  }
+
+  // ===== TABLE =====
+  function renderTable() {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const page = filtered.slice(start, start + PAGE_SIZE);
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = page.map(a => {
+      const status = statuses[a.id] || 'Pending';
+      const statusClass = 'status-' + status.replace(' ', '-');
+      const starred = shortlisted.has(a.id);
+      const color = SPORT_COLORS[a.sport] || '#546e7a';
+      const files = (a.uploadedFilePaths || []).slice(0, 3).map(fp => {
+        const fn = fp.split('/').pop();
+        return `<a class="file-chip" href="${fp}" target="_blank">${fn}</a>`;
+      }).join('');
+      return `<tr class="${starred ? 'shortlisted' : ''}">
+        <td><button class="star-btn" onclick="dbToggleShortlist(${a.id})" title="${starred ? 'Remove' : 'Shortlist'}">${starred ? '★' : '☆'}</button></td>
+        <td>${a.id}</td>
+        <td><strong>${a.name || '—'}</strong><br><small style="color:var(--gray3)">${a.email || ''}</small></td>
+        <td><span class="sport-badge" style="background:${color}">${a.sport}</span></td>
+        <td>${a.nsgb}</td>
+        <td>${a.age || '—'}</td>
+        <td>${a.competitionLevel || '—'}</td>
+        <td><strong style="color:#15803d">${a.totalAmount}</strong></td>
+        <td>${files || '<span style="color:var(--gray2);font-size:0.78rem">None</span>'}</td>
+        <td><select class="status-select ${statusClass}" onchange="dbSetStatus(${a.id},this.value);this.className='status-select status-'+this.value.replace(' ','-')">
+          ${['Pending','Under Review','Approved','Declined'].map(s => `<option${s===status?' selected':''}>${s}</option>`).join('')}
+        </select></td>
+        <td><button class="view-btn" onclick="openModal(${a.id})">View</button></td>
+      </tr>`;
+    }).join('');
+    document.getElementById('resultsCount').textContent = `${filtered.length} of ${APPLICANTS.length} applicants`;
+    renderPagination();
+    document.getElementById('shortlistCount').textContent = shortlisted.size ? `(${shortlisted.size})` : '';
+  }
+
+  function renderPagination() {
+    const total = Math.ceil(filtered.length / PAGE_SIZE);
+    const el = document.getElementById('pagination');
+    if (total <= 1) { el.innerHTML = ''; return; }
+    let html = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>&#8592;</button>`;
+    for (let i = 1; i <= total; i++) html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+    html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===total?'disabled':''}>&#8594;</button>`;
+    el.innerHTML = html;
+  }
+
+  function goPage(p) {
+    const total = Math.ceil(filtered.length / PAGE_SIZE);
+    if (p < 1 || p > total) return;
+    currentPage = p;
+    renderTable();
+    window.scrollTo(0, 0);
+  }
+
+  // ===== SHORTLIST =====
+  function renderShortlist() {
+    const items = APPLICANTS.filter(a => shortlisted.has(a.id));
+    const tbody = document.getElementById('shortlistBody');
+    const empty = document.getElementById('shortlistEmpty');
+    document.getElementById('shortlistInfo').textContent = `${items.length} athlete${items.length!==1?'s':''} shortlisted`;
+    if (!items.length) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+    empty.style.display = 'none';
+    const color_map = SPORT_COLORS;
+    tbody.innerHTML = items.map(a => {
+      const status = statuses[a.id] || 'Pending';
+      const color = color_map[a.sport] || '#546e7a';
+      return `<tr class="shortlisted">
+        <td>${a.id}</td>
+        <td><strong>${a.name || '—'}</strong></td>
+        <td><span class="sport-badge" style="background:${color}">${a.sport}</span></td>
+        <td>${a.nsgb}</td>
+        <td><strong style="color:#15803d">${a.totalAmount}</strong></td>
+        <td><span class="status-select status-${status.replace(' ','-')}" style="padding:3px 8px;border-radius:6px;font-size:0.80rem;font-weight:600">${status}</span></td>
+        <td>
+          <button class="view-btn" onclick="openModal(${a.id})">View</button>
+          <button class="btn-secondary" style="padding:5px 10px;font-size:0.78rem;margin-left:4px" onclick="dbToggleShortlist(${a.id})">Remove</button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function clearShortlist() {
+    if (!confirm('Remove all athletes from shortlist?')) return;
+    [...shortlisted].forEach(id => dbToggleShortlist(id));
+  }
+
+  // ===== MODAL =====
+  function openModal(id) {
+    const a = APPLICANTS.find(x => x.id === id);
+    if (!a) return;
+    const initials = (a.firstName||'?')[0] + (a.lastName||'?')[0];
+    const files = (a.uploadedFilePaths || []).map(fp => {
+      const fn = fp.split('/').pop();
+      return `<a class="modal-file-btn" href="${fp}" target="_blank">📄 ${fn}</a>`;
+    }).join('') || '<span style="color:var(--gray2)">No documents uploaded</span>';
+
+    const achievements = (a.achievements || []).map(ac =>
+      `<div style="margin-bottom:8px;padding:8px 10px;background:#f8fafc;border-radius:6px;font-size:0.85rem">
+        <strong>${ac.event}</strong>${ac.date ? ' — ' + ac.date : ''}${ac.result ? '<br><span style="color:#15803d">' + ac.result + '</span>' : ''}
+      </div>`
+    ).join('') || '<span style="color:var(--gray2)">None listed</span>';
+
+    const travelRows = (a.travelItems||[]).map(t =>
+      `<tr><td style="padding:6px 8px;font-size:0.85rem">${t.item}</td><td style="padding:6px 8px;font-size:0.85rem">${t.details}</td><td style="padding:6px 8px;font-size:0.85rem;font-weight:600;color:#15803d">${t.total}</td></tr>`
+    ).join('');
+    const coachRows = (a.coachingItems||[]).map(t =>
+      `<tr><td style="padding:6px 8px;font-size:0.85rem">${t.item}</td><td style="padding:6px 8px;font-size:0.85rem">${t.details}</td><td style="padding:6px 8px;font-size:0.85rem;font-weight:600;color:#15803d">${t.total}</td></tr>`
+    ).join('');
+    const otherRows = (a.otherItems||[]).map(t =>
+      `<tr><td style="padding:6px 8px;font-size:0.85rem">${t.item}</td><td style="padding:6px 8px;font-size:0.85rem">${t.details}</td><td style="padding:6px 8px;font-size:0.85rem;font-weight:600;color:#15803d">${t.total}</td></tr>`
+    ).join('');
+
+    document.getElementById('modalContent').innerHTML = `
+      <div class="modal-header">
+        <div class="modal-avatar">${initials.toUpperCase()}</div>
+        <div class="modal-header-text">
+          <h2>${a.name || 'Athlete'}</h2>
+          <p>${a.sport} · ${a.nsgb} · ${a.totalAmount}</p>
+        </div>
+        <button class="modal-close" onclick="closeModal()">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-section">
+          <h4>Athlete Information</h4>
+          <div class="modal-grid">
+            <div class="modal-field"><label>Full Name</label><p>${a.name || '—'}</p></div>
+            <div class="modal-field"><label>Date of Birth</label><p>${a.dob || '—'}</p></div>
+            <div class="modal-field"><label>Age</label><p>${a.age || '—'}</p></div>
+            <div class="modal-field"><label>Gender</label><p>${a.gender || '—'}</p></div>
+            <div class="modal-field"><label>Phone</label><p>${a.phone || '—'}</p></div>
+            <div class="modal-field"><label>Email</label><p>${a.email || '—'}</p></div>
+            <div class="modal-field"><label>School / Institution</label><p>${a.school || '—'}</p></div>
+            <div class="modal-field"><label>Academic Year / Grade</label><p>${a.grade || '—'}</p></div>
+            <div class="modal-field"><label>Sporting Discipline</label><p>${a.sportDiscipline || '—'}</p></div>
+            <div class="modal-field"><label>Years Competing</label><p>${a.yearsCompeting || '—'}</p></div>
+            <div class="modal-field"><label>Competition Level</label><p>${a.competitionLevel || '—'}</p></div>
+            <div class="modal-field"><label>NSGB</label><p>${a.nsgb || '—'}</p></div>
+          </div>
+        </div>
+        <div class="modal-section">
+          <h4>Key Achievements (Last 3 Years)</h4>
+          ${achievements}
+        </div>
+        <div class="modal-section">
+          <h4>Development Programme</h4>
+          <div class="modal-grid">
+            <div class="modal-field full"><label>Programme Name & Location</label><p>${a.programName || '—'}</p></div>
+            <div class="modal-field full"><label>Programme Details</label><p>${a.programDetails || '—'}</p></div>
+            <div class="modal-field full"><label>Coaches Involved</label><p>${a.coachesInvolved || '—'}</p></div>
+            <div class="modal-field full"><label>LTAD Stage</label><p>${a.ltadStage || '—'}</p></div>
+            <div class="modal-field full"><label>Pathway Alignment</label><p>${a.pathway || '—'}</p></div>
+            <div class="modal-field full"><label>Expected Outcomes (2 Years)</label><p>${a.outcomes || '—'}</p></div>
+          </div>
+        </div>
+        <div class="modal-section">
+          <h4>Funding Request — ${a.totalAmount}</h4>
+          <div class="modal-grid">
+            <div class="modal-field"><label>Fiscal Year</label><p>${a.fiscalYear || '—'}</p></div>
+            <div class="modal-field"><label>Total Requested</label><p style="font-weight:700;color:#15803d">${a.totalAmount}</p></div>
+          </div>
+          ${travelRows ? `<p style="font-size:0.78rem;font-weight:700;color:var(--navy);margin:12px 0 6px;text-transform:uppercase">Travel & Accommodation</p>
+          <table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:6px 8px;font-size:0.75rem;background:#f1f5f9;text-align:left">Item</th><th style="padding:6px 8px;font-size:0.75rem;background:#f1f5f9;text-align:left">Details</th><th style="padding:6px 8px;font-size:0.75rem;background:#f1f5f9;text-align:left">Total</th></tr></thead><tbody>${travelRows}</tbody></table>` : ''}
+          ${coachRows ? `<p style="font-size:0.78rem;font-weight:700;color:var(--navy);margin:12px 0 6px;text-transform:uppercase">Training Camp / Coaching Fees</p>
+          <table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:6px 8px;font-size:0.75rem;background:#f1f5f9;text-align:left">Item</th><th style="padding:6px 8px;font-size:0.75rem;background:#f1f5f9;text-align:left">Details</th><th style="padding:6px 8px;font-size:0.75rem;background:#f1f5f9;text-align:left">Total</th></tr></thead><tbody>${coachRows}</tbody></table>` : ''}
+          ${otherRows ? `<p style="font-size:0.78rem;font-weight:700;color:var(--navy);margin:12px 0 6px;text-transform:uppercase">Other Costs</p>
+          <table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:6px 8px;font-size:0.75rem;background:#f1f5f9;text-align:left">Item</th><th style="padding:6px 8px;font-size:0.75rem;background:#f1f5f9;text-align:left">Details</th><th style="padding:6px 8px;font-size:0.75rem;background:#f1f5f9;text-align:left">Total</th></tr></thead><tbody>${otherRows}</tbody></table>` : ''}
+          ${a.remainingCosts ? `<div class="modal-field full" style="margin-top:12px"><label>Remaining Costs Coverage</label><p>${a.remainingCosts}</p></div>` : ''}
+        </div>
+        <div class="modal-section">
+          <h4>Documents</h4>
+          ${files}
+        </div>
+        <div class="modal-section">
+          <h4>Authorised Representative</h4>
+          <div class="modal-grid">
+            <div class="modal-field"><label>Name</label><p>${a.repName || '—'}</p></div>
+            <div class="modal-field"><label>Position</label><p>${a.repPosition || '—'}</p></div>
+            <div class="modal-field"><label>Date</label><p>${a.repDate || '—'}</p></div>
+          </div>
+        </div>
+      </div>`;
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+
+  // ===== CHARTS =====
+  function initCharts() {
+    const sportCounts = {};
+    const sportAmounts = {};
+    const statusCounts = {'Pending':0,'Under Review':0,'Approved':0,'Declined':0};
+    const docCounts = {'With Documents':0,'No Documents':0};
+
+    APPLICANTS.forEach(a => {
+      sportCounts[a.sport] = (sportCounts[a.sport]||0) + 1;
+      sportAmounts[a.sport] = (sportAmounts[a.sport]||0) + a.totalAmountNum;
+      const st = statuses[a.id] || 'Pending';
+      statusCounts[st] = (statusCounts[st]||0) + 1;
+      docCounts[a.hasDocuments ? 'With Documents' : 'No Documents']++;
+    });
+
+    const palette = ['#E91E63','rgb(25,25,112)','#C2185B','rgb(40,40,140)','#880e4f','#1a237e','#4a148c','#bf360c'];
+
+    new Chart(document.getElementById('chartSport'), {
+      type: 'bar',
+      data: { labels: Object.keys(sportCounts), datasets: [{ label: 'Applications', data: Object.values(sportCounts), backgroundColor: palette }] },
+      options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+    new Chart(document.getElementById('chartAmount'), {
+      type: 'bar',
+      data: { labels: Object.keys(sportAmounts), datasets: [{ label: 'Amount ($)', data: Object.values(sportAmounts), backgroundColor: palette }] },
+      options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+    new Chart(document.getElementById('chartStatus'), {
+      type: 'doughnut',
+      data: { labels: Object.keys(statusCounts), datasets: [{ data: Object.values(statusCounts), backgroundColor: ['#fbbf24','#38bdf8','#4ade80','#f87171'] }] },
+      options: { responsive: true }
+    });
+    new Chart(document.getElementById('chartDocs'), {
+      type: 'doughnut',
+      data: { labels: Object.keys(docCounts), datasets: [{ data: Object.values(docCounts), backgroundColor: ['rgb(25,25,112)','#e2e8f0'] }] },
+      options: { responsive: true }
+    });
+  }
+
+  // ===== EXPORT =====
+  function exportCSV() {
+    const rows = [['ID','Name','Sport','NSGB','Age','Level','Amount','Status','Documents']];
+    filtered.forEach(a => rows.push([a.id, a.name, a.sport, a.nsgb, a.age, a.competitionLevel, a.totalAmount, statuses[a.id]||'Pending', a.uploadedFiles.length]));
+    const csv = rows.map(r => r.map(v => `"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+    const link = document.createElement('a');
+    link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+    link.download = 'athletes_award_2026.csv';
+    link.click();
+  }
+
+  function exportShortlistCSV() {
+    const items = APPLICANTS.filter(a => shortlisted.has(a.id));
+    const rows = [['ID','Name','Sport','NSGB','Amount','Status']];
+    items.forEach(a => rows.push([a.id, a.name, a.sport, a.nsgb, a.totalAmount, statuses[a.id]||'Pending']));
+    const csv = rows.map(r => r.map(v => `"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+    const link = document.createElement('a');
+    link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+    link.download = 'athletes_award_shortlist_2026.csv';
+    link.click();
+  }
+
+  // ===== INIT =====
+  loadDB();
+  </script>
+</body>
+</html>
