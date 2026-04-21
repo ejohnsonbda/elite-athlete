@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bermuda Sports Portal</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: rgb(25,25,112);
+      --navy2: rgb(40,40,140);
+      --gold: #E91E63;
+      --gold2: #C2185B;
+      --bg: #f4f6f9;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --gray: #e2e8f0;
+      --gray2: #94a3b8;
+      --gray3: #64748b;
+      --shadow: 0 2px 12px rgba(25,25,112,0.10);
+      --shadow2: 0 8px 32px rgba(25,25,112,0.18);
+    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ===== HEADER ===== */
+    .header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+      color: #fff; padding: 0;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 16px rgba(25,25,112,0.25);
+    }
+    .header-inner {
+      max-width: 1200px; margin: 0 auto;
+      padding: 18px 32px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .header-text h1 { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.3px; }
+    .header-text p { font-size: 0.78rem; opacity: 0.70; margin-top: 2px; }
+    .header-right {
+      margin-left: auto; display: flex; align-items: center; gap: 16px;
+    }
+    .user-badge {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 20px; padding: 6px 14px;
+      font-size: 0.82rem; font-weight: 600;
+      color: #fff; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .signout-btn {
+      background: rgba(233,30,99,0.25);
+      border: 1px solid rgba(233,30,99,0.4);
+      color: #fff; padding: 7px 16px;
+      border-radius: 8px; font-size: 0.82rem;
+      font-weight: 600; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .signout-btn:hover { background: rgba(233,30,99,0.45); }
+
+    /* ===== MAIN CONTENT ===== */
+    .main { max-width: 1200px; margin: 0 auto; padding: 40px 32px; }
+
+    .portal-welcome {
+      text-align: center; margin-bottom: 48px;
+    }
+    .portal-welcome h2 {
+      font-size: 2rem; font-weight: 800;
+      color: var(--navy); letter-spacing: -0.5px;
+      margin-bottom: 10px;
+    }
+    .portal-welcome p {
+      color: var(--gray3); font-size: 1rem; max-width: 560px; margin: 0 auto;
+    }
+
+    /* ===== PORTAL CARDS GRID ===== */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 28px;
+    }
+
+    .portal-card {
+      background: var(--card-bg);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: flex; flex-direction: column;
+    }
+    .portal-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow2);
+    }
+    .card-header {
+      padding: 28px 28px 20px;
+      display: flex; align-items: flex-start; gap: 16px;
+    }
+    .card-icon {
+      width: 56px; height: 56px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem; flex-shrink: 0;
+    }
+    .card-icon.pink { background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%); }
+    .card-icon.blue { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); }
+    .card-icon.green { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); }
+    .card-icon.purple { background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%); }
+    .card-icon.orange { background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); }
+    .card-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .card-subtitle { font-size: 0.82rem; color: var(--gray3); }
+
+    .card-body { padding: 0 28px 20px; flex: 1; }
+    .card-desc { font-size: 0.88rem; color: var(--gray3); line-height: 1.55; }
+
+    .card-stats {
+      display: flex; gap: 20px;
+      padding: 16px 28px;
+      border-top: 1px solid var(--gray);
+      background: #fafbfc;
+    }
+    .cstat { text-align: center; }
+    .cstat-num { font-size: 1.2rem; font-weight: 800; color: var(--gold); line-height: 1; }
+    .cstat-label { font-size: 0.70rem; color: var(--gray3); text-transform: uppercase; letter-spacing: 0.4px; margin-top: 2px; }
+
+    .card-footer {
+      padding: 14px 28px;
+      border-top: 1px solid var(--gray);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-tag {
+      font-size: 0.75rem; font-weight: 600;
+      padding: 4px 10px; border-radius: 20px;
+      background: #fce4ec; color: #C2185B;
+    }
+    .card-tag.blue { background: #e3f2fd; color: #1565c0; }
+    .card-tag.green { background: #e8f5e9; color: #2e7d32; }
+    .card-tag.gray { background: #f1f5f9; color: var(--gray3); }
+    .card-arrow {
+      color: var(--gold); font-size: 1.1rem; font-weight: 700;
+    }
+
+    /* Coming soon card */
+    .portal-card.coming-soon {
+      opacity: 0.65; cursor: default;
+    }
+    .portal-card.coming-soon:hover {
+      transform: none; box-shadow: var(--shadow);
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      text-align: center; padding: 32px;
+      color: var(--gray2); font-size: 0.78rem;
+      border-top: 1px solid var(--gray);
+      margin-top: 48px;
+    }
+
+    @media (max-width: 640px) {
+      .header-inner { padding: 14px 16px; }
+      .main { padding: 24px 16px; }
+      .portal-welcome h2 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-text">
+        <h1>Bermuda Sports Portal</h1>
+        <p>Department of Youth, Sport &amp; Recreation — 2026</p>
+      </div>
+      <div class="header-right">
+        <div class="user-badge" id="userBadge">—</div>
+        <button class="signout-btn" onclick="signOut()">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="portal-welcome">
+      <h2>Welcome to the Sports Portal</h2>
+      <p>Select a program below to review applications, manage shortlists, and track statuses.</p>
+    </div>
+
+    <div class="cards-grid">
+
+      <!-- Elite Athlete Sponsorship -->
+      <a class="portal-card" href="elite-athlete.html">
+        <div class="card-header">
+          <div class="card-icon pink">&#127942;</div>
+          <div>
+            <div class="card-title">Elite Athlete Sponsorship</div>
+            <div class="card-subtitle">2026 Applications</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Review and manage applications from elite athletes seeking sponsorship funding for international competition, training, and development.</p>
+        </div>
+        <div class="card-stats">
+          <div class="cstat"><div class="cstat-num">47</div><div class="cstat-label">Applicants</div></div>
+          <div class="cstat"><div class="cstat-num">$677K</div><div class="cstat-label">Requested</div></div>
+          <div class="cstat"><div class="cstat-num">20+</div><div class="cstat-label">Sports</div></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-tag">Active</span>
+          <span class="card-arrow">&#8594;</span>
+        </div>
+      </a>
+
+      <!-- National Junior Athlete / Coaches Award -->
+      <a class="portal-card" href="junior-athlete.html">
+        <div class="card-header">
+          <div class="card-icon blue">&#127891;</div>
+          <div>
+            <div class="card-title">National Junior Athlete &amp; Coaches Award</div>
+            <div class="card-subtitle">2026 Applications</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Review NSGB applications for junior development programme coaching support, funding for training camps, travel, and athlete pathway development.</p>
+        </div>
+        <div class="card-stats">
+          <div class="cstat"><div class="cstat-num">19</div><div class="cstat-label">Applications</div></div>
+          <div class="cstat"><div class="cstat-num">$47K</div><div class="cstat-label">Requested</div></div>
+          <div class="cstat"><div class="cstat-num">10</div><div class="cstat-label">Sports</div></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-tag blue">Active</span>
+          <span class="card-arrow">&#8594;</span>
+        </div>
+      </a>
+
+      <!-- Summer Employment — placeholder -->
+      <div class="portal-card coming-soon">
+        <div class="card-header">
+          <div class="card-icon green">&#9728;</div>
+          <div>
+            <div class="card-title">Summer Employment Programme</div>
+            <div class="card-subtitle">Coming Soon</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Applications and placements for the summer employment programme will be available here.</p>
+        </div>
+        <div class="card-stats">
+          <div class="cstat"><div class="cstat-num">—</div><div class="cstat-label">Applicants</div></div>
+          <div class="cstat"><div class="cstat-num">—</div><div class="cstat-label">Placements</div></div>
+          <div class="cstat"><div class="cstat-num">—</div><div class="cstat-label">Employers</div></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-tag gray">Coming Soon</span>
+          <span class="card-arrow" style="color:var(--gray2)">&#8594;</span>
+        </div>
+      </div>
+
+      <!-- Reports — placeholder -->
+      <div class="portal-card coming-soon">
+        <div class="card-header">
+          <div class="card-icon orange">&#128202;</div>
+          <div>
+            <div class="card-title">Reports &amp; Analytics</div>
+            <div class="card-subtitle">Coming Soon</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="card-desc">Consolidated reports, budget summaries, and analytics dashboards across all sports programmes will be available here.</p>
+        </div>
+        <div class="card-stats">
+          <div class="cstat"><div class="cstat-num">—</div><div class="cstat-label">Reports</div></div>
+          <div class="cstat"><div class="cstat-num">—</div><div class="cstat-label">Dashboards</div></div>
+          <div class="cstat"><div class="cstat-num">—</div><div class="cstat-label">Exports</div></div>
+        </div>
+        <div class="card-footer">
+          <span class="card-tag gray">Coming Soon</span>
+          <span class="card-arrow" style="color:var(--gray2)">&#8594;</span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    &copy; 2026 Bermuda Department of Youth, Sport &amp; Recreation. All rights reserved.
+  </footer>
+
+  <script>
+    const ACCESS_CODES = ['juren', 'safehands'];
+
+    function normaliseCode(c) { return (c || '').trim().toLowerCase(); }
+
+    function signOut() {
+      ['portal_auth','portal_code'].forEach(k => sessionStorage.removeItem(k));
+      window.location.href = 'index.html';
+    }
+
+    (function initPortal() {
+      const auth = sessionStorage.getItem('portal_auth');
+      const code = normaliseCode(sessionStorage.getItem('portal_code'));
+      if (auth !== '1' || !ACCESS_CODES.includes(code)) {
+        window.location.href = 'index.html';
+        return;
+      }
+      document.getElementById('userBadge').textContent = code;
+    })();
+  </script>
+</body>
+</html>

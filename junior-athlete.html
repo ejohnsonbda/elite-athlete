@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>National Junior Athlete &amp; Coaches Award — 2026</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: rgb(25,25,112);
+      --navy2: rgb(40,40,140);
+      --gold: #E91E63;
+      --gold2: #C2185B;
+      --bg: #f4f6f9;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --gray: #e2e8f0;
+      --gray2: #94a3b8;
+      --gray3: #64748b;
+      --shadow: 0 2px 12px rgba(25,25,112,0.10);
+      --shadow2: 0 8px 32px rgba(25,25,112,0.18);
+    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* HEADER */
+    .header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+      color: #fff; position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 16px rgba(25,25,112,0.25);
+    }
+    .header-inner {
+      max-width: 1600px; margin: 0 auto;
+      padding: 16px 32px; display: flex; align-items: center; gap: 18px;
+    }
+    .back-btn {
+      background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);
+      color: #fff; padding: 7px 14px; border-radius: 8px;
+      font-size: 0.82rem; font-weight: 600; cursor: pointer;
+      text-decoration: none; transition: background 0.2s; flex-shrink: 0;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.25); }
+    .header-text h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.3px; }
+    .header-text p { font-size: 0.78rem; opacity: 0.70; margin-top: 2px; }
+    .header-stats { margin-left: auto; display: flex; gap: 28px; }
+    .hstat { text-align: center; }
+    .hstat-num { font-size: 1.4rem; font-weight: 800; color: var(--gold2); line-height: 1; }
+    .hstat-label { font-size: 0.68rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px; }
+    .header-right { display: flex; align-items: center; gap: 12px; margin-left: 24px; }
+    .user-badge {
+      background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 20px; padding: 5px 12px; font-size: 0.78rem;
+      font-weight: 600; color: #fff; text-transform: uppercase;
+    }
+    .signout-btn {
+      background: rgba(233,30,99,0.25); border: 1px solid rgba(233,30,99,0.4);
+      color: #fff; padding: 6px 14px; border-radius: 8px;
+      font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: background 0.2s;
+    }
+    .signout-btn:hover { background: rgba(233,30,99,0.45); }
+
+    /* NAV TABS */
+    .nav-tabs {
+      background: var(--navy); border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .nav-inner {
+      max-width: 1600px; margin: 0 auto;
+      padding: 0 32px; display: flex; gap: 4px;
+    }
+    .nav-tab {
+      padding: 12px 20px; color: rgba(255,255,255,0.65);
+      font-size: 0.88rem; font-weight: 600; cursor: pointer;
+      border-bottom: 3px solid transparent; transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .nav-tab:hover { color: #fff; }
+    .nav-tab.active { color: #fff; border-bottom-color: var(--gold); }
+
+    /* MAIN */
+    .main { max-width: 1600px; margin: 0 auto; padding: 24px 32px; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* TOOLBAR */
+    .toolbar {
+      display: flex; gap: 12px; align-items: center;
+      flex-wrap: wrap; margin-bottom: 20px;
+    }
+    .search-box {
+      flex: 1; min-width: 200px; padding: 9px 14px;
+      border: 1px solid var(--gray); border-radius: 8px;
+      font-size: 0.88rem; outline: none; background: var(--card-bg);
+    }
+    .search-box:focus { border-color: var(--gold); }
+    .filter-select {
+      padding: 9px 12px; border: 1px solid var(--gray);
+      border-radius: 8px; font-size: 0.85rem;
+      background: var(--card-bg); cursor: pointer; outline: none;
+    }
+    .filter-select:focus { border-color: var(--gold); }
+    .btn-primary {
+      padding: 9px 18px; background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
+      color: #fff; border: none; border-radius: 8px;
+      font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-secondary {
+      padding: 9px 18px; background: var(--card-bg);
+      color: var(--text); border: 1px solid var(--gray);
+      border-radius: 8px; font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn-secondary:hover { background: #f1f5f9; }
+    .results-count { color: var(--gray3); font-size: 0.85rem; white-space: nowrap; }
+
+    /* TABLE */
+    .table-wrap { overflow-x: auto; border-radius: 12px; box-shadow: var(--shadow); }
+    table { width: 100%; border-collapse: collapse; background: var(--card-bg); }
+    th {
+      background: var(--navy); color: #fff;
+      padding: 12px 14px; text-align: left;
+      font-size: 0.78rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.4px;
+      white-space: nowrap;
+    }
+    td { padding: 12px 14px; border-bottom: 1px solid var(--gray); font-size: 0.88rem; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8fafc; }
+    tr.shortlisted td { background: #fce4ec; }
+
+    .sport-badge {
+      display: inline-block; padding: 3px 10px; border-radius: 20px;
+      font-size: 0.75rem; font-weight: 600; color: #fff; white-space: nowrap;
+    }
+    .status-select {
+      padding: 4px 8px; border-radius: 6px; border: 1px solid var(--gray);
+      font-size: 0.80rem; font-weight: 600; cursor: pointer; outline: none;
+    }
+    .status-Pending { background: #fef3c7; color: #b45309; }
+    .status-Under-Review { background: #e0f2fe; color: #0369a1; }
+    .status-Approved { background: #dcfce7; color: #15803d; }
+    .status-Declined { background: #fee2e2; color: #b91c1c; }
+
+    .star-btn {
+      background: none; border: none; font-size: 1.2rem;
+      cursor: pointer; padding: 2px 4px; transition: transform 0.15s;
+    }
+    .star-btn:hover { transform: scale(1.2); }
+    .file-chip {
+      display: inline-block; padding: 2px 8px; margin: 2px;
+      background: #e3f2fd; color: #1565c0; border-radius: 4px;
+      font-size: 0.72rem; text-decoration: none; white-space: nowrap;
+    }
+    .file-chip:hover { background: #bbdefb; }
+    .view-btn {
+      padding: 5px 12px; background: var(--navy);
+      color: #fff; border: none; border-radius: 6px;
+      font-size: 0.78rem; font-weight: 600; cursor: pointer;
+      transition: background 0.2s; white-space: nowrap;
+    }
+    .view-btn:hover { background: var(--navy2); }
+
+    /* PAGINATION */
+    .pagination {
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; margin-top: 20px;
+    }
+    .page-btn {
+      padding: 6px 12px; border: 1px solid var(--gray);
+      background: var(--card-bg); border-radius: 6px;
+      font-size: 0.85rem; cursor: pointer; transition: all 0.15s;
+    }
+    .page-btn:hover { background: #f1f5f9; }
+    .page-btn.active {
+      background: var(--gold); color: #fff; border-color: var(--gold);
+    }
+    .page-info { color: var(--gray3); font-size: 0.85rem; }
+
+    /* SHORTLIST */
+    .shortlist-empty {
+      text-align: center; padding: 60px 20px;
+      color: var(--gray2); font-size: 1rem;
+    }
+
+    /* ANALYTICS */
+    .charts-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+      gap: 24px;
+    }
+    .chart-card {
+      background: var(--card-bg); border-radius: 12px;
+      box-shadow: var(--shadow); padding: 24px;
+    }
+    .chart-card h3 {
+      font-size: 0.95rem; font-weight: 700; color: var(--navy);
+      margin-bottom: 18px;
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      z-index: 1000; display: none; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--card-bg); border-radius: 18px;
+      width: 100%; max-width: 760px;
+      max-height: 90vh; overflow-y: auto;
+      box-shadow: var(--shadow2);
+    }
+    .modal-header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+      color: #fff; padding: 22px 28px;
+      display: flex; align-items: center; gap: 16px;
+      border-radius: 18px 18px 0 0;
+      position: sticky; top: 0; z-index: 10;
+    }
+    .modal-avatar {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .modal-header-text h2 { font-size: 1.1rem; font-weight: 700; }
+    .modal-header-text p { font-size: 0.80rem; opacity: 0.75; margin-top: 2px; }
+    .modal-close {
+      margin-left: auto; background: rgba(255,255,255,0.15);
+      border: none; color: #fff; width: 34px; height: 34px;
+      border-radius: 50%; font-size: 1.1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s; flex-shrink: 0;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.3); }
+    .modal-body { padding: 28px; }
+    .modal-section {
+      background: #fce4ec22; border-radius: 10px;
+      padding: 16px 18px; margin-bottom: 16px;
+      border-left: 3px solid var(--gold);
+    }
+    .modal-section h4 {
+      font-size: 0.78rem; font-weight: 700; color: var(--gold);
+      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;
+    }
+    .modal-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    }
+    .modal-field label {
+      display: block; font-size: 0.75rem; color: var(--gray3);
+      font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;
+      margin-bottom: 3px;
+    }
+    .modal-field p {
+      font-size: 0.88rem; color: var(--text); white-space: pre-wrap; line-height: 1.5;
+    }
+    .modal-field.full { grid-column: 1 / -1; }
+    .modal-file-btn {
+      display: inline-block; padding: 6px 12px; margin: 4px;
+      background: #e3f2fd; color: #1565c0; border-radius: 6px;
+      font-size: 0.80rem; font-weight: 600; text-decoration: none;
+      transition: background 0.2s;
+    }
+    .modal-file-btn:hover { background: #bbdefb; }
+    .budget-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    .budget-table th {
+      background: var(--navy); color: #fff;
+      padding: 8px 10px; font-size: 0.75rem; text-align: left;
+    }
+    .budget-table td {
+      padding: 7px 10px; border-bottom: 1px solid var(--gray);
+      font-size: 0.82rem;
+    }
+    .budget-total {
+      font-weight: 700; color: var(--gold); font-size: 1.05rem;
+      text-align: right; margin-top: 10px;
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--gold); color: #fff;
+      padding: 12px 20px; border-radius: 10px;
+      font-size: 0.88rem; font-weight: 600;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      transform: translateY(80px); opacity: 0;
+      transition: all 0.3s; z-index: 9999;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    @media (max-width: 768px) {
+      .header-inner { padding: 12px 16px; }
+      .header-stats { display: none; }
+      .main { padding: 16px; }
+      .modal-grid { grid-template-columns: 1fr; }
+      .charts-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <a class="back-btn" href="portal.html">&#8592; Portal</a>
+      <div class="header-text">
+        <h1>National Junior Athlete &amp; Coaches Award</h1>
+        <p>2026 Applications Dashboard</p>
+      </div>
+      <div class="header-stats">
+        <div class="hstat">
+          <div class="hstat-num" id="hTotalApps">19</div>
+          <div class="hstat-label">Applications</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-num">$47K</div>
+          <div class="hstat-label">Requested</div>
+        </div>
+        <div class="hstat">
+          <div class="hstat-num">10</div>
+          <div class="hstat-label">Sports</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="user-badge" id="userBadge">—</div>
+        <button class="signout-btn" onclick="signOut()">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- NAV -->
+  <nav class="nav-tabs">
+    <div class="nav-inner">
+      <div class="nav-tab active" onclick="switchTab('applications',this)">Applications</div>
+      <div class="nav-tab" onclick="switchTab('shortlist',this)">Shortlist <span id="shortlistCount"></span></div>
+      <div class="nav-tab" onclick="switchTab('analytics',this)">Analytics</div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- APPLICATIONS TAB -->
+    <div class="tab-panel active" id="tab-applications">
+      <div class="toolbar">
+        <input class="search-box" id="searchBox" placeholder="Search NSGB, coach, sport..." oninput="applyFilters()" />
+        <select class="filter-select" id="filterSport" onchange="applyFilters()">
+          <option value="">All Sports</option>
+          <option value="Cricket">Cricket</option><option value="Equestrian">Equestrian</option><option value="Football">Football</option><option value="Golf">Golf</option><option value="Gymnastics">Gymnastics</option><option value="Hockey">Hockey</option><option value="Motorsport">Motorsport</option><option value="Other">Other</option><option value="Pickleball">Pickleball</option><option value="Rugby">Rugby</option><option value="Swimming">Swimming</option><option value="Triathlon">Triathlon</option>
+        </select>
+        <select class="filter-select" id="filterStatus" onchange="applyFilters()">
+          <option value="">All Statuses</option>
+          <option>Pending</option>
+          <option>Under Review</option>
+          <option>Approved</option>
+          <option>Declined</option>
+        </select>
+        <select class="filter-select" id="filterDocs" onchange="applyFilters()">
+          <option value="">All</option>
+          <option value="yes">Has Documents</option>
+          <option value="no">No Documents</option>
+        </select>
+        <span class="results-count" id="resultsCount"></span>
+        <button class="btn-primary" onclick="exportCSV()">Export CSV</button>
+      </div>
+      <div class="table-wrap">
+        <table id="appTable">
+          <thead>
+            <tr>
+              <th></th>
+              <th>#</th>
+              <th>NSGB</th>
+              <th>Coach / Company</th>
+              <th>Sport</th>
+              <th>Program</th>
+              <th>Athletes</th>
+              <th>Amount</th>
+              <th>Documents</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="appTableBody"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+
+    <!-- SHORTLIST TAB -->
+    <div class="tab-panel" id="tab-shortlist">
+      <div class="toolbar">
+        <span class="results-count" id="shortlistInfo"></span>
+        <button class="btn-primary" onclick="exportShortlistCSV()">Export Shortlist CSV</button>
+        <button class="btn-secondary" onclick="printShortlist()">Print</button>
+      </div>
+      <div id="shortlistContent"></div>
+    </div>
+
+    <!-- ANALYTICS TAB -->
+    <div class="tab-panel" id="tab-analytics">
+      <div class="charts-grid">
+        <div class="chart-card"><h3>Applications by Sport</h3><canvas id="chartSport"></canvas></div>
+        <div class="chart-card"><h3>Amount Requested by Sport ($)</h3><canvas id="chartAmount"></canvas></div>
+        <div class="chart-card"><h3>Application Status Overview</h3><canvas id="chartStatus"></canvas></div>
+        <div class="chart-card"><h3>Documents Submitted</h3><canvas id="chartDocs"></canvas></div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+    <div class="modal" id="modalContent"></div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+  // ===== AUTH =====
+  const ACCESS_CODES = ['juren','safehands'];
+  function normaliseCode(c) { return (c||'').trim().toLowerCase(); }
+  function signOut() {
+    ['portal_auth','portal_code'].forEach(k => sessionStorage.removeItem(k));
+    window.location.href = 'index.html';
+  }
+  let currentUserCode = '';
+  (function initAuth() {
+    const auth = sessionStorage.getItem('portal_auth');
+    const code = normaliseCode(sessionStorage.getItem('portal_code'));
+    if (auth !== '1' || !ACCESS_CODES.includes(code)) {
+      window.location.href = 'index.html'; return;
+    }
+    currentUserCode = code;
+    document.getElementById('userBadge').textContent = code;
+  })();
+
+  // ===== SUPABASE =====
+  const SUPA_URL = 'https://urrarxkxwvrettozogtz.supabase.co';
+  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVycmFyeGt4d3ZyZXR0b3pvZ3R6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1NTM5MDksImV4cCI6MjA1OTEyOTkwOX0.yRFBfkTrJTjCgwBMiKBEAMTEJbqJGEJhGLaJnxYT3Ys';
+  const supabase = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+
+  // ===== DATA =====
+  const APPLICANTS = [{"id": 1, "submissionId": "6522849461524230337", "submissionDate": "Apr 17, 2026", "nsgb": "Bermuda Golf Association", "orgEmail": "president@bermudagolf.org", "coach": "Henry Brunton", "coachEmail": "www.henrybrunton.com", "coachWebsite": "", "sport": "Golf", "contacts": [{"name": "Craig Brown", "email": "president@bermudagolf.org", "phone": "5332739"}], "services": "Henry Brunton is one of the most recognizable names in Canadian golf and is one of the world’s leading golf coaches and educators. A graduate of the University of Ottawa, Brunton has been a member of the PGA of Canada since 1984 and the PGA of America since 2021. In 2008, the PGA of Canada honored him with its highest standing – Master Professional. In 2024, Brunton was inducted into the PGA of Ontario Hall of Fame. \n\nBrunton is the creator of the PGA of Canada Teaching and Coaching Certification Program and the author of Journey to Excellence. He is the first Canadian listed among GOLF Magazine’s Top 100 Teachers and US Kids Top 50 Kids Teachers.", "programName": "Toronto and Orlando", "programDetails": "Henry is a Godfather of LTAD working with Golf Canada to create the LTAD program. He has visited Bermuda in 2011 and as we now are building the program he will be providing services to assist our NextGen and Tournament players in college and tournament prep", "coachesInvolved": "please see above Bio", "athletes": "Arman Newton\nJonny Bart\nDarina Betschart", "pathway": "Heny will introduce players to tournament preparation, statistics, analytics, course management", "outcomes": "Continue to improve in tournament play, course management and enter on to NCAA college preparation track.", "fiscalYear": "5000", "amountRequested": "5000", "totalNJASP": "5000", "totalAmountNum": 5000.0, "totalAmount": "$5,000.00", "remainingCosts": "The athletes will fund raise and parental support may be necessary as well as additional support from the NSGB.", "repName": "Craig Brown", "repPosition": "President", "repDate": "Apr 17, 2026", "repSignature": "https://www.jotform.com/uploads/Umindesign/251007605265854/6522849461524230337/6522849461524230337_signature_47.png", "travelItems": [{"item": "2000", "details": "Airfare", "total": "1500"}, {"item": "1000", "details": "Accommodation on site", "total": "1000"}], "coachingItems": [{"item": "Coaching fee", "details": "Coach fee for Golf, S&C", "total": "2000"}], "otherItems": [{"item": "HJGT Tournament (x4 entry fee)", "details": "Orlando event", "total": "500"}], "docFolder": "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Golf Association  Henry Brunton", "uploadedFiles": ["Bermuda-Golf-Association-04-17-2026.pdf"], "uploadedFilePaths": ["docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Golf Association  Henry Brunton/Bermuda-Golf-Association-04-17-2026.pdf"], "hasDocuments": true}, {"id": 2, "submissionId": "6522834096572239590", "submissionDate": "Apr 17, 2026", "nsgb": "Bermuda Equestrian Federation", "orgEmail": "lpmahoney@northrock.bm", "coach": "Abby Bardgett", "coachEmail": "abardgett@yahoo.com", "coachWebsite": "", "sport": "Equestrian", "contacts": [{"name": "Carla Stempel", "email": "befcarla@gmail.com", "phone": ""}, {"name": "Lauren Mahoney", "email": "lpmahoney@northrock.bm", "phone": ""}, {"name": "Kristy Rego", "email": "kristybef@gmail.com", "phone": ""}], "services": "Equestrian coaching - hunters, jumpers, equitation\nHorse training across disciplines", "programName": "Breakaway Stables, Devonshire, Bermuda", "programDetails": "Abby is a local equestrian coach, responsible for the development of numerous junior equestrian athletes in Bermuda, through training and local competition. A copy of the BEF's Junior Development Program is being sent under separate cover.\n\nAs part of Abby's coaching development, she will be traveling to Portugal in August to compete in the 1.20m division at a CSI2* competition She will be attending training sessions while in Portugal to help in her preparation and to develop her technical skills before taking part in 3 days of competition.  She will also continue to utilize clinicians traveling to Bermuda periodically, to provide training to athletes and coaches.\n\nThe BEF fully supports her growth and development, as one of the few equestrian coaches on island, with extensive competitive experience, who consistently coaches junior athletes to a level fit for international competition.", "coachesInvolved": "Abby Bardgett - head trainer at Breakaway Stables", "athletes": "(J) = Junior; (A) = Adult\n\nNina Wehmeyer (A)\nHarley Greenslade (J)\nVictoria Smatt (J)\nGiada Daniels (J)\nCharlotte Arthur (J)\nKelsie Carreiro (J)\nLogan Flood (J)\nMatilda Boyce (J)\nPiper Greenslade (J)\nPeta White (A)\nJulia Cooper (A)\nSienna Hope (J)\nAlex McMartin (A)\nPaige Lindo (J)\nCapri Tavares(J)\nLily Butler(J)\nVictoria Smatt (J)\nRiley Richardson (J)\nSierra Wolffe (A)\nJasmine Lopes-Heinz (J)\nDrew Myers (J)\nDaisy Cooper (J)\nAurelia Bathgate (J)\nGemma Carreiro (A)\nSophie Greenway (J)\nKeira Wheeler (J)\nSophie Ferrer (J)\nSebrina Greenway (A)\nRebecca Bartoletti (A)", "pathway": "Abby's technical development, and exposure to international competition and training enables her to fine tune her craft and utilize her skill set to train and develop junior athletes.", "outcomes": "Abby would like to continue to compete internationally twice a year. Her objective is to do this in as many different locations as possible to get varied experiences and lessons from professionals at the top of the sport. There is a truly never-ending supply of different techniques and skills that are acquired over time in this sport and in turn a never-ending supply of things to learn.\n\nThe more tools she acquires the better equipped she will be and this will help her to steer and guide the many students she teaches and who train with her from the beginning phases of their riding journey straight through to having them prepared to compete overseas. Abby's results over the years have proven the strength in her coaching program, and in addition to competing overseas and continuously developing her skills as a senior coach/equestrian in Bermuda this will only help to enhance her skill level and the knowledge which she in turn shares with her students.", "fiscalYear": "FY27 (April 2026 - March 2027)", "amountRequested": "Budget information pending", "totalNJASP": "Budget information pending", "totalAmountNum": 0.0, "totalAmount": "TBD", "remainingCosts": "Abby will cover her own costs.", "repName": "Lauren Mahoney", "repPosition": "Board Member", "repDate": "Apr 17, 2026", "repSignature": "https://www.jotform.com/uploads/Umindesign/251007605265854/6522834096572239590/6522834096572239590_signature_47.png", "travelItems": [], "coachingItems": [], "otherItems": [], "docFolder": "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Equestrian Federation Abby Bardgett", "uploadedFiles": ["Bermuda-Equestrian-Federation-04-17-2026.pdf"], "uploadedFilePaths": ["docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Equestrian Federation Abby Bardgett/Bermuda-Equestrian-Federation-04-17-2026.pdf"], "hasDocuments": true}, {"id": 3, "submissionId": "6522688069914330817", "submissionDate": "Apr 17, 2026", "nsgb": "Gymnastics Federation of Bermuda", "orgEmail": "gymfedbda@gmail.com", "coach": "PAGU Coach", "coachEmail": "", "coachWebsite": "https://upag-pagu.com/en/", "sport": "Gymnastics", "contacts": [{"name": "Julie Bortoli", "email": "gymfedbda@gmail.com", "phone": "4415331410"}, {"name": "Peter James", "email": "gymfedbda@gmail.com", "phone": "4415040733"}], "services": "Proposed training camp to help develop local gymnasts and coaches. The camp will be geared towards athletes at USAG Level 3-6 in preparation for the Carifta Games in November/December 2026 and developing athletes to compete on the international stage as they approach the junior elite level.\n\nThe Camp will be hosted in Bermuda with a visiting Elite coach from the PanAmerican Gymnastics Union (PAGU). PAGU is our regional body of World Gymnastics, the sports National Governing Body. See specific detail below\n\nVenue: Bermuda Gymnastics Association\nDuration: 4 day camp\nFocus/Goals for sessions:  \nWork with local coaches and athletes to develop:\n- development and refinement of upgraded skills on all four gymnastics events for each athlete.\n- utilise training equipment and drills to develop safe progressions for new higher level skills \n- Refine form, technique for existing skills\n- Plan routine construction to ensure meeting the requirement for the gymnastics code of points (by which the athlete's routines are scored)\n\nPlease note our regional governing body (PAGU) are very supportive of this venture, and are eager for us to utilize this option. PAGU will cover the airfare & coaches fees", "programName": "BBermuda Gymnastics Association - Bermuda Junior Development Gymnastics Team", "programDetails": "Venue: Bermuda Gymnastics Association\nDuration: 4 day camp\nFocus/Goals for sessions:  \nWork with local coaches and athletes to develop:\n- development and refinement of upgraded skills on all four gymnastics events for each athlete.\n- utilise training equipment and drills to develop safe progressions for new higher level skills \n- Refine form, technique for existing skills\n- Plan routine construction to ensure meeting the requirement for the gymnastics code of points (by which the athlete's routines are scored)", "coachesInvolved": "PAGU certified coach - Coach tbd by PAGU Technical committee", "athletes": "Bermuda Junior Development Gymnasts age 8-13", "pathway": "In order to progress to an elite level of gymnastics, many hours must be spent from the age of 7 or 8 in strength, conditioning and skill development. In Bermuda we are fortunate currently to have some very strong coaches working with our current cohort, and we have a group that has made this commitment to training. The visiting coach from PAGU will be able to work with the local coaches to consider how each athlete can develop their skill and routines in the lead up to Carifta in November/December 2026 and the upcoming competition season. This will be a step on each athlete's progression to higher level performance, and national representation at Carifta 2026 and future international competitions.", "outcomes": "Gymnastics Federation of Bermuda would like to send a team to both Carifta 2026, Carifta 2027, and to the Island Games in 2027. For Carifta we would like to see representation through an increasingly high 'levels' of the competition. Previously we have had up to level 6 competing, and we would like the highest level we have representation to increase in 2026 and 2027. Athletes representing Bermuda have had podium finishes at Carifta each year thus far, and we will continue to strive to be competitive for the podium places. The Island games are in 2027, and while only a small number of our current athletes will be age-eligible, we need to continue to develop their skill level in order to be competitive in the Island Games setting and future international competitions", "fiscalYear": "2026", "amountRequested": "4500.00", "totalNJASP": "4500", "totalAmountNum": 4500.0, "totalAmount": "$4,500.00", "remainingCosts": "We will use our current savings generated by Federation fees and fundraising/sponsorship efforts", "repName": "Julie Bortoli", "repPosition": "President", "repDate": "Apr 17, 2026", "repSignature": "https://www.jotform.com/uploads/Umindesign/251007605265854/6522688069914330817/6522688069914330817_signature_47.png", "travelItems": [{"item": "Accomodation", "details": "airbnb", "total": "2000.00"}, {"item": "Food stipend", "details": "food", "total": "500.00"}, {"item": "Local transport", "details": "transport to and from the venue", "total": "500.00"}], "coachingItems": [{"item": "Facility Rental", "details": "gym rental", "total": "1500.00"}], "otherItems": [], "docFolder": "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Gymnastics Federation of Bermuda PAGU Coach", "uploadedFiles": ["Gymnastics-Federation-of-Bermuda-04-17-2026.pdf"], "uploadedFilePaths": ["docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Gymnastics Federation of Bermuda PAGU Coach/Gymnastics-Federation-of-Bermuda-04-17-2026.pdf"], "hasDocuments": true}, {"id": 4, "submissionId": "6522589885214832772", "submissionDate": "Apr 17, 2026", "nsgb": "Bermuda Triathlon Association", "orgEmail": "kdsmith@transasct.bm", "coach": "Michael Harlow/ Endorphin Fitness", "coachEmail": "michael@endorphinfitness.com", "coachWebsite": "https://endorphinfitness.com", "sport": "Triathlon", "contacts": [{"name": "Karen Smith", "email": "kdsmith@transasct.bm", "phone": "4415247270"}, {"name": "Patty Petty", "email": "patty.petty@worldviewtravel.com", "phone": "4412998713"}, {"name": "Rhiannon Bedford", "email": "Rhiannonbedford@gmail.com", "phone": "441-504-7968"}, {"name": "Ryan Davidge", "email": "Ryan.Davidge@aon.com", "phone": "441-505-6121"}], "services": "Endorphin Fitness is regarded as one of the US's top youth endurance programs.  They provide coaching in triathlon for participants improve endurance, strength, speed, coordination, and mindset . \n\nEndorphin Fitness is one of only 17 official USA Triathlon High Performance Development Teams and the Head Coach Michael Harlow was awarded USAT’s 2012 Developmental (Youth) Coach of the Year.  As a Level 3 coach, Michael presents nationally for USA Triathlon on topics such as youth & junior physiology, draft legal racing / training, and swim, bike, and run skills and development.", "programName": "Triathlon Youth Development Squad/Carifta qualified team", "programDetails": "Location: Clearwater Beach and NSC\nDevelopment details:  Group of 30-40 pre- high performance athletes who will have been selected for Carifta 2026 to be held in Bermuda in October 23-25th.  The camp will be run Oct 15-18th and run 1/2days\nCoach Michael Harlow will be assisted by 3 local coaches\nThis is a junior development pathway to give racing experience to athletes.  The age range is 11-20", "coachesInvolved": "Guest Coach\nMichale Harlow - Level 3 USAT triathlon coach\n\nLocal Coaches\nAlec Sheppard Level 2 World triathlon coach\nRichard Lau- Level 1 NCCP coach (Canada)\nAlex Waldauer Level 1 USAT coach\nCaroline Black Level 1 World triathlon coach", "athletes": "Athletes have not yet qualified for Carita however attached is last year's team (ages can be +1).  Because Carifta is in Bermuda, we anticipate a larger team\nJackson Langley\t17\nLuca Bortoli\t17\nJacob Wright\t16\nDylan Eiselt\t15\nRory Shepherd\t14\nSanchez Smith\t15\nJasper Lau\t15\nLucas Bule\t15\nRohan Roopra\t14\nSpencer Haldeman\t13\nEthan Smith\t13\nDominic Wright\t14\n\t\nRonan Davidge\t13\nOwen Fosker\t12\nMax Williams\t11\nAidan Taylor\t12\nLukas Eiselt\t11\nLogan Jones\t17\n\nCarina Bortoli\t17\nElla Shepherd\t16\nIsla Cooze\t14\nMaddie Schindel\t15\nRiana Robinson\t14\nZara Bule\t13\nSofia Leclerc\t14\nNaomi MacGuinness\t13\nElena Bortoli\t13\nLorin Roopra\t12\nMadeleine Friend\t12\nIris Duda\t12\nColette Durkin\t12", "pathway": "The camp will provide an opportunity to enhance skills, race tactics, and mental preparation ahead of Carifta.  The aim is to give every athlete the opportunity to prepare so they can reach their personal goals and potential.   As Carifta is a development opportunity within the region, for many it it one of their fist experiences racing against competitors not from Bermuda.  For other more experienced athletes, they continue to learn and try tactics within the race.     It is also an opportunity for our coaches to learn from a very experienced and knowledgeable coach.", "outcomes": "We expect 30-40 athletes to participate in the camp and Carifta in October.\nWe expect to attract new and younger juniors to continue the strong pipeline of talent.\nOur local coaches learn new training techniques and are provided a mentoring experience\nDedication of our junior to show continued improvement and representation at junior festivals (Youth Olympics, Junior Commonwealth, Junior Pan Ams", "fiscalYear": "2026", "amountRequested": "4513", "totalNJASP": "$4513", "totalAmountNum": 4513.0, "totalAmount": "$4,513.00", "remainingCosts": "We will seek sponsorship from corporations to help cover any extra costs.  Participants may need to pay a registration fee", "repName": "Karen Smith", "repPosition": "President", "repDate": "Apr 17, 2026", "repSignature": "https://www.jotform.com/uploads/Umindesign/251007605265854/6522589885214832772/6522589885214832772_signature_47.png", "travelItems": [{"item": "AA Flight Richmond to Bda", "details": "", "total": "$943"}, {"item": "Immigration Fee", "details": "Temp work permit", "total": "$120.00"}, {"item": "Transportation", "details": "Taxi", "total": "$200"}, {"item": "Food", "details": "($50/day)", "total": "$250"}], "coachingItems": [{"item": "Coaching Fee", "details": "", "total": "$2500"}, {"item": "Water/ice/food for athletes", "details": "", "total": "$500"}], "otherItems": [], "docFolder": "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Triathlon Association Michael Harlow- Endorphin Fitness", "uploadedFiles": ["Bermuda-Triathlon-Association-04-17-2026.pdf", "American Airlines - Your trip summary.pdf", "Bermuda-Triathlon-Association-04-17-2026(1).pdf"], "uploadedFilePaths": ["docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Triathlon Association Michael Harlow- Endorphin Fitness/Bermuda-Triathlon-Association-04-17-2026.pdf", "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Triathlon Association Michael Harlow- Endorphin Fitness/American Airlines - Your trip summary.pdf", "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Triathlon Association Michael Harlow- Endorphin Fitness/Bermuda-Triathlon-Association-04-17-2026(1).pdf"], "hasDocuments": true}, {"id": 5, "submissionId": "6522587715211285272", "submissionDate": "Apr 17, 2026", "nsgb": "Bermuda Triathlon Association", "orgEmail": "kdsmith@transasct.bm", "coach": "Michael Harlow/ Endorphin Fitness", "coachEmail": "michael@endorphinfitness.com", "coachWebsite": "https://endorphinfitness.com", "sport": "Triathlon", "contacts": [{"name": "Karen Smith", "email": "kdsmith@transasct.bm", "phone": "4415247270"}, {"name": "Patty Petty", "email": "patty.petty@worldviewtravel.com", "phone": "4412998713"}, {"name": "Rhiannon Bedford", "email": "Rhiannonbedford@gmail.com", "phone": "441-504-7968"}, {"name": "Ryan Davidge", "email": "Ryan.Davidge@aon.com", "phone": "441-505-6121"}], "services": "Endorphin Fitness is regarded as one of the US's top youth endurance programs.  They provide coaching in triathlon for participants improve endurance, strength, speed, coordination, and mindset . \n\nEndorphin Fitness is one of only 17 official USA Triathlon High Performance Development Teams and the Head Coach Michael Harlow was awarded USAT’s 2012 Developmental (Youth) Coach of the Year.  As a Level 3 coach, Michael presents nationally for USA Triathlon on topics such as youth & junior physiology, draft legal racing / training, and swim, bike, and run skills and development.", "programName": "Triathlon Youth Development Squad/Carifta qualified team", "programDetails": "Location: Clearwater Beach and NSC\nDevelopment details:  Group of 30-40 pre- high performance athletes who will have been selected for Carifta 2026 to be held in Bermuda in October 23-25th.  The camp will be run Oct 15-18th and run 1/2days\nCoach Michael Harlow will be assisted by 3 local coaches\nThis is a junior development pathway to give racing experience to athletes.  The age range is 11-20", "coachesInvolved": "Guest Coach\nMichale Harlow - Level 3 USAT triathlon coach\n\nLocal Coaches\nAlec Sheppard Level 2 World triathlon coach\nRichard Lau- Level 1 NCCP coach (Canada)\nAlex Waldauer Level 1 USAT coach\nCaroline Black Level 1 World triathlon coach", "athletes": "Athletes have not yet qualified for Carita however attached is last year's team (ages can be +1).  Because Carifta is in Bermuda, we anticipate a larger team\nJackson Langley\t17\nLuca Bortoli\t17\nJacob Wright\t16\nDylan Eiselt\t15\nRory Shepherd\t14\nSanchez Smith\t15\nJasper Lau\t15\nLucas Bule\t15\nRohan Roopra\t14\nSpencer Haldeman\t13\nEthan Smith\t13\nDominic Wright\t14\n\t\nRonan Davidge\t13\nOwen Fosker\t12\nMax Williams\t11\nAidan Taylor\t12\nLukas Eiselt\t11\nLogan Jones\t17\n\nCarina Bortoli\t17\nElla Shepherd\t16\nIsla Cooze\t14\nMaddie Schindel\t15\nRiana Robinson\t14\nZara Bule\t13\nSofia Leclerc\t14\nNaomi MacGuinness\t13\nElena Bortoli\t13\nLorin Roopra\t12\nMadeleine Friend\t12\nIris Duda\t12\nColette Durkin\t12", "pathway": "The camp will provide an opportunity to enhance skills, race tactics, and mental preparation ahead of Carifta.  The aim is to give every athlete the opportunity to prepare so they can reach their personal goals and potential.   As Carifta is a development opportunity within the region, for many it it one of their fist experiences racing against competitors not from Bermuda.  For other more experienced athletes, they continue to learn and try tactics within the race.     It is also an opportunity for our coaches to learn from a very experienced and knowledgeable coach.", "outcomes": "We expect 30-40 athletes to participate in the camp and Carifta in October.\nWe expect to attract new and younger juniors to continue the strong pipeline of talent.\nOur local coaches learn new training techniques and are provided a mentoring experience\nDedication of our junior to show continued improvement and representation at junior festivals (Youth Olympics, Junior Commonwealth, Junior Pan Ams", "fiscalYear": "2026", "amountRequested": "4513", "totalNJASP": "$4513", "totalAmountNum": 4513.0, "totalAmount": "$4,513.00", "remainingCosts": "We will seek sponsorship from corporations to help cover any extra costs.  Participants may need to pay a registration fee", "repName": "Karen Smith", "repPosition": "President", "repDate": "Apr 17, 2026", "repSignature": "https://www.jotform.com/uploads/Umindesign/251007605265854/6522587715211285272/6522587715211285272_signature_47.png", "travelItems": [{"item": "AA Flight Richmond to Bda", "details": "", "total": "$943"}, {"item": "Immigration Fee", "details": "Temp work permit", "total": "$120.00"}, {"item": "Transportation", "details": "Taxi", "total": "$200"}, {"item": "Food", "details": "($50/day)", "total": "$250"}], "coachingItems": [{"item": "Coaching Fee", "details": "", "total": "$2500"}, {"item": "Water/ice/food for athletes", "details": "", "total": "$500"}], "otherItems": [], "docFolder": "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Triathlon Association Michael Harlow- Endorphin Fitness", "uploadedFiles": ["Bermuda-Triathlon-Association-04-17-2026.pdf", "American Airlines - Your trip summary.pdf", "Bermuda-Triathlon-Association-04-17-2026(1).pdf"], "uploadedFilePaths": ["docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Triathlon Association Michael Harlow- Endorphin Fitness/Bermuda-Triathlon-Association-04-17-2026.pdf", "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Triathlon Association Michael Harlow- Endorphin Fitness/American Airlines - Your trip summary.pdf", "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Triathlon Association Michael Harlow- Endorphin Fitness/Bermuda-Triathlon-Association-04-17-2026(1).pdf"], "hasDocuments": true}, {"id": 6, "submissionId": "6522587581931349660", "submissionDate": "Apr 17, 2026", "nsgb": "Bermuda Cricket Board", "orgEmail": "info@cricket.bm", "coach": "Andre Coley", "coachEmail": "andrecoley@yahoo.com", "coachWebsite": "", "sport": "Cricket", "contacts": [{"name": "Lloyd Smith", "email": "lsmith@cricket.bm", "phone": "4412928958"}, {"name": "Calvin Blankendal", "email": "cblankendal@cricket.bm", "phone": "4412928958"}, {"name": "Samantha Robinson", "email": "info@cricket.bm", "phone": "4412928958"}], "services": "Mr. Andre Coley is the Cricket Consultant to the BCB and the past Test Match Coach of Cricket West Indies. He has been providing his services to the BCB at all levels.", "programName": "BCB Talent Identifcation U19 Activation Program", "programDetails": "The BCB in partnership with the 4 senior high schools, will activate the Talent Identification Program for the Training to Compete stage. The 8-week pilot 5 weeks in 2026 and 3 weeks in 2027) program will see Andre Coley and senior school coaches work in partnership to facilitate the required coaching development of the senior boys' teams.\n\nThe program will include match play, in-school training, and talent-identification recruitment for the BCB U19 National squad, through the cricket in schools program.", "coachesInvolved": "Andre Coley - CWI Test Match Coach\n\nIrvine Romaine - Level 2 - Past BCB National team World Cup Captain\n\nLorin Tannock - Level 1 -= Physical Education teacher - Saltus\n\nDavon Govia - Level 1 - Cricket Club director and Coach - CBA\nDan Roberts - Level 1 - Physical Education Teacher - W. Academy", "athletes": "There will be approximately 60 students across 4 schools. The names of the participating students will be made known by April 30th.", "pathway": "The program will include match play, in-school training, and talent-identification recruitment for the BCB U19 National squad, through the cricket in schools' program.", "outcomes": "The expected outcomes are for the players and coaches to build a robust Senior Cricket in Schools Program and league, with a pathway development into the national U19 team. The objective is to filter the players into respective club programs to act as a feeder for both the domestic and youth programs.", "fiscalYear": "2026 -2027", "amountRequested": "5,000", "totalNJASP": "5,000", "totalAmountNum": 5000.0, "totalAmount": "$5,000.00", "remainingCosts": "The BCB has launched a TAG Day to offset any potential shortfalls.", "repName": "Calvin Blankendal", "repPosition": "Executive Director", "repDate": "Apr 17, 2026", "repSignature": "https://www.jotform.com/uploads/Umindesign/251007605265854/6522587581931349660/6522587581931349660_signature_47.png", "travelItems": [{"item": "Accommodation", "details": "", "total": "2000"}], "coachingItems": [{"item": "Coaching Fees", "details": "5 weeks", "total": "3000"}], "otherItems": [], "docFolder": "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Cricket Board Andre Coley", "uploadedFiles": ["Andre Coley SHTIP 2026.pdf", "Andre Coley Bio F.pdf", "Bermuda-Cricket-Board-04-17-2026.pdf"], "uploadedFilePaths": ["docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Cricket Board Andre Coley/Andre Coley SHTIP 2026.pdf", "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Cricket Board Andre Coley/Andre Coley Bio F.pdf", "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Cricket Board Andre Coley/Bermuda-Cricket-Board-04-17-2026.pdf"], "hasDocuments": true}, {"id": 7, "submissionId": "6522493623225128082", "submissionDate": "Apr 17, 2026", "nsgb": "Pickleball Association of Bermuda", "orgEmail": "pabermuda@gmail.com", "coach": "Armando Ferreira - My Sport Jobs", "coachEmail": "mysportjobs@gmail.com", "coachWebsite": "mysportjobs.org", "sport": "Pickleball", "contacts": [{"name": "Gavin Manders", "email": "pabermuda.director@gmail.com", "phone": "4415914131"}, {"name": "George Thomas", "email": "george@hungrybay.com", "phone": "4415914131"}], "services": "Armando Ferreira will deliver a high-performance junior training programme designed to prepare Bermuda’s top athletes (ages 15–19) for international competition and long-term elite development.\n\nAs an international coach, current Portugal #1 pickleball player, and developer of structured national coaching systems in Brazil and Portugal, Armando brings a unique combination of elite performance coaching, pathway development, and coach education.\n\nThe services provided will include:\n\nDelivery of a 1-week high-performance training camp focused on technical, tactical, and competitive development aligned with international standards\nImplementation of match-play systems and competition strategies specific to World Cup and regional tournament formats\nIndividual athlete assessments and performance profiling to guide national team selection and progression\nIntegration of mental performance, professionalism, and elite athlete habits required for international success\nMentorship and upskilling of local coaches, strengthening Bermuda’s long-term coaching infrastructure\nSupport in building a sustainable junior-to-elite pathway model, aligned with LTAD principles\n\nIn addition to on-court delivery, Armando’s global experience in developing national programs and his leadership in initiatives such as Pickleball Transforms (Brazil) and coaching certification systems in Portugal will directly contribute to strengthening Bermuda’s development structure.\n\nThis programme is specifically designed to support a targeted cohort of junior athletes who are actively preparing to represent Bermuda at major international events, including the World Cup and Americas Cup, fully aligning with NJASP objectives to develop athletes capable of reaching elite standards and competing internationally.\n\nAs an extension of this initiative, we will also look to maximize Armando Ferreira’s time in Bermuda by engaging him in additional strategic areas, including contributing to the development of more modern coaching certification frameworks and supporting a review and enhancement of our Long-Term Athlete Development Plan (LTADP), ensuring long-term sustainability and alignment with international best practices.", "programName": "WER Joell Tennis Stadium", "programDetails": "The program will consist of a 1-week high-performance training camp led by Armando Ferreira, followed by a structured 8–10 week progression phase.\n\nTraining Format\nDaily on-court technical and tactical sessions (2–3 hours per day)\nMatch-play simulation and competition scenarios\nSmall group and individualized coaching sessions\nVideo analysis and performance feedback\nDuration\nIntensive 1-week elite training camp\nFollow-up 8–10 week national squad training block leading into international competitions\nFocus Areas\nAdvanced shot selection, positioning, and strategy\nDoubles systems and team play for international formats\nMental performance and competitive mindset\nPhysical readiness and match endurance\nNational team cohesion and performance standards\n\nThis program is specifically designed as a final preparation phase leading into international competition.", "coachesInvolved": "Armando Ferreira (Lead Coach)\n\nWorld Cup 2025 MVP\nPortugal’s #1 ranked pickleball player\nInternational racquet sports coach with experience developing athletes across Europe, South America, and the United States\nHas worked with elite players including Eric Oncins, Dylan Frazier, and Emilia Schmidt. All have been top 10 in the world in their respective disciplines.\nCoaching certification clinician in Brazil and Portugal, leading national coach education and development systems\nFounder of “Pickleball Transforms,” a youth development initiative using sport to create high-performance and social impact pathways\nFounder & CEO of MySportJobs, a global platform connecting athletes and coaches to career opportunities in racquet sports\nExtensive experience in building structured athlete pathways from grassroots to elite performance\n\nGavin Manders (National Director & Supporting Coach)\n\nNational Director of Pickleball in Bermuda with over 5 years of leadership in developing the sport locally and internationally\nFirst Level 2 PPR Certified Professional in the region and active contributor to coaching development\nResponsible for the design and implementation of Bermuda’s Long-Term Athlete Development Plan (LTADP) and national team framework\nLeads national team selection, training programs, and international competition preparation (World Cup, Caribbean Championships, Americas Cup)\nHas overseen the growth of junior pathways, national rankings, and competition structures across all levels\nDirectly involved in securing funding, partnerships, and international opportunities to support athlete progression\nProvides continuity between international coaching input and long-term national development strategies\n\nBenjamin Jones (Assistant Coach)\n\nPPR-certified coach and active national-level competitor\nKey contributor to junior development programs and national training sessions\nExperienced in supporting athletes transitioning from development to competitive performance\n\nJamie Stowe (Assistant Coach)\n\nLead coach at Stowe & Stowe Tennis, based out of Newstead\nOne of Bermuda’s primary coaches responsible for developing junior racquet sport talent\nExtensive experience working with developing athletes in both tennis and pickleball pathways\nMember of Bermuda’s Caribbean Championships coaching team, supporting athlete preparation and performance\n\nJohn Singleton (Assistant Coach)\n\nLead coach at Pomander Gate Tennis Club, playing a key role in local athlete development\nActively involved in the PAB junior development programme, supporting pathway progression for emerging athletes\nMember of Bermuda’s Caribbean Championships coaching team, contributing to high-performance preparation and delivery", "athletes": "The programme will focus on a targeted group of Bermuda’s top-performing junior athletes within the NJASP age criteria, all of whom have demonstrated strong potential and are actively progressing through the national high-performance pathway, with experience competing in key international and regional events.\n\nJaden Jones (15) – One of Bermuda’s leading junior athletes, with experience competing at the World Cup and Caribbean Championships, demonstrating strong international performance potential\n\nHassan Khan (15) – Emerging high-performance athlete progressing through national competitions and competing within the National Championships and PAB Series events\n\nNumair Khan (18) – Established junior competitor performing consistently at the top domestic level, including participation in the National Championships and elite local competitions\n\nTristan Petit (16) – Elite junior tennis player transitioning into pickleball, with a strong competitive background and integration into the national development pathway\n\nWill Britten (17) – Multi-sport athlete competing in adult pickleball events and national-level competitions, demonstrating progression into higher-performance environments\n\nOwen Stewart (15 within programme year) – Developing high-performance athlete with experience competing at the Caribbean Championships and continued progression within the national system\n\nIn addition to this core group, younger pathway athletes aged 12–14 will also be integrated into selected sessions. These athletes are currently being developed within the national pathway and are also preparing for future participation in major international competitions, including the World Cup, Americas Cup, and Caribbean Championships.\n\nThis cohort represents a high-potential performance group, combining athletes with international competition experience, national-level exposure, and emerging talent transitioning into elite pathways, all aligned toward upcoming international representation and long-term development within Bermuda’s LTAD framework.", "pathway": "This programme is fully aligned with Bermuda’s Long-Term Athlete Development Plan (LTADP), providing a structured pathway from junior development into elite performance and national representation. The LTAD framework is designed to guide athletes through progressive stages of training, competition, and performance based on their development, ensuring long-term success rather than short-term results.\n\nThe introduction of Armando Ferreira as a lead international coach strengthens a critical stage within our pathway—bridging the gap between national-level juniors and elite international performance. His involvement will provide athletes with exposure to advanced technical, tactical, and performance-based training that aligns with the “Train to Compete” and “Train to Win” phases of LTAD.\n\nThis programme will:\n\nProvide high-performance training standards aligned with international competition demands\nSupport talent identification and progression into national team structures\nIntegrate athletes into a structured competition pathway, including the World Cup, Americas Cup, and Caribbean Championships\nStrengthen the connection between junior development, national team preparation, and elite performance outcomes\n\nImportantly, this initiative is not a standalone camp, but a key intervention within an ongoing national system, ensuring that athletes are continuously developed, monitored, and progressed toward representing Bermuda at the highest level.", "outcomes": "Over the next two years, this programme is expected to deliver measurable outcomes at both the athlete and national programme level, strengthening Bermuda’s position within regional and international pickleball.\n\nAthlete Outcomes:\n\nIncreased number of junior athletes progressing into national team selection and international competition (World Cup, Americas Cup, Caribbean Championships)\nImproved technical, tactical, and mental performance standards aligned with elite international play\nClear progression of athletes from junior pathway into senior national team environments\nDevelopment of a consistent group of athletes competing regularly at regional and international level\n\nNSGB (PAB) Outcomes:\n\nEstablishment of a sustainable high-performance junior development model aligned with LTAD principles\nStrengthened national coaching capacity through knowledge transfer from an international coach\nEnhanced national team preparation framework, improving competitiveness in major international events\nDevelopment of a more defined national ranking and selection pathway, linking junior and senior performance\nIncreased visibility and credibility of Bermuda as an emerging force in regional pickleball development\n\nThis programme will serve as a catalyst for long-term growth, ensuring that Bermuda is not only developing talent, but consistently transitioning athletes into elite performance and international success.", "fiscalYear": "26/27", "amountRequested": "4,752.85", "totalNJASP": "4752.85", "totalAmountNum": 4752.85, "totalAmount": "$4,752.85", "remainingCosts": "The programme will be supported through a combination of private sponsorship, supplementary grant applications, and internal programme funding, ensuring that all remaining costs are fully covered beyond the NJASP contribution.\n\nIn addition to the junior development component, Armando Ferreira’s visit will be structured as a multi-dimensional engagement, allowing his expertise to be utilized across several areas of national development. This includes:\n\nCoaching development workshops and certifications supported through private sponsorship and additional grant funding\nExtended engagement with the adult national team programme, contributing to high-performance preparation.\n\nBy expanding the scope of the visit, the programme is able to distribute key costs such as international travel and accommodation across multiple initiatives, significantly improving overall cost efficiency.\n\nThis approach aligns with best practice in sports funding, where projects are typically supported through multiple funding streams and partnerships rather than a single source.\n\nAs a result, the NJASP funding will act as a targeted investment into the junior high-performance component, while the wider programme is sustainably supported through combined funding efforts. \n\nOur request is for the NJASP to cover flight and coaching cost for 1 week camp. We will cover the accommodation while he travels as he has to overnight both ways, we will cover the accomodation and food in Bermuda. We will also cover extra time he will stay and all associated costs including equipment needs.", "repName": "Gavin Manders", "repPosition": "National Director", "repDate": "Apr 17, 2026", "repSignature": "https://www.jotform.com/uploads/Umindesign/251007605265854/6522493623225128082/6522493623225128082_signature_47.png", "travelItems": [{"item": "Brazil to Bermuda", "details": "Aug 3rd-16th", "total": "1,752.85"}], "coachingItems": [{"item": "1 Week Elite Junior Training Camp", "details": "In application", "total": "3,000"}], "otherItems": [], "docFolder": "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Pickleball Association of Bermuda Armando Ferreira - My Sport Jobs", "uploadedFiles": ["IMG_8433.PNG", "Pickleball-Association-of-Bermuda-04-17-2026.pdf"], "uploadedFilePaths": ["docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Pickleball Association of Bermuda Armando Ferreira - My Sport Jobs/IMG_8433.PNG", "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Pickleball Association of Bermuda Armando Ferreira - My Sport Jobs/Pickleball-Association-of-Bermuda-04-17-2026.pdf"], "hasDocuments": true}, {"id": 8, "submissionId": "6522404535027365433", "submissionDate": "Apr 17, 2026", "nsgb": "Bermuda Football Association", "orgEmail": "info@bermudafootball.com", "coach": "John Moreira", "coachEmail": "jm@eurostarkeeper.com", "coachWebsite": "eurostarkeeper.com", "sport": "Football", "contacts": [{"name": "David Sabir", "email": "dsabir@bermudafootball.com", "phone": "295-2199"}, {"name": "Moziah Selassie", "email": "mselassie@bermudafootball.com", "phone": "295-2199"}, {"name": "Mark Wade", "email": "mwade@bermudafootball.com", "phone": "295-2199"}, {"name": "Maurice Lowe", "email": "mlowe@bermudafootball.com", "phone": "4415341280"}], "services": "Goalkeeper and goalkeeper coach training, Bermuda Goal Keeping License level 1, level 2, level 3.", "programName": "Clyde Best Center of Excellence", "programDetails": "November 2-7th 2026\n6:00-7:30pm Goalkeepers\n7:30-9:00pm Goalkeeper coaches", "coachesInvolved": "John Moreira\nVarious coaches", "athletes": "Various players ages 7+-35", "pathway": "One of our most frequent exports to the professional game have been Goalkeepers however there is a lack of structured goalkeeper programming on island. Our Aim is to continue to improve goalkeepers and educate enough goalkeeper coaches to create a critical mass.", "outcomes": "In the next 2 years i would like to have a licensed goalkeeper coach at every club.", "fiscalYear": "2026-27", "amountRequested": "4743.46", "totalNJASP": "4743.46", "totalAmountNum": 4743.46, "totalAmount": "$4,743.46", "remainingCosts": "We will defund other programming to offset the remaining costs outside of NJASP.", "repName": "Maurice Lowe", "repPosition": "Technical Development Director", "repDate": "Apr 16, 2026", "repSignature": "https://www.jotform.com/uploads/Umindesign/251007605265854/6522404535027365433/6522404535027365433_signature_47.png", "travelItems": [{"item": "Airfare", "details": "Toronto to Bermuda", "total": "329"}, {"item": "Hotel", "details": "Grotto Bay", "total": "1311.84"}, {"item": "Ground transport", "details": "Taxis", "total": "420"}, {"item": "meals", "details": "Various", "total": "182.62"}], "coachingItems": [{"item": "Honorarium", "details": "$300/day", "total": "$1500"}, {"item": "Course administrator", "details": "", "total": "500"}, {"item": "local Coach support", "details": "", "total": "500"}], "otherItems": [], "docFolder": "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Football Association John Moreira", "uploadedFiles": ["Bermuda-Football-Association-04-16-2026.pdf"], "uploadedFilePaths": ["docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Football Association John Moreira/Bermuda-Football-Association-04-16-2026.pdf"], "hasDocuments": true}, {"id": 9, "submissionId": "6521754332128998495", "submissionDate": "Apr 16, 2026", "nsgb": "Bermuda Amateur Swimming Association", "orgEmail": "president@basa.bm", "coach": "American Swimming Coaches Association", "coachEmail": "asca@swimmingcoach.org", "coachWebsite": "https://swimmingcoach.org/", "sport": "Swimming", "contacts": [{"name": "Michael Harvey", "email": "president@basa.bm", "phone": "5040080"}, {"name": "Lana Desmond", "email": "boaliaison@basa.bm", "phone": "5045262"}], "services": "ASCA to provide on island training and specialized services to a cohort of athletes targeting the Carifta Games 2027. \n\nPool sessions and also sessions on mental health, visualization, nutrition, race preparation and healthy training habits for success.", "programName": "BASA Athlete Prep Camp at the NSC Bermuda", "programDetails": "ASCA coaches to provide on island training and specialized services to a cohort of athletes targeting the Carifta Games 2027. \n\nPool sessions and also sessions on mental health, visualization, nutrition, race preparation and healthy training habits for success. \n\n3 day camp with 5 pool session and three classroom sessions.", "coachesInvolved": "ASCA Coaches to be determined.", "athletes": "Carifta 2026 team members will most likely be participants.\n\n \nGabriella Cechini\n\nColette Durkin\n\nMadison Fox\n\nElanna Fulton\n\nMarleigh Howes\n\nConnor Hupman\n\nLogan Jones\n\nJoseph Lau\n\nNoah Maranzana\n\nGabriel Maranzana\n\nMaggie Mewett\n\nTeagan Mewett\n\nRory Shepherd\n\nViolet Smith\n\nScarlett Spurling\n\nAxel Wernbo\n\nKatherine Wheddon\n\nJorgia White\n\nDominic Wright", "pathway": "Providing this camp aligns with BASA's Long Term Athlete Development Plan.   Additional specialized training and coaching is critical to optimize athlete development.", "outcomes": "Improved performance, mental health and overall participation in the sport.  Knowledge then passes down to younger athlete which is highly beneficial", "fiscalYear": "2026-2027", "amountRequested": "5000", "totalNJASP": "5050", "totalAmountNum": 5050.0, "totalAmount": "$5,050.00", "remainingCosts": "Excess will be paid by BASA from operating fund or private donations.", "repName": "Michael Harvey", "repPosition": "President", "repDate": "Apr 16, 2026", "repSignature": "https://www.jotform.com/uploads/Umindesign/251007605265854/6521754332128998495/6521754332128998495_signature_47.png", "travelItems": [{"item": "Airfare", "details": "Return USA to BDA", "total": "750"}, {"item": "Hotel / AirBnB - 3 nights", "details": "Hotel", "total": "1000"}, {"item": "Local taxis - rental", "details": "", "total": "300"}], "coachingItems": [{"item": "Coaches Fee - Overseas", "details": "3 days", "total": "1800"}, {"item": "Local Coaches", "details": "10 hours estimate", "total": "800"}], "otherItems": [{"item": "Food and per diem", "details": "", "total": "400"}], "docFolder": "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Amateur Swimming Association American Swimming Coaches Association", "uploadedFiles": ["Bermuda-Amateur-Swimming-Association-04-16-2026.pdf"], "uploadedFilePaths": ["docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Amateur Swimming Association American Swimming Coaches Association/Bermuda-Amateur-Swimming-Association-04-16-2026.pdf"], "hasDocuments": true}, {"id": 10, "submissionId": "6520606398816263384", "submissionDate": "Apr 15, 2026", "nsgb": "Bermuda Motorcycle Racing Association - BMRA", "orgEmail": "amtbmra@gmail.com", "coach": "Billy Dunn (BMRA Junior Development Programme Coach)", "coachEmail": "", "coachWebsite": "n/a", "sport": "Motorsport", "contacts": [{"name": "David E. Jones", "email": "davideverestjones3121@gmail.com", "phone": "4417356436"}, {"name": "Billy Dunn", "email": "billy@2bmotorsports.com", "phone": "4415950199"}, {"name": "Angiliee Tyrell", "email": "amtbmra@gmail.com", "phone": "4417034959"}, {"name": "Sheila Jones", "email": "sheilajones01101967@gmail.com", "phone": "4417471067"}], "services": "The Bermuda Motorcycle Racing Association (BMRA) provides structured coaching services through its Junior Development Programme, focused on developing young riders both on and off the track.\n\nServices include:\n\nWeekly on-track coaching sessions focused on riding techniques such as cornering, braking, throttle control, and race starts\nRace-day preparation and performance evaluation\nMechanical training, including bike setup, maintenance, and safety checks\nMentorship in discipline, teamwork, and sportsmanship\nSupervision and guidance in competitive racing environments\n\nThe coaching team delivers hands-on, practical instruction tailored to each athlete’s stage of development, ensuring a safe, progressive, and performance-focused learning environment.", "programName": "Bermuda Motorcycle Racing Association (BMRA) Junior Development Programme", "programDetails": "The Bermuda Motorcycle Racing Association (BMRA) Junior Development Programme is a structured, year-round initiative designed to develop young riders through a combination of on-track training, technical education, and personal development.\n\nTraining sessions are held weekly, with increased frequency during the racing season (May–October), and focus on progressive skill-building. Sessions include:\n\nOn-track riding (cornering, braking, race starts, positioning)\nRace simulation and performance evaluation\nMechanical training (bike setup, maintenance, safety checks)\nPhysical conditioning and rider fitness awareness\n\nThe programme operates on a long-term development model, ensuring athletes build foundational skills before advancing to higher levels of competition. Emphasis is placed on discipline, safety, consistency, and race craft.\n\nOff-season training (November–April) focuses on skill refinement, technical understanding, and preparation for competitive racing.", "coachesInvolved": "The BMRA Junior Development Programme is supported by a team of experienced coaches and mentors with strong backgrounds in motorcycle racing, rider development, and technical training:\n\nThe BMRA Junior Development Programme is supported by a team of experienced coaches and mentors:\n\nBilly Dunn – Vice President & Youth Programme Coordinator, actively involved in youth rider development, coaching, and technical support through hands-on instruction. He has successfully completed a racers training programme through the Motorcycle Xcitement Racing School, earning his race licence and certification. This formal training enhances his ability to deliver structured, safe, and effective coaching within the BMRA Junior Development Programme.\n\nBruce DeGrilla Jr. – Coach within the BMRA Junior Development Programme, actively involved in youth rider development through on-track instruction, race preparation, and mentorship. He has participated in structured coaching development initiatives, including the OLEVI: Power of Coaching Programme, gaining training in effective coaching practices and athlete development. He continues to apply these principles in delivering structured and progressive coaching sessions.\n\nDavid Jones – President & Race Director, former international competitor with racing experience in the United States, including Daytona International Speedway. Graduate of California Superbike School and certified motorcycle mechanic (American Motorcycle Institute, Daytona). He provides leadership, coaching, and programme oversight, ensuring structured development and safe competition environments.\n\nCarlston Burgess – Coach assisting with youth training, focusing on rider safety, skill progression, and performance development.\n\nThe coaching team combines practical racing experience with a commitment to continuous development. Plans are in place for coaches to pursue further certification and training opportunities; however, funding constraints currently limit access to these programmes.", "athletes": "Kannen Morris-Dickinson - 16\nNevaeh Edwards (Gaugain) - 16", "pathway": "Billy Dunn plays a key role in supporting the development pathway of young riders within the Bermuda Motorcycle Racing Association (BMRA) Junior Development Programme. As Youth Programme Coordinator, he is directly involved in organizing and delivering structured training that supports athlete progression from foundational skills to competitive performance.\n\nThe programme provides a clear pathway from grassroots participation to higher levels of competition through consistent training, structured race opportunities, and technical development.\n\nThrough his coaching and coordination, athletes benefit from:\n\nStructured and consistent training sessions\nPractical instruction in riding techniques and race preparation\nExposure to competitive racing environments\nDevelopment of discipline, confidence, and race craft\n\nHis combination of hands-on coaching experience and formal racing certification supports the delivery of a safe, structured, and progressive environment for athlete development.\n\nThis pathway ensures that athletes are equipped with the skills, experience, and support necessary to progress to higher levels of competition and represent Bermuda on the international stage.", "outcomes": "For the Athletes:\n\nContinued improvement in race performance, consistency, and confidence\nSuccessful transition of developing riders into higher classes, including the 250cc class for the 2026 racing season\nStrengthened technical skills, racecraft, and competitive readiness\nPreparation for progression into regional and international competition\n\nFor BMRA (NSGB):\n\nStrengthening of the junior development pipeline through structured coaching\nIncreased participation and retention of youth riders\nEnhanced coaching standards and programme delivery\nGreater opportunities for international representation of Bermudian riders\n\nOver the next two years, the programme aims to produce well-prepared athletes capable of progressing through competitive levels while strengthening the overall standard of motorcycle racing in Bermuda.", "fiscalYear": "$5000", "amountRequested": "$5000", "totalNJASP": "1500", "totalAmountNum": 1500.0, "totalAmount": "$1,500.00", "remainingCosts": "The Bermuda Motorcycle Racing Association (BMRA) supports its coaching programme through volunteer coaching, membership fees, and limited fundraising initiatives. Billy Dunn contributes significant time and effort in coordinating and delivering youth training with minimal financial compensation.\n\nProgramme delivery is supported through BMRA resources, including access to training facilities, equipment, and operational support. Additional assistance is generated through community support and fundraising efforts.\n\nWhile Billy has completed formal racing training and certification, further coaching development opportunities, including advanced training and certification, are limited by available funding.\n\nFunding through the NJASP Coaches Award would support the continued development of coaching capacity, enabling Billy to further enhance programme delivery and contribute to the progression of multiple athletes within the BMRA Junior Development Programme.", "repName": "Angiliee Tyrell", "repPosition": "Secretary", "repDate": "Apr 11, 2026", "repSignature": "https://www.jotform.com/uploads/Umindesign/251007605265854/6520606398816263384/6520606398816263384_signature_47.png", "travelItems": [{"item": "N/A", "details": "", "total": "0"}], "coachingItems": [{"item": "N/A", "details": "", "total": "0"}], "otherItems": [{"item": "Safety Equipment", "details": "Suit, helmet, boots, gloves", "total": "1500"}], "docFolder": "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Motorcycle Racing Association - BMRA David E. Jones (BMRA Junior Development Programme Coach)", "uploadedFiles": ["WhatsApp Image 2026-04-13 at 10.35.16 PM.jpeg", "Bermuda-Motorcycle-Racing-Association-BMRA-04-13-2026.pdf"], "uploadedFilePaths": ["docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Motorcycle Racing Association - BMRA David E. Jones (BMRA Junior Development Programme Coach)/WhatsApp Image 2026-04-13 at 10.35.16 PM.jpeg", "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Motorcycle Racing Association - BMRA David E. Jones (BMRA Junior Development Programme Coach)/Bermuda-Motorcycle-Racing-Association-BMRA-04-13-2026.pdf"], "hasDocuments": true}, {"id": 11, "submissionId": "6520175738126077378", "submissionDate": "Apr 14, 2026", "nsgb": "Bermuda Motorcycle Racing Association - BMRA", "orgEmail": "amtbmra@gmail.com", "coach": "William (Billy) Dunn (BMRA Junior Development Programme Coach)", "coachEmail": "", "coachWebsite": "n/a", "sport": "Motorsport", "contacts": [{"name": "David E. Jones", "email": "davideverestjones3121@gmail.com", "phone": "4417356436"}, {"name": "Billy Dunn", "email": "billy@2bmotorsports.com", "phone": "4415950199"}, {"name": "Angiliee Tyrell", "email": "amtbmra@gmail.com", "phone": "4417034959"}, {"name": "Sheila Jones", "email": "sheilajones01101967@gmail.com", "phone": "4417471067"}], "services": "Billy Dunn provides coaching, coordination, and mentorship within the Bermuda Motorcycle Racing Association (BMRA) Junior Development Programme. As Vice President and Youth Programme Coordinator, he plays a key role in organizing training sessions and supporting the development of young riders.\n\nHis services include:\n\nOn-track coaching focused on riding techniques such as cornering, braking, throttle control, and race starts\nCoordination and supervision of youth training sessions\nRace preparation and performance support\nGuidance on motorcycle safety, handling, and discipline\nMentorship to support athlete confidence and development\n\nHe has successfully completed a racers training programme through the Motorcycle Xcitement Racing School, earning his race licence and certification. This formal training enhances his ability to deliver structured, safe, and effective coaching within the BMRA Junior Development Programme.", "programName": "Bermuda Motorcycle Racing Association (BMRA) Junior Development Programme", "programDetails": "The Bermuda Motorcycle Racing Association (BMRA) Junior Development Programme is a structured, year-round initiative designed to develop young riders through a combination of on-track training, technical education, and personal development.\n\nTraining sessions are held weekly, with increased frequency during the racing season (May–October), and focus on progressive skill-building. Sessions include:\n\nOn-track riding (cornering, braking, race starts, positioning)\nRace simulation and performance evaluation\nMechanical training (bike setup, maintenance, safety checks)\nPhysical conditioning and rider fitness awareness\n\nThe programme operates on a long-term development model, ensuring athletes build foundational skills before advancing to higher levels of competition. Emphasis is placed on discipline, safety, consistency, and race craft.\n\nOff-season training (November–April) focuses on skill refinement, technical understanding, and preparation for competitive racing.", "coachesInvolved": "The BMRA Junior Development Programme is supported by a team of experienced coaches and mentors:\n•\tBilly Dunn – Vice President & Youth Programme Coordinator, actively involved in youth rider development, coaching, and technical support through hands-on instruction. He has successfully completed a racers training programme through the Motorcycle Xcitement Racing School, earning his race licence and certification. \n•\tBruce DeGrilla Jr. – Coach supporting rider development through practical instruction and race preparation, with participation in structured coaching development programmes. \n•\tCarlston Burgess – Coach assisting with youth training, focusing on rider safety, skill progression, and performance development. \n•\tDavid Jones – President & Race Director, former international competitor with experience racing in the United States, including Daytona International Speedway. Graduate of California Superbike School and certified motorcycle mechanic (American Motorcycle Institute, Daytona). \nThe coaching team combines practical racing experience with a commitment to continuous development. Plans are in place for coaches to pursue further certification and training opportunities; however, funding constraints currently limit access to these programmes.", "athletes": "Kannen Morris-Dickinson - 16\nNevaeh Edwards (Gaugain) - 16", "pathway": "Billy Dunn plays a key role in supporting the development pathway of young riders within the Bermuda Motorcycle Racing Association (BMRA) Junior Development Programme. As Youth Programme Coordinator, he is directly involved in organizing and delivering structured training that supports athlete progression from foundational skills to competitive performance.\n\nThe programme provides a clear pathway from grassroots participation to higher levels of competition through consistent training, structured race opportunities, and technical development.\n\nThrough his coaching and coordination, athletes benefit from:\n\nStructured and consistent training sessions\nPractical instruction in riding techniques and race preparation\nExposure to competitive racing environments\nDevelopment of discipline, confidence, and racecraft\n\nHis combination of hands-on coaching experience and formal racing certification supports the delivery of a safe, structured, and progressive environment for athlete development.\n\nThis pathway ensures that athletes are equipped with the skills, experience, and support necessary to progress to higher levels of competition and represent Bermuda on the international stage.", "outcomes": "For the Athletes:\n•\tContinued improvement in riding skills, race performance, and confidence \n•\tIncreased consistency and discipline in training and competition \n•\tSuccessful progression of developing riders into higher classes, including the 250cc class for the 2026 racing season \n•\tStrengthened technical understanding and racecraft through structured coaching support \nFor BMRA (NSGB):\n•\tStrengthening of the junior development programme through coordinated coaching \n•\tIncreased youth participation and retention \n•\tImproved programme delivery through structured training and oversight \n•\tContinued development of a safe, progressive, and sustainable training environment \nOver the next two years, Billy’s continued involvement will support athlete progression and contribute to the overall growth and development of motorcycle racing in Bermuda.", "fiscalYear": "$5000", "amountRequested": "$5000", "totalNJASP": "1500", "totalAmountNum": 1500.0, "totalAmount": "$1,500.00", "remainingCosts": "The Bermuda Motorcycle Racing Association (BMRA) supports its coaching programme through volunteer coaching, membership fees, and limited fundraising initiatives. Billy Dunn contributes significant time and effort in coordinating and delivering youth training with minimal financial compensation.\nProgramme delivery is supported through BMRA resources, including access to training facilities, equipment, and operational support. Additional assistance is generated through community support and fundraising efforts.\nWhile Billy has completed formal racing training and certification, further coaching development opportunities, including advanced training and certification, are limited by available funding.\nFunding through the NJASP Coaches Award would support the continued development of coaching capacity, enabling Billy to further enhance programme delivery and contribute to the progression of multiple athletes within the BMRA Junior Development Programme.", "repName": "Angiliee Tyrell", "repPosition": "Secretary", "repDate": "Apr 13, 2026", "repSignature": "https://www.jotform.com/uploads/Umindesign/251007605265854/6520175738126077378/6520175738126077378_signature_47.png", "travelItems": [{"item": "N/A", "details": "", "total": "0"}], "coachingItems": [{"item": "N/A", "details": "", "total": "0"}], "otherItems": [{"item": "Safety Equipment", "details": "Suit, helmet, boots, gloves", "total": "1500"}], "docFolder": "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Motorcycle Racing Association - BMRA David E. Jones (BMRA Junior Development Programme Coach)", "uploadedFiles": ["WhatsApp Image 2026-04-13 at 10.35.16 PM.jpeg", "Bermuda-Motorcycle-Racing-Association-BMRA-04-13-2026.pdf"], "uploadedFilePaths": ["docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Motorcycle Racing Association - BMRA David E. Jones (BMRA Junior Development Programme Coach)/WhatsApp Image 2026-04-13 at 10.35.16 PM.jpeg", "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Motorcycle Racing Association - BMRA David E. Jones (BMRA Junior Development Programme Coach)/Bermuda-Motorcycle-Racing-Association-BMRA-04-13-2026.pdf"], "hasDocuments": true}, {"id": 12, "submissionId": "6520108858126980346", "submissionDate": "Apr 14, 2026", "nsgb": "Bermuda Motorcycle Racing Association - BMRA", "orgEmail": "amtbmra@gmail.com", "coach": "David E. Jones (BMRA Junior Development Programme Coach)", "coachEmail": "", "coachWebsite": "", "sport": "Motorsport", "contacts": [{"name": "David E. Jones", "email": "davideverestjones3121@gmail.com", "phone": "4417356436"}, {"name": "Billy Dunn", "email": "billy@2bmotorsports.com", "phone": "4415950199"}, {"name": "Angiliee Tyrell", "email": "amtbmra@gmail.com", "phone": "4417034959"}, {"name": "Sheila Jones", "email": "sheilajones01101967@gmail.com", "phone": "4417471067"}], "services": "David Jones provides coaching, leadership, and programme oversight within the Bermuda Motorcycle Racing Association (BMRA) Junior Development Programme. As President and Race Director, he plays a key role in the development of young riders through structured training, competition management, and mentorship.\n\nHis services include:\n\nOn-track coaching and performance guidance for developing riders\nRace direction and oversight of competitive events\nTechnical instruction, including motorcycle setup, safety, and race preparation\nMentorship focused on discipline, consistency, and athlete development\n\nDavid brings extensive international racing experience, having competed in the United States at tracks such as Daytona International Speedway. He is a graduate of the California Superbike School and holds a motorcycle mechanics certification from the American Motorcycle Institute (Daytona).\n\nThrough his leadership, he has been instrumental in establishing and developing a structured junior programme that supports the progression of young riders in Bermuda.", "programName": "Bermuda Motorcycle Racing Association (BMRA) Junior Development Programme", "programDetails": "The Bermuda Motorcycle Racing Association (BMRA) Junior Development Programme is a structured, year-round initiative designed to develop young riders through a combination of on-track training, technical education, and personal development.\n\nTraining sessions are held weekly, with increased frequency during the racing season (May–October), and focus on progressive skill-building. Sessions include:\n\nOn-track riding (cornering, braking, race starts, positioning)\nRace simulation and performance evaluation\nMechanical training (bike setup, maintenance, safety checks)\nPhysical conditioning and rider fitness awareness\n\nThe programme operates on a long-term development model, ensuring athletes build foundational skills before advancing to higher levels of competition. Emphasis is placed on discipline, safety, consistency, and race craft.\n\nOff-season training (November–April) focuses on skill refinement, technical understanding, and preparation for competitive racing.", "coachesInvolved": "The BMRA Junior Development Programme is supported by a team of experienced coaches and mentors with strong backgrounds in motorcycle racing, rider development, and technical training:\n\nThe BMRA Junior Development Programme is supported by a team of experienced coaches and mentors:\n\nDavid Jones – President & Race Director, former international competitor with racing experience in the United States, including Daytona International Speedway. Graduate of California Superbike School and certified motorcycle mechanic (American Motorcycle Institute, Daytona). He provides leadership, coaching, and programme oversight, ensuring structured development and safe competition environments.\n\nBilly Dunn – Vice President & Youth Programme Coordinator, actively involved in youth rider development, coaching, and technical support through hands-on instruction. He has successfully completed a racers training programme through the Motorcycle Xcitement Racing School, earning his race licence and certification. This formal training enhances his ability to deliver structured, safe, and effective coaching within the BMRA Junior Development Programme.\n\nCarlston Burgess – Coach assisting with youth training, focusing on rider safety, skill progression, and performance development.\n\nBruce DeGrilla Jr. – Coach within the BMRA Junior Development Programme, actively involved in youth rider development through on-track instruction, race preparation, and mentorship. He has participated in structured coaching development initiatives, including the OLEVI: Power of Coaching Programme, gaining training in effective coaching practices and athlete development. He continues to apply these principles in delivering structured and progressive coaching sessions.", "athletes": "Kannen Morris-Dickinson - 16\nNevaeh Edwards (Gaugain) - 16", "pathway": "David Jones plays a central role in the development pathway of young riders within the Bermuda Motorcycle Racing Association (BMRA) Junior Development Programme. Through his leadership as President and Race Director, he ensures that athletes are developed within a structured and progressive environment that supports long-term advancement in the sport.\n\nThe programme provides a clear pathway from grassroots participation to higher levels of competition through consistent training, structured race opportunities, and technical development.\n\nUnder David’s guidance, athletes benefit from:\n\nStructured coaching and performance development\nExposure to competitive race environments\nTechnical knowledge in motorcycle setup, safety, and race preparation\nMentorship focused on discipline, consistency, and race craft\n\nHis international racing experience and technical expertise contribute to preparing athletes for progression into regional and international competition, with the long-term goal of national representation.\n\nThis pathway ensures that athletes are equipped with the skills, experience, and mindset required to compete at higher levels and represent Bermuda on the international stage.", "outcomes": "For the Athletes:\n\nContinued improvement in race performance, consistency, and confidence\nSuccessful transition of developing riders into higher classes, including the 250cc class for the 2026 racing season\nStrengthened technical skills, racecraft, and competitive readiness\nPreparation for progression into regional and international competition\n\nFor BMRA (NSGB):\n\nStrengthening of the junior development pipeline through structured coaching\nIncreased participation and retention of youth riders\nEnhanced coaching standards and programme delivery\nGreater opportunities for international representation of Bermudian riders\n\nOver the next two years, the programme aims to produce well-prepared athletes capable of progressing through competitive levels while strengthening the overall standard of motorcycle racing in Bermuda.", "fiscalYear": "2026/2027", "amountRequested": "$5000", "totalNJASP": "0", "totalAmountNum": 0.0, "totalAmount": "TBD", "remainingCosts": "The Bermuda Motorcycle Racing Association (BMRA) supports its coaching programme through volunteer coaching, membership fees, and limited fundraising initiatives. Coaches, including David Jones, contribute significant time, expertise, and mentorship with minimal financial compensation.\n\nProgramme costs are partially supported through BMRA resources, including access to training facilities, equipment, and operational support. Additional assistance is generated through community support and fundraising efforts.\n\nThere are plans to further enhance coaching capacity through participation in formal training and certification programmes; however, funding constraints currently limit access to these opportunities.\n\nFunding through the NJASP Coaches Award would directly support the continued development of coaching standards within BMRA, benefiting multiple athletes and strengthening the overall quality and sustainability of the junior development programme.", "repName": "Angiliee Tyrell", "repPosition": "Secretary", "repDate": "Apr 13, 2026", "repSignature": "https://www.jotform.com/uploads/Umindesign/251007605265854/6520108858126980346/6520108858126980346_signature_47.png", "travelItems": [{"item": "N/A", "details": "", "total": "0"}], "coachingItems": [{"item": "N/A", "details": "", "total": "0"}], "otherItems": [{"item": "N/A", "details": "", "total": "0"}], "docFolder": "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Motorcycle Racing Association - BMRA David E. Jones (BMRA Junior Development Programme Coach)", "uploadedFiles": ["WhatsApp Image 2026-04-13 at 10.35.16 PM.jpeg", "Bermuda-Motorcycle-Racing-Association-BMRA-04-13-2026.pdf"], "uploadedFilePaths": ["docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Motorcycle Racing Association - BMRA David E. Jones (BMRA Junior Development Programme Coach)/WhatsApp Image 2026-04-13 at 10.35.16 PM.jpeg", "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Motorcycle Racing Association - BMRA David E. Jones (BMRA Junior Development Programme Coach)/Bermuda-Motorcycle-Racing-Association-BMRA-04-13-2026.pdf"], "hasDocuments": true}, {"id": 13, "submissionId": "6519858395703787891", "submissionDate": "Apr 14, 2026", "nsgb": "Bermuda Rugby", "orgEmail": "jason@brfu.bm", "coach": "Ciaran Beattie", "coachEmail": "ciaran.beattie@sru.org.uk", "coachWebsite": "scottishrugby.org", "sport": "Rugby", "contacts": [{"name": "Jason Hendrie", "email": "jason@brfu.bm", "phone": ""}, {"name": "Gemma Godfrey", "email": "gemma@whitfield.bm", "phone": ""}], "services": "This coach is in charge of Great Britain 7s squads at both male and female programmes- He is also a world rugby level 4 coach", "programName": "Rugby 7s Performance Camp - National Stadium", "programDetails": "The Junior Development Program will be delivered as an intensive two-day rugby sevens camp led by Ciaran Beattie, designed for male and female players aged 15–19. Each day will consist of structured morning and afternoon sessions (approximately 6 hours per day), combining technical skill development, tactical understanding, and physical conditioning. Training will follow a progressive format, beginning with dynamic warm-ups and core skills (passing, tackling, and breakdown), before advancing into small-sided games and scenario-based learning that reflect the demands of sevens rugby. A strong emphasis will be placed on decision-making, speed, spatial awareness, and teamwork, with sessions tailored to challenge players under game-realistic pressure. The program will conclude with competitive match play to reinforce learning, alongside individual and group feedback to support ongoing development.", "coachesInvolved": "Ciaran Beattie - World Rugby Level 4 \nJason Hendrie - World Rugby Level 3 \nDan Roberts - World Rugby Level 1 \nApryl Jackson - World Rugby Level 1", "athletes": "Subject to Change as we would also look to add to this \nCameron Morris - 18 \nLuke Summers - 17 \nBrandon Sangster - 19 \nJayson Simons - 17 \nDante Noel - Simmons - 19 \nAidan Kendall- 19 \nNathan Wilson - 18\nJahkeel Smith - 18\nDylan Sangster - 18 \nMatthew Groves - 17 \nNyindae smith - 18", "pathway": "The proposed Junior Development Program is closely aligned with established high-performance pathways and is designed to bridge the gap between grassroots participation and elite-level rugby. Delivered under the guidance of Ciaran Battie, the camp exposes athletes to the technical, tactical, and physical standards expected within international sevens environments such as Great Britain Sevens. Players will be introduced to core principles of elite performance, including speed-based conditioning, decision-making under pressure, and positional awareness specific to the sevens format. The program emphasizes transferable skills such as communication, resilience, and game intelligence, which are critical for progression into higher-level competition.\n\nImportantly, the program also incorporates a coach development component to ensure long-term impact beyond the camp itself. Local coaches will have the opportunity to observe and actively engage in sessions, gaining insight into modern sevens coaching methodologies, session design, and athlete management practices with then the option of achieving there WORLD RUGBY LEVEL 1 in 7s.  This knowledge transfer supports the ongoing development of a sustainable, high-quality coaching environment, enabling coaches to replicate and build upon the standards introduced during the camp. In addition, the inclusion of performance feedback and game-based assessments provides both athletes and coaches with clear development benchmarks, strengthening the overall pathway and supporting progression toward national squads", "outcomes": "Over a two-year period, the program will establish a clear and sustainable pipeline of players and coaches capable of performing at the standard required for Bermuda national rugby union team representation. Athletes will develop the technical, physical, and tactical competencies aligned with elite sevens rugby, while coaches will enhance their ability to deliver high-quality, performance-focused training environments. In addition, the program aims to build meaningful relationships with Great Britain Sevens, creating potential development opportunities, knowledge exchange, and future pathways for both players and coaches.", "fiscalYear": "5000", "amountRequested": "5000", "totalNJASP": "5520", "totalAmountNum": 5520.0, "totalAmount": "$5,520.00", "remainingCosts": "The Bermuda rugby Union will cover any extra costs that will be involved with this programme", "repName": "Jason Hendrie", "repPosition": "Rugby Operations Director", "repDate": "Apr 13, 2026", "repSignature": "https://www.jotform.com/uploads/Umindesign/251007605265854/6519858395703787891/6519858395703787891_signature_47.png", "travelItems": [{"item": "Flights", "details": "Edinburgh - Bermuda", "total": "$1600"}, {"item": "Accomodation", "details": "Grotto Bay", "total": "$1400"}], "coachingItems": [{"item": "National Stadium /pitch hire", "details": "$150 x 12", "total": "1800"}, {"item": "Coaches fees", "details": "12 x 3 @$20", "total": "720"}], "otherItems": [], "docFolder": "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Rugby  Ciaran Beattie", "uploadedFiles": ["Bermuda-Rugby-04-13-2026.pdf"], "uploadedFilePaths": ["docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Rugby  Ciaran Beattie/Bermuda-Rugby-04-13-2026.pdf"], "hasDocuments": true}, {"id": 14, "submissionId": "6226324280513349136", "submissionDate": "May 9, 2025", "nsgb": "National Archery Association of Bermuda", "orgEmail": "naab2015@yahoo.com", "coach": "", "coachEmail": "", "coachWebsite": "", "sport": "Other", "contacts": [], "services": "See the attached resume of Mr. Larry Wise.", "programName": "", "programDetails": "Location: Gold Point Archery Range in Bermuda.\nLocal coach - Ross Roberts\nNAAB will be using their LTAD pathway which is the foundational tool for developing archers at the various stages in Bermuda. These archers will be following our Apply & Development Program that has been developed from the National Training System (NTS) from USA Archery in the USA and the Olympic Archery in School program. (from World Archery).  Larry Wise will be using his developed program Planning to Peak in Archery.\nDate: 21 July 2025 - 27 July 2025 (7 days)", "coachesInvolved": "Our junior athletes between the ages of 15 - 19 are reaching the stage where they require the knowledge of the mental game in sports. There are a few 13 year olds that can benefit from this training based on how they have been developing.  We will have  Our aim is to develop the full archer, both physically and mentally.  Archery is 90% mental and at this phase of this age group's development, we incorporate the mental skills to balance their performance. The archers who will be engaged in this training have been introduced to why sports psychology is important in sport.  Some of the archers attending this training have some exposure to the mental game where others will be introduced to this for the first time.  This training will assist these archers in various upcoming events -  Junior Pan American Games in August 2025, World Youth Games also in August 2025 and the Caribbean Development Championships in October 2025.   There are 10 archers that have been identified for this training and will be actively competing this year and in 2026.", "athletes": "January 2025 - Junior Athlete Jaydon Roberts finished 1st place at Indoor Easton Tournament, Braeden Fraser finish 12th in Bowman class.  Robin Selley finished 19th in Cadet class, N'Dera Smith finished 11th and Elektra Smith 10th in the Junior class. \nMarch 2025 - Robin Selley finished in 6th position at the Las Vegas Shoot (total archers 64). Jaydon Roberts finished 32 in top flights group (total archers 144)\nIn March 2025-  Robin Selley finished in 3rd place in Jr. Pan Am Qualifier and secured her spot for the games in August. Elektra Smith competed in her first 70m international event which was the Jr. Pan Am Qualifier and won one of her elimination rounds in 1/32nd round until being eliminated in 1/16th. \nN'Dera Smith finished 1st in the JOAD Nationals in Pennsylvania. \nFebruary 2024 - Jaydon Roberts finished 25th in Flights 2.  Robin Selley finished 9th in Young Adult.  May 2024, Jaydon Roberts finished in 9th place and secured a position for the Jr. Pan Am Games at the Pan AM Youth & Masters Championships.", "pathway": "We are so pleased to see an increase in teenagers interested in the sport of archery and also continuing to participate in this sport into their college years.  This training benefits both the athletes and the local coaches and it is a continuance to training some of the athletes participated in October 2024 in Mifflinton, PA .  For those athletes who were not able to travel to this training have the opportunity to do so in Bermuda.  The results from this training will be evident at the events in 2025 - Junior Pan Am Games, World Youth Championships and the 14/15 year olds for the next World Youth Championships 2027 and Junior Pan Am Games in 2029.", "outcomes": "", "fiscalYear": "", "amountRequested": "", "totalNJASP": "", "totalAmountNum": 0.0, "totalAmount": "TBD", "remainingCosts": "Our Association is able to meet it's operational cost from membership fees, donations, other sports grants when available and events.", "repName": "Trina N Roberts", "repPosition": "Secretary General", "repDate": "Apr 29, 2025", "repSignature": "https://www.jotform.com/uploads/Umindesign/251007605265854/6226324280513349136/6226324280513349136_signature_47.png", "travelItems": [], "coachingItems": [], "otherItems": [], "docFolder": "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Pickleball Association of Bermuda Armando Ferreira - My Sport Jobs", "uploadedFiles": ["IMG_8433.PNG", "Pickleball-Association-of-Bermuda-04-17-2026.pdf"], "uploadedFilePaths": ["docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Pickleball Association of Bermuda Armando Ferreira - My Sport Jobs/IMG_8433.PNG", "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Pickleball Association of Bermuda Armando Ferreira - My Sport Jobs/Pickleball-Association-of-Bermuda-04-17-2026.pdf"], "hasDocuments": true}, {"id": 15, "submissionId": "6226295208759087421", "submissionDate": "May 9, 2025", "nsgb": "Pickleball Association of Bermuda", "orgEmail": "pabermuda@gmail.com", "coach": "", "coachEmail": "", "coachWebsite": "", "sport": "Pickleball", "contacts": [], "services": "Lee Whitwell’s contribution goes far beyond this one clinic. She is a high-performance expert who co-created the USA Pickleball Next Gen Program — a model that has produced many of today’s young pros. Her September clinic in Bermuda will include:\n•\tAdvanced technical and tactical development\n•\tMatch-play strategy and analysis\n•\tMental training and confidence-building\n•\tNational team selection support\n•\tMentorship of local coaches under LTAD structure\nThis ongoing relationship is helping to build Bermuda’s long-term junior performance model from the ground up — bridging grassroots to global competition.\n________________________________________", "programName": "", "programDetails": "Program Name & Location\nThe Junior Elite Development Clinic will be hosted at the WER Joell Tennis Stadium in September 2025. This initiative is a cornerstone of the Pickleball Association of Bermuda’s (PAB) National Junior Team development strategy and Long-Term Athlete Development (LTAD) plan.\nCoach and Development Team\nLed by Lee Whitwell, world-ranked No. 1 senior women’s pro and a globally respected coach, the clinic will deliver elite-level technical, tactical, and mental training. This marks Lee’s second trip to Bermuda, as part of a growing partnership with PAB. Her involvement is pivotal — she has played an integral role in developing top junior talent in the USA through their Next Gen Program.\nLee will be supported by PPR-certified Bermudian coaches Benjamin Jones and Imani Phillips, who will also receive mentorship. The program will identify 10–20 top junior prospects and integrate them into our National Junior Pathway.\nDevelopment Framework and National Integration\nThis clinic is strategically timed to prepare Bermuda’s top juniors for two of the sport’s most prestigious international events:\n•\tPickleball World Cup – October 27 to November 4, 2025\n•\tPickleball Americas Cup – December 16 to 20, 2025\nOutcomes from the clinic will directly inform national team selections for these competitions and support continued development into 2026.\n________________________________________", "coachesInvolved": "This NJASP-funded clinic aims to:\n•\tServe as the final preparation phase for junior national team selections ahead of the World Cup and Americas Cup\n•\tInstill international-level skills, tactics, and professionalism\n•\tLaunch a recurring, high-performance training cycle aligned with our LTAD framework\n•\tEstablish strong mentor-mentee pipelines between world-class and local coaches\nAthletes selected from this clinic will enter a 10-week training progression that culminates in international representation and data-driven performance evaluation.\n________________________________________", "athletes": "The Pickleball Association of Bermuda has established itself as a rising force in both domestic and international pickleball:\nInternational Results\n•\t2024 World Cup in Lima:\no\t15 medals across elite, senior, and junior divisions\no\tJaden Jones (age 16): Gold in 18U doubles, Gold in 18U singles\no\tKai Manders: Medaled in U8 — youngest athlete to podium internationally\n•\t2025 Caribbean Championships:\no\tJaden Jones and Owen Stewart: Gold in 18U doubles\no\tJaden Jones: Gold in 18U singles\no\tOwen Stewart: Silver in U14 singles\no\tBoth athletes were participants in Lee Whitwell’s first clinic in 2024\nDomestic Development\n•\tIntroduced over 600 children to the sport via schools, open houses, and festivals\n•\tLaunched the Pickleball Pathways program, now identifying top juniors for national progression\n•\tEstablished the first National Junior Championships and ranking system, launching in 2025\n•\tCertified 16 local coaches under the PPR, with Gavin Manders becoming the first Bermudian PPR Clinician\nStrategic Leadership\n•\tSelected to host the 2026 Caribbean Championships\n•\tDeveloped and implemented a complete LTAD Plan\n•\tBuilt a 3-tier National Team Framework: Junior, Elite, and Senior divisions", "pathway": "By the end of 2026, we project:\n•\tJunior World Cup Participation: 1–3 NJASP-supported athletes selected and competing\n•\tRegional Podium Success: Continued medal performances at the Pickleball Americas Cup\n•\tJunior Rankings: Official junior rankings in place to guide selections and progression\n•\tSustainable Pathways: Junior athletes consistently progressing into elite training tiers\n•\tPublic Recognition: Awards nominations and increased visibility for junior athletes, inspiring further youth engagement\n________________________________________", "outcomes": "", "fiscalYear": "", "amountRequested": "", "totalNJASP": "", "totalAmountNum": 0.0, "totalAmount": "TBD", "remainingCosts": "Private funding", "repName": "Sarah Fox", "repPosition": "Secretary", "repDate": "May 9, 2025", "repSignature": "https://www.jotform.com/uploads/Umindesign/251007605265854/6226295208759087421/6226295208759087421_signature_47.png", "travelItems": [], "coachingItems": [], "otherItems": [], "docFolder": "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Pickleball Association of Bermuda Armando Ferreira - My Sport Jobs", "uploadedFiles": ["IMG_8433.PNG", "Pickleball-Association-of-Bermuda-04-17-2026.pdf"], "uploadedFilePaths": ["docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Pickleball Association of Bermuda Armando Ferreira - My Sport Jobs/IMG_8433.PNG", "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Pickleball Association of Bermuda Armando Ferreira - My Sport Jobs/Pickleball-Association-of-Bermuda-04-17-2026.pdf"], "hasDocuments": true}, {"id": 16, "submissionId": "6226121271939910533", "submissionDate": "May 9, 2025", "nsgb": "Bermuda Cricket Board", "orgEmail": "info@cricket.bm", "coach": "", "coachEmail": "", "coachWebsite": "", "sport": "Cricket", "contacts": [], "services": "Andre Coley is the former Head Coach of the West Indies Men's Test Team and current Head Coach of the West Indies Senior Men's A-Team.\n\nAndre is a Level 3 cricket coach who has held coaching roles in the West Indies, from youth to senior levels in male and female programmes between 2010 to present. He has held Head Coach positions for the Jamaica and West Indies Under 19, West Indies High Performance Centre and A-Team programmes where he focused on player development.", "programName": "", "programDetails": "Bermuda Cricket Board - U19 Boys - High Performance Camp\n\nNational Sports Centre - BCB Nets and NSC North Field\n\nClay Smith - Head Coach U19s\nReggie Tucker Jr - Assistant Coach\nCourtney Trott - Assistant Manager\nU19 pathway to transition into the Senior men's team upon aging out of the U19 squad.", "coachesInvolved": "The BCB High-Performance Camp will see one of the region's elite coaches provide an intense training program before their departure to the ICC Americas U19 World Cup Qualifiers.", "athletes": "2025 -North American Cricket Cup - T20 Semifinalist\n2024 - ICC Americas Sub-Regional Champions-Senior Men's - T20 - \n2024 - ICC Americas Regional Finals Runners-Up -Senior Men's - T20 - \n2023 - ICC Americas Sub-Regional Champions -Senior Men's - T20 - \n2022 - ICC Challenge League - 50 Overs - Play-offs", "pathway": "Andre Coley has been working with our Senior Men's team to provide feedback on the current status of the national team, program, and the way forward. To ensure that there is synergy between the developmental pathway to the senior men's team, he will facilitate a similar program for the U19 boys.\n\nThis will assist the BCB to prepare for the aging out or retirement of players in 2026 and to ensure we have a new pipeline of players by 2027. He will also provide training to prepare the team for the ICC qualifiers in August. This will see him have an opportunity to assess the players in both domestic and international competition.\n\nThe overall objective is to ensure we maintain a robust HP program.", "outcomes": "", "fiscalYear": "", "amountRequested": "", "totalNJASP": "", "totalAmountNum": 0.0, "totalAmount": "TBD", "remainingCosts": "The BCB is in talks with potential corporate partners and will organize fundraising initiatives.", "repName": "Calvin Blankendal", "repPosition": "Executive Director", "repDate": "May 9, 2025", "repSignature": "https://www.jotform.com/uploads/Umindesign/251007605265854/6226121271939910533/6226121271939910533_signature_47.png", "travelItems": [], "coachingItems": [], "otherItems": [], "docFolder": "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Cricket Board Andre Coley", "uploadedFiles": ["Andre Coley SHTIP 2026.pdf", "Andre Coley Bio F.pdf", "Bermuda-Cricket-Board-04-17-2026.pdf"], "uploadedFilePaths": ["docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Cricket Board Andre Coley/Andre Coley SHTIP 2026.pdf", "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Cricket Board Andre Coley/Andre Coley Bio F.pdf", "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Cricket Board Andre Coley/Bermuda-Cricket-Board-04-17-2026.pdf"], "hasDocuments": true}, {"id": 17, "submissionId": "6226094941122104163", "submissionDate": "May 9, 2025", "nsgb": "Bermuda Triathlon Association", "orgEmail": "spetty@ibl.bm", "coach": "", "coachEmail": "", "coachWebsite": "", "sport": "Triathlon", "contacts": [], "services": "Michael Harlow is the Founder and Director of Endorphin Fitness. As a USA Triathlon Level 3 Certified Coach, Race Director, and Youth & Junior Certified \nCoach.\nMichael is the head coach of the Endorphin Fitness Junior Elite High Performance Team which has consistently placed in the top 5 nationally for the past 6 years and the Endorphin Fitness youth team which won the national championship in 2017.   Michael has coached hundreds of athletes from age 5-75 across all levels and overseen the coaching of thousands of athletes by his staff. He has taken athletes from beginner to top honors at National & World Championships. Michael’s success lies in his ability to motivate and communicate knowledge effectively across all levels. Michael is regarded as one of the premier triathlon coaches in the country.", "programName": "", "programDetails": "Name: Bermuda Triathlon Association Youth Development Squad Pre Carifta Camp\nLocation: Clearwater Beach and National Sports Center\nDevelopment Details- Group of 30-40 pre high performance athletes who will have been selected for Carifta 2025 in Tobago Aug 23-23\nCamp is Aug 11-15th, run 1/2 days\nAssisted by 3-4 local certified coaches\nThis a junior development pathway to give overseas racing experience to athletes.  Age range is 11 to 20yrs", "coachesInvolved": "The camp will provide opportunity to enhance technical skills, race tactics and mental preparation ahead of Carifta.  The aim is give every athlete the opportunity to prepare appropriately so that they can reach their personal potential.  It is also an opportunity for our local coaches to learn best practices from a very experienced coach.", "athletes": "Very Strong Results in our Region.\nIn 2024, the 38 strong Carifta team brought home 8 medals and 2nd place country\nIn 2023, the 29 strong Carifta team brought home 8 medals and 2nd place country\nIn 2022, Bermuda hosted Carifta\nJunior Athletes now regularly competing overseas (Clermont and Richmond) \nJunior female attempted qualification for Pan Am Juniors\nCertified 8 community coaches", "pathway": "We intend to identify and track the progress of our junior talent and provide them with suitable training and racing opportunities.  This can include USA/Canada or PanAm races.\nWe expect 30-40 juniors to continue in triathlon and attract new and younger members so that our pipeline continues to be strong.\nOur local coaches learn the latest training regimes and were provide a mentoring experience\nThe dedication to training consistently is showing improved performances\nWe expect 5-6 athletes to compete a Youth Olympics Games qualification race with 2 achieving selection.", "outcomes": "", "fiscalYear": "", "amountRequested": "", "totalNJASP": "", "totalAmountNum": 0.0, "totalAmount": "TBD", "remainingCosts": "The BTA collects membership fees, events events, works with corporate sponsors as well as fundraising.  Anything not covered in the grant will be covered by the Bermuda Triathlon Association", "repName": "Karen Smith", "repPosition": "Vice President", "repDate": "May 9, 2025", "repSignature": "https://www.jotform.com/uploads/Umindesign/251007605265854/6226094941122104163/6226094941122104163_signature_47.png", "travelItems": [], "coachingItems": [], "otherItems": [], "docFolder": "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Triathlon Association Michael Harlow- Endorphin Fitness", "uploadedFiles": ["Bermuda-Triathlon-Association-04-17-2026.pdf", "American Airlines - Your trip summary.pdf", "Bermuda-Triathlon-Association-04-17-2026(1).pdf"], "uploadedFilePaths": ["docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Triathlon Association Michael Harlow- Endorphin Fitness/Bermuda-Triathlon-Association-04-17-2026.pdf", "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Triathlon Association Michael Harlow- Endorphin Fitness/American Airlines - Your trip summary.pdf", "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Triathlon Association Michael Harlow- Endorphin Fitness/Bermuda-Triathlon-Association-04-17-2026(1).pdf"], "hasDocuments": true}, {"id": 18, "submissionId": "6225448433613594003", "submissionDate": "May 8, 2025", "nsgb": "Bermuda Footbaall Association", "orgEmail": "dsabir@bermudafootball.com", "coach": "", "coachEmail": "", "coachWebsite": "", "sport": "Other", "contacts": [], "services": "ESGA was founded in 2004 by Director John Moreira and was inspired by the work of non other than friend and mentor Dan Gaspar, former Portugal National Team Goalkeeper Coach and owner of Star Goalkeeper Academy.\n\n \n\nOur main objective at ESGA is to help every goalkeeper regardless of age, gender and level of experience to be the BEST keeper they can be. Our staff have been taught and take great pride in encouraging, motivating and supporting our young athletes as they develop through the program.\n\n \n\nTo be the BEST you must learn from the BEST, that is why for over the past 10 years Coach John Moreira has travelled to different parts of the world studying the art of Goalkeeping with some of the BEST Goalkeeper Coaches and Clubs in Europe and South America. Our experiences has taken us to Portugal and Benfica's Academy, Argentina and the Youth Development programs, Italy and observing Roma's and Agropoli youth system. As well as Spain and Colemenar's Youth Programs, Bermuda National Academy Programs and the United States ODP.", "programName": "", "programDetails": "Bermuda Goalkeeping License\nJohn will coach Goalkeepers and Goalkeeper Coaches at the Clyde Best Center of Excellence.  This will allow us to continue the work we began last year with 12 GK coaches and 24 players.", "coachesInvolved": "To continue to enhance the education of GK and Goalkeeper coaches.  It is a specialist position that requires specific knowledge.", "athletes": "•\tU20 Men Group stage of the Concacaf U20 World Cup Qualifiers\n•\tSenior Women’s National Team Runners up in Group b of the Concacaf W Road to Gold Cup Qualifiers\n•\tU17 Girls Concacaf Championships\n•      U17 Boys 1 step away from World Cup Qualification\n•\tU15 Girls Winners of Caribbean Football Union Challenge Series\n•\tU15 Boys Semifinalist Concacaf Championships\n•\tSenior Women’s National Team Winners Island Games\n•\tU23 Men Semifinalist Island Games\n•\tSenior Men’s National Team Gold Cup participants", "pathway": "All of the 120 teams playing football in Bermuda have a goalkeeper but there is a lack of expertise for knowledgeable coaches.  This award will touch every level of Bermuda football and help us to train, select, and nurture Goalkeepers for national teams.", "outcomes": "", "fiscalYear": "", "amountRequested": "", "totalNJASP": "", "totalAmountNum": 0.0, "totalAmount": "TBD", "remainingCosts": "The generosity and history of the National Junior Athlete Sponsorship Award is our sophmore year towards meeting the costs of this initiative.  There is a proven track record of awardees going on to represent Bermuda. Our desire is to broaden the base of potential goal keeper awardees in the future. Beyond the Department of Youth Sport and Recreation’s sponsorship funding will have to redirect funding from another program which may jeopardize this project coming to fruition.", "repName": "Maurice Lowe", "repPosition": "Technical DEvelopment Director", "repDate": "May 8, 2025", "repSignature": "https://www.jotform.com/uploads/Umindesign/251007605265854/6225448433613594003/6225448433613594003_signature_47.png", "travelItems": [], "coachingItems": [], "otherItems": [], "docFolder": "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Motorcycle Racing Association - BMRA David E. Jones (BMRA Junior Development Programme Coach)", "uploadedFiles": ["WhatsApp Image 2026-04-13 at 10.35.16 PM.jpeg", "Bermuda-Motorcycle-Racing-Association-BMRA-04-13-2026.pdf"], "uploadedFilePaths": ["docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Motorcycle Racing Association - BMRA David E. Jones (BMRA Junior Development Programme Coach)/WhatsApp Image 2026-04-13 at 10.35.16 PM.jpeg", "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Motorcycle Racing Association - BMRA David E. Jones (BMRA Junior Development Programme Coach)/Bermuda-Motorcycle-Racing-Association-BMRA-04-13-2026.pdf"], "hasDocuments": true}, {"id": 19, "submissionId": "6223666832614380021", "submissionDate": "May 6, 2025", "nsgb": "Bermuda Hockey Federation", "orgEmail": "jennifer.beech@bermudafieldhockey.com", "coach": "", "coachEmail": "", "coachWebsite": "", "sport": "Hockey", "contacts": [], "services": "Provide summer camp from technical coaches from the netherlands and offering Level 1 and 2 FIH certifciation", "programName": "", "programDetails": "NSC July 2025\n\nCoaches from Sportways & local coaches \n\nPathway into other programs and access to sport", "coachesInvolved": "To create a fun alternative to our other programs", "athletes": "Women  Senior - participated in the Pan Am Challenge, the CAC games and CAC qualifiers (won) \n\nMen - paritcipated in the CAC qualfiiers x 2, implented Mixed league", "pathway": "continue to bring awareness to the sport", "outcomes": "", "fiscalYear": "", "amountRequested": "", "totalNJASP": "", "totalAmountNum": 0.0, "totalAmount": "TBD", "remainingCosts": "We charge a fee to attendees", "repName": "Jennifer Beech", "repPosition": "Treasurer", "repDate": "May 6, 2025", "repSignature": "https://www.jotform.com/uploads/Umindesign/251007605265854/6223666832614380021/6223666832614380021_signature_47.png", "travelItems": [], "coachingItems": [], "otherItems": [], "docFolder": "docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Equestrian Federation Abby Bardgett", "uploadedFiles": ["Bermuda-Equestrian-Federation-04-17-2026.pdf"], "uploadedFilePaths": ["docs/junior/National Junior Athlete Sponsorship Application Coaches Award/Bermuda Equestrian Federation Abby Bardgett/Bermuda-Equestrian-Federation-04-17-2026.pdf"], "hasDocuments": true}];
+
+  let statuses = {};
+  let shortlisted = new Set();
+  let chartsInit = false;
+
+  // ===== LOAD/SAVE =====
+  async function loadData() {
+    try {
+      const [{data: sl}, {data: st}] = await Promise.all([
+        supabase.from('njas_shortlists').select('applicant_id').eq('access_code', currentUserCode),
+        supabase.from('njas_statuses').select('applicant_id,status').eq('access_code', currentUserCode)
+      ]);
+      if (sl) sl.forEach(r => shortlisted.add(r.applicant_id));
+      if (st) st.forEach(r => { statuses[r.applicant_id] = r.status; });
+    } catch(e) {
+      const sl = JSON.parse(sessionStorage.getItem('njas_shortlist_'+currentUserCode)||'[]');
+      const st = JSON.parse(sessionStorage.getItem('njas_statuses_'+currentUserCode)||'{}');
+      sl.forEach(id => shortlisted.add(id));
+      Object.assign(statuses, st);
+    }
+  }
+
+  async function dbToggleShortlist(id) {
+    if (shortlisted.has(id)) {
+      await supabase.from('njas_shortlists').delete().eq('access_code', currentUserCode).eq('applicant_id', id);
+    } else {
+      await supabase.from('njas_shortlists').insert({access_code: currentUserCode, applicant_id: id});
+    }
+    sessionStorage.setItem('njas_shortlist_'+currentUserCode, JSON.stringify([...shortlisted]));
+  }
+
+  async function dbSaveStatus(id, status) {
+    await supabase.from('njas_statuses').upsert({access_code: currentUserCode, applicant_id: id, status}, {onConflict: 'access_code,applicant_id'});
+    sessionStorage.setItem('njas_statuses_'+currentUserCode, JSON.stringify(statuses));
+  }
+
+  // ===== TABS =====
+  function switchTab(name, el) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-'+name).classList.add('active');
+    el.classList.add('active');
+    if (name === 'shortlist') renderShortlist();
+    if (name === 'analytics' && !chartsInit) { chartsInit = true; renderCharts(); }
+  }
+
+  // ===== FILTER & RENDER TABLE =====
+  let currentPage = 1;
+  const PAGE_SIZE = 20;
+  let filtered = [];
+
+  function applyFilters() {
+    const q = document.getElementById('searchBox').value.toLowerCase();
+    const sport = document.getElementById('filterSport').value;
+    const status = document.getElementById('filterStatus').value;
+    const docs = document.getElementById('filterDocs').value;
+    filtered = APPLICANTS.filter(a => {
+      const matchQ = !q || a.nsgb.toLowerCase().includes(q) || a.coach.toLowerCase().includes(q) || a.sport.toLowerCase().includes(q) || a.programName.toLowerCase().includes(q);
+      const matchSport = !sport || a.sport === sport;
+      const matchStatus = !status || (statuses[a.id]||'Pending') === status;
+      const matchDocs = !docs || (docs==='yes' ? a.hasDocuments : !a.hasDocuments);
+      return matchQ && matchSport && matchStatus && matchDocs;
+    });
+    currentPage = 1;
+    renderTable();
+  }
+
+  function renderTable() {
+    const start = (currentPage-1)*PAGE_SIZE;
+    const page = filtered.slice(start, start+PAGE_SIZE);
+    const tbody = document.getElementById('appTableBody');
+    tbody.innerHTML = page.map(a => {
+      const isShortlisted = shortlisted.has(a.id);
+      const status = statuses[a.id] || 'Pending';
+      const statusClass = 'status-'+status.replace(' ','-');
+      const sportColor = {"Cricket": "#1565c0", "Football": "#2e7d32", "Golf": "#4a148c", "Rugby": "#bf360c", "Swimming": "#006064", "Triathlon": "#e65100", "Equestrian": "#4e342e", "Gymnastics": "#880e4f", "Motorsport": "#37474f", "Pickleball": "#558b2f", "Tennis": "#f57f17", "Hockey": "#1a237e", "Athletics": "#0d47a1", "Sailing": "#01579b", "Other": "#546e7a"};
+      const color = sportColor[a.sport] || '#546e7a';
+      const fileLinks = a.uploadedFiles.slice(0,3).map((fn,i) =>
+        `<a class="file-chip" href="${a.uploadedFilePaths[i]}" target="_blank">${fn.length>22?fn.substring(0,20)+'…':fn}</a>`
+      ).join('') + (a.uploadedFiles.length>3 ? `<span class="file-chip">+${a.uploadedFiles.length-3}</span>` : '');
+      const athleteCount = a.athletes ? a.athletes.split('\n').filter(x=>x.trim()).length : '—';
+      return `<tr class="${isShortlisted?'shortlisted':''}">
+        <td><button class="star-btn" onclick="toggleShortlist(${a.id})">${isShortlisted?'★':'☆'}</button></td>
+        <td style="color:var(--gray3);font-size:0.80rem">${a.id}</td>
+        <td style="font-weight:600">${a.nsgb||'—'}</td>
+        <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.coach||'—'}</td>
+        <td><span class="sport-badge" style="background:${color}">${a.sport}</span></td>
+        <td style="max-width:160px;font-size:0.82rem;color:var(--gray3)">${a.programName?a.programName.substring(0,50)+(a.programName.length>50?'…':''):'—'}</td>
+        <td style="text-align:center;font-weight:600">${athleteCount}</td>
+        <td style="font-weight:700;color:var(--gold)">${a.totalAmount}</td>
+        <td>${fileLinks || '<span style="color:var(--gray2);font-size:0.78rem">None</span>'}</td>
+        <td><select class="status-select ${statusClass}" onchange="changeStatus(${a.id},this)">
+          <option ${status==='Pending'?'selected':''}>Pending</option>
+          <option ${status==='Under Review'?'selected':''}>Under Review</option>
+          <option ${status==='Approved'?'selected':''}>Approved</option>
+          <option ${status==='Declined'?'selected':''}>Declined</option>
+        </select></td>
+        <td><button class="view-btn" onclick="openModal(${a.id})">View</button></td>
+      </tr>`;
+    }).join('');
+
+    document.getElementById('resultsCount').textContent = `${filtered.length} of ${APPLICANTS.length} applications`;
+    renderPagination();
+    updateShortlistCount();
+  }
+
+  function renderPagination() {
+    const total = Math.ceil(filtered.length/PAGE_SIZE);
+    const el = document.getElementById('pagination');
+    if (total <= 1) { el.innerHTML=''; return; }
+    let html = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>&#8592;</button>`;
+    for (let i=1;i<=total;i++) {
+      if (i===1||i===total||Math.abs(i-currentPage)<=1) {
+        html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+      } else if (Math.abs(i-currentPage)===2) html += '<span class="page-info">…</span>';
+    }
+    html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===total?'disabled':''}>&#8594;</button>`;
+    el.innerHTML = html;
+  }
+
+  function goPage(p) {
+    const total = Math.ceil(filtered.length/PAGE_SIZE);
+    if (p<1||p>total) return;
+    currentPage = p; renderTable();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  // ===== SHORTLIST =====
+  function updateShortlistCount() {
+    const el = document.getElementById('shortlistCount');
+    el.textContent = shortlisted.size > 0 ? `(${shortlisted.size})` : '';
+  }
+
+  async function toggleShortlist(id) {
+    if (shortlisted.has(id)) shortlisted.delete(id); else shortlisted.add(id);
+    await dbToggleShortlist(id);
+    renderTable();
+    showToast(shortlisted.has(id) ? '★ Added to shortlist' : '☆ Removed from shortlist');
+  }
+
+  function renderShortlist() {
+    const items = APPLICANTS.filter(a => shortlisted.has(a.id));
+    const el = document.getElementById('shortlistContent');
+    document.getElementById('shortlistInfo').textContent = `${items.length} application${items.length!==1?'s':''} shortlisted`;
+    if (!items.length) {
+      el.innerHTML = '<div class="shortlist-empty">No applications shortlisted yet.<br>Click ☆ in the Applications tab to add some.</div>';
+      return;
+    }
+    el.innerHTML = `<div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>NSGB</th><th>Coach</th><th>Sport</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+      <tbody>${items.map(a => `<tr>
+        <td>${a.id}</td>
+        <td style="font-weight:600">${a.nsgb}</td>
+        <td>${a.coach||'—'}</td>
+        <td>${a.sport}</td>
+        <td style="font-weight:700;color:var(--gold)">${a.totalAmount}</td>
+        <td>${statuses[a.id]||'Pending'}</td>
+        <td><button class="view-btn" onclick="openModal(${a.id})">View</button></td>
+      </tr>`).join('')}</tbody>
+    </table></div>`;
+  }
+
+  // ===== STATUS =====
+  async function changeStatus(id, sel) {
+    const status = sel.value;
+    statuses[id] = status;
+    sel.className = 'status-select status-'+status.replace(' ','-');
+    await dbSaveStatus(id, status);
+    showToast('Status updated: '+status);
+  }
+
+  // ===== MODAL =====
+  function openModal(id) {
+    const a = APPLICANTS.find(x => x.id === id);
+    if (!a) return;
+    const sportColor = {"Cricket": "#1565c0", "Football": "#2e7d32", "Golf": "#4a148c", "Rugby": "#bf360c", "Swimming": "#006064", "Triathlon": "#e65100", "Equestrian": "#4e342e", "Gymnastics": "#880e4f", "Motorsport": "#37474f", "Pickleball": "#558b2f", "Tennis": "#f57f17", "Hockey": "#1a237e", "Athletics": "#0d47a1", "Sailing": "#01579b", "Other": "#546e7a"};
+    const color = sportColor[a.sport] || '#546e7a';
+    const initials = a.nsgb.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+
+    const fileLinks = a.uploadedFilePaths.map((p,i) =>
+      `<a class="modal-file-btn" href="${p}" target="_blank">&#128196; ${a.uploadedFiles[i]}</a>`
+    ).join('');
+
+    const budgetRows = (rows, label) => rows.length ? `
+      <div class="modal-field full">
+        <label>${label}</label>
+        <table class="budget-table">
+          <thead><tr><th>Item</th><th>Details</th><th>Total</th></tr></thead>
+          <tbody>${rows.map(r=>`<tr><td>${r.item}</td><td>${r.details||'—'}</td><td>${r.total||'—'}</td></tr>`).join('')}</tbody>
+        </table>
+      </div>` : '';
+
+    const contactsHtml = a.contacts.map(c =>
+      `<div style="font-size:0.85rem;margin-bottom:4px"><strong>${c.name}</strong>${c.email?' — '+c.email:''}${c.phone?' | '+c.phone:''}</div>`
+    ).join('');
+
+    document.getElementById('modalContent').innerHTML = `
+      <div class="modal-header">
+        <div class="modal-avatar" style="background:rgba(255,255,255,0.2)">${initials}</div>
+        <div class="modal-header-text">
+          <h2>${a.nsgb}</h2>
+          <p>${a.coach || 'No coach listed'} &bull; ${a.sport} &bull; ${a.totalAmount}</p>
+        </div>
+        <button class="modal-close" onclick="closeModal()">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-section">
+          <h4>Organisation Details</h4>
+          <div class="modal-grid">
+            <div class="modal-field"><label>NSGB</label><p>${a.nsgb}</p></div>
+            <div class="modal-field"><label>Organisation Email</label><p>${a.orgEmail||'—'}</p></div>
+            <div class="modal-field"><label>Sport</label><p>${a.sport}</p></div>
+            <div class="modal-field"><label>Submission Date</label><p>${a.submissionDate}</p></div>
+            <div class="modal-field full"><label>Primary Contacts</label><div>${contactsHtml||'—'}</div></div>
+          </div>
+        </div>
+        <div class="modal-section">
+          <h4>Coach / Coaching Company</h4>
+          <div class="modal-grid">
+            <div class="modal-field"><label>Name</label><p>${a.coach||'—'}</p></div>
+            <div class="modal-field"><label>Email</label><p>${a.coachEmail||'—'}</p></div>
+            <div class="modal-field full"><label>Services Provided</label><p>${a.services||'—'}</p></div>
+          </div>
+        </div>
+        <div class="modal-section">
+          <h4>Junior Development Programme</h4>
+          <div class="modal-grid">
+            <div class="modal-field full"><label>Programme Name &amp; Location</label><p>${a.programName||'—'}</p></div>
+            <div class="modal-field full"><label>Programme Details</label><p>${a.programDetails||'—'}</p></div>
+            <div class="modal-field full"><label>Coaches Involved</label><p>${a.coachesInvolved||'—'}</p></div>
+            <div class="modal-field full"><label>Athlete Cohort</label><p>${a.athletes||'—'}</p></div>
+            <div class="modal-field full"><label>Pathway Alignment</label><p>${a.pathway||'—'}</p></div>
+            <div class="modal-field full"><label>Expected Outcomes (2 Years)</label><p>${a.outcomes||'—'}</p></div>
+          </div>
+        </div>
+        <div class="modal-section">
+          <h4>Funding Request</h4>
+          <div class="modal-grid">
+            <div class="modal-field"><label>Fiscal Year</label><p>${a.fiscalYear||'—'}</p></div>
+            <div class="modal-field"><label>Total Requested</label><p style="font-weight:700;color:var(--gold);font-size:1.1rem">${a.totalAmount}</p></div>
+            ${budgetRows(a.travelItems, 'Travel / Accommodations')}
+            ${budgetRows(a.coachingItems, 'Training Camp / Coaching Fees')}
+            ${budgetRows(a.otherItems, 'Sport Event / Equipment / Other')}
+            <div class="modal-field full"><label>Remaining Costs Arrangements</label><p>${a.remainingCosts||'—'}</p></div>
+          </div>
+        </div>
+        ${fileLinks ? `<div class="modal-section"><h4>Submitted Documents</h4><div>${fileLinks}</div></div>` : ''}
+        <div class="modal-section">
+          <h4>Authorised Representative</h4>
+          <div class="modal-grid">
+            <div class="modal-field"><label>Name</label><p>${a.repName||'—'}</p></div>
+            <div class="modal-field"><label>Position</label><p>${a.repPosition||'—'}</p></div>
+            <div class="modal-field"><label>Date</label><p>${a.repDate||'—'}</p></div>
+          </div>
+        </div>
+      </div>`;
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+
+  function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+  function closeModalOutside(e) { if (e.target===document.getElementById('modalOverlay')) closeModal(); }
+
+  // ===== CHARTS =====
+  function renderCharts() {
+    const sportCounts = {};
+    const sportAmounts = {};
+    const statusCounts = {Pending:0,'Under Review':0,Approved:0,Declined:0};
+    let hasDocs = 0, noDocs = 0;
+
+    APPLICANTS.forEach(a => {
+      sportCounts[a.sport] = (sportCounts[a.sport]||0)+1;
+      sportAmounts[a.sport] = (sportAmounts[a.sport]||0)+a.totalAmountNum;
+      const s = statuses[a.id]||'Pending';
+      statusCounts[s] = (statusCounts[s]||0)+1;
+      if (a.hasDocuments) hasDocs++; else noDocs++;
+    });
+
+    const palette = ['rgb(25,25,112)','#E91E63','#1565c0','#C2185B','#0d47a1','#880e4f','#2e7d32','#4a148c','#bf360c','#006064','#558b2f','#37474f'];
+
+    new Chart(document.getElementById('chartSport'), {
+      type:'bar', data:{labels:Object.keys(sportCounts),datasets:[{data:Object.values(sportCounts),backgroundColor:palette}]},
+      options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
+    });
+    new Chart(document.getElementById('chartAmount'), {
+      type:'bar', data:{labels:Object.keys(sportAmounts),datasets:[{data:Object.values(sportAmounts).map(v=>Math.round(v)),backgroundColor:'#E91E63'}]},
+      options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}
+    });
+    new Chart(document.getElementById('chartStatus'), {
+      type:'doughnut', data:{labels:Object.keys(statusCounts),datasets:[{data:Object.values(statusCounts),backgroundColor:['#fbbf24','#38bdf8','#4ade80','#f87171']}]},
+      options:{plugins:{legend:{position:'bottom'}}}
+    });
+    new Chart(document.getElementById('chartDocs'), {
+      type:'doughnut', data:{labels:['Has Documents','No Documents'],datasets:[{data:[hasDocs,noDocs],backgroundColor:['rgb(25,25,112)','#e2e8f0']}]},
+      options:{plugins:{legend:{position:'bottom'}}}
+    });
+  }
+
+  // ===== EXPORT =====
+  function exportCSV() {
+    const rows = [['ID','NSGB','Coach','Sport','Program','Amount','Status','Documents']];
+    filtered.forEach(a => rows.push([a.id,a.nsgb,a.coach,a.sport,a.programName,a.totalAmount,statuses[a.id]||'Pending',a.uploadedFiles.join('; ')]));
+    const csv = rows.map(r => r.map(c => '"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+    const a = document.createElement('a');
+    a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+    a.download = 'NJAS_Applications_2026.csv'; a.click();
+  }
+
+  function exportShortlistCSV() {
+    const items = APPLICANTS.filter(a => shortlisted.has(a.id));
+    const rows = [['ID','NSGB','Coach','Sport','Amount','Status']];
+    items.forEach(a => rows.push([a.id,a.nsgb,a.coach,a.sport,a.totalAmount,statuses[a.id]||'Pending']));
+    const csv = rows.map(r => r.map(c => '"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+    const el = document.createElement('a');
+    el.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+    el.download = 'NJAS_Shortlist_2026.csv'; el.click();
+  }
+
+  function printShortlist() { window.print(); }
+
+  // ===== TOAST =====
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  // ===== INIT =====
+  (async function init() {
+    await loadData();
+    filtered = [...APPLICANTS];
+    renderTable();
+  })();
+  </script>
+</body>
+</html>
