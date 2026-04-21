@@ -419,8 +419,7 @@
     if (items.length === 0) { showToast('No athletes shortlisted'); return; }
     const headers = ['#','Athlete','Email','Sport','NSGB','Level','Amount','Status','Submitted'];
     const rows = items.map(a => [a.id, a.athleteName||'', a.athleteEmail||'', a.sport||'', a.nsgb||'', a.level||'', a.amountRequested||'', statuses[a.id]||'Pending', a.submissionDate||'']);
-    const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('
-');
+    const csv = [headers, ...rows].map(r => r.map(c => '"' + String(c).replace(/"/g,'""') + '"').join(',')).join('\n');
     const blob = new Blob([csv], {type:'text/csv'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a'); a.href = url; a.download = 'DFD_Shortlist_2026.csv'; a.click();
@@ -452,8 +451,7 @@
   function exportCSV() {
     const headers = ['#','Athlete','Email','Sport','NSGB','Level','Amount','Status','Documents','Submitted'];
     const rows = filtered.map(a => [a.id, a.athleteName||'', a.athleteEmail||'', a.sport||'', a.nsgb||'', a.level||'', a.amountRequested||'', statuses[a.id]||'Pending', (a.uploadedFiles||[]).join('; '), a.submissionDate||'']);
-    const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('
-');
+    const csv = [headers, ...rows].map(r => r.map(c => '"' + String(c).replace(/"/g,'""') + '"').join(',')).join('\n');
     const blob = new Blob([csv], {type:'text/csv'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a'); a.href = url; a.download = 'DFD_Applications_2026.csv'; a.click();
