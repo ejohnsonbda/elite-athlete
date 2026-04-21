@@ -953,6 +953,19 @@ window.printReports = printReports;
 window.printMedical = printMedical;
 window.printEmergency = printEmergency;
 window.renderEmergency = renderEmergency;
+
+// ── SESSION RESTORE ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  const auth = sessionStorage.getItem('portal_auth') || sessionStorage.getItem('aks_auth');
+  const code = sessionStorage.getItem('portal_code') || sessionStorage.getItem('aks_code');
+  if (auth && code && ACCESS_CODES.includes(normaliseCode(code))) {
+    currentUserCode = normaliseCode(code);
+    bootApp();
+  } else {
+    // Not authenticated — redirect to login
+    window.location.href = 'index.html';
+  }
+});
 </script>
 
 </body>
