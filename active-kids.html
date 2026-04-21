@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ACTIVE Kids Sports Academy 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --navy:   rgb(25,25,112);
+  --pink:   #E91E8C;
+  --pink-lt:#fce4f3;
+  --blue-lt:#e8eaf6;
+  --white:  #ffffff;
+  --gray:   #f5f5f7;
+  --gray2:  #e0e0e0;
+  --gray3:  #9e9e9e;
+  --text:   #1a1a2e;
+  --shadow: rgba(25,25,112,0.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--gray);color:var(--text);min-height:100vh}
+
+/* ── LOGIN ── */
+#login-screen{
+  position:fixed;inset:0;z-index:1000;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--navy);
+}
+#login-video{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;
+}
+#login-overlay{
+  position:absolute;inset:0;z-index:1;
+  background:linear-gradient(135deg,rgba(233,30,140,0.40) 0%,rgba(25,25,112,0.40) 100%);
+}
+.login-box{
+  position:relative;z-index:2;
+  background:rgba(255,255,255,0.12);
+  backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,0.25);
+  border-radius:20px;
+  padding:48px 40px;
+  width:100%;max-width:420px;
+  text-align:center;
+  box-shadow:0 8px 40px rgba(0,0,0,0.3);
+}
+.login-title{color:#fff;font-size:1.7rem;font-weight:700;margin-bottom:6px;letter-spacing:-0.5px}
+.login-sub{color:rgba(255,255,255,0.75);font-size:0.9rem;margin-bottom:28px}
+.login-box input{
+  width:100%;padding:13px 16px;border-radius:10px;
+  border:2px solid rgba(255,255,255,0.3);
+  background:rgba(255,255,255,0.15);color:#fff;
+  font-size:1rem;margin-bottom:14px;outline:none;
+  transition:border-color .2s;
+}
+.login-box input::placeholder{color:rgba(255,255,255,0.55)}
+.login-box input:focus{border-color:var(--pink)}
+.login-btn{
+  width:100%;padding:13px;border:none;border-radius:10px;
+  background:var(--pink);color:#fff;font-size:1rem;font-weight:700;
+  cursor:pointer;transition:opacity .2s;
+}
+.login-btn:hover{opacity:0.88}
+.login-err{color:#ff8a80;font-size:0.85rem;margin-top:10px;min-height:20px}
+
+/* ── APP SHELL ── */
+#app-shell{display:none}
+
+/* ── HEADER ── */
+.app-header{
+  background:linear-gradient(90deg,var(--navy) 0%,rgb(40,40,160) 100%);
+  color:#fff;padding:0 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  height:60px;position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 12px var(--shadow);
+}
+.header-left{display:flex;align-items:center;gap:16px}
+.header-title{font-size:1.1rem;font-weight:700;letter-spacing:-0.3px}
+.header-sub{font-size:0.75rem;opacity:0.75;margin-top:1px}
+.sign-out-btn{
+  background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);
+  color:#fff;padding:7px 16px;border-radius:8px;cursor:pointer;
+  font-size:0.85rem;font-weight:600;transition:background .2s;
+}
+.sign-out-btn:hover{background:rgba(255,255,255,0.25)}
+
+/* ── STATS BAR ── */
+.stats-bar{
+  background:var(--navy);color:#fff;
+  display:flex;gap:0;border-bottom:3px solid var(--pink);
+}
+.stat-item{
+  flex:1;text-align:center;padding:12px 8px;
+  border-right:1px solid rgba(255,255,255,0.1);
+}
+.stat-item:last-child{border-right:none}
+.stat-num{font-size:1.5rem;font-weight:800;color:var(--pink)}
+.stat-label{font-size:0.65rem;opacity:0.75;letter-spacing:0.5px;text-transform:uppercase;margin-top:2px}
+
+/* ── TABS ── */
+.tabs{
+  background:var(--navy);display:flex;gap:0;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+}
+.tab{
+  padding:12px 20px;color:rgba(255,255,255,0.65);
+  cursor:pointer;font-size:0.85rem;font-weight:600;
+  border-bottom:3px solid transparent;transition:all .2s;
+  white-space:nowrap;
+}
+.tab:hover{color:#fff}
+.tab.active{color:#fff;border-bottom-color:var(--pink)}
+
+/* ── CONTENT ── */
+.content{padding:20px;max-width:1400px;margin:0 auto}
+
+/* ── TOOLBAR ── */
+.toolbar{
+  background:#fff;border-radius:12px;padding:14px 16px;
+  display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+  margin-bottom:16px;box-shadow:0 2px 8px var(--shadow);
+}
+.toolbar input,.toolbar select{
+  padding:8px 12px;border:1.5px solid var(--gray2);border-radius:8px;
+  font-size:0.85rem;outline:none;background:#fff;
+  transition:border-color .2s;
+}
+.toolbar input:focus,.toolbar select:focus{border-color:var(--pink)}
+.toolbar input{flex:1;min-width:200px}
+.toolbar-count{margin-left:auto;font-size:0.8rem;color:var(--gray3);white-space:nowrap}
+.btn{
+  padding:8px 16px;border:none;border-radius:8px;cursor:pointer;
+  font-size:0.82rem;font-weight:600;transition:opacity .2s;
+}
+.btn:hover{opacity:0.85}
+.btn-pink{background:var(--pink);color:#fff}
+.btn-navy{background:var(--navy);color:#fff}
+.btn-outline{background:#fff;color:var(--navy);border:1.5px solid var(--navy)}
+
+/* ── TABLE ── */
+.table-wrap{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px var(--shadow)}
+table{width:100%;border-collapse:collapse;font-size:0.82rem}
+thead tr{background:var(--navy);color:#fff}
+th{padding:10px 12px;text-align:left;font-weight:600;white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--gray2);transition:background .15s}
+tbody tr:hover{background:var(--gray)}
+tbody tr.has-medical{background:#fff3e0}
+tbody tr.has-medical:hover{background:#ffe0b2}
+td{padding:9px 12px;vertical-align:middle}
+.badge{
+  display:inline-block;padding:3px 9px;border-radius:20px;
+  font-size:0.72rem;font-weight:700;white-space:nowrap;
+}
+.badge-tiny{background:#e8f5e9;color:#2e7d32}
+.badge-junior{background:#e3f2fd;color:#1565c0}
+.badge-male{background:#e3f2fd;color:#1565c0}
+.badge-female{background:var(--pink-lt);color:#880e4f}
+.badge-medical{background:#fff3e0;color:#e65100}
+.badge-size{background:var(--blue-lt);color:var(--navy)}
+
+/* ── PAGINATION ── */
+.pagination{display:flex;gap:6px;align-items:center;justify-content:center;padding:14px}
+.page-btn{
+  padding:6px 12px;border:1.5px solid var(--gray2);border-radius:6px;
+  background:#fff;cursor:pointer;font-size:0.8rem;transition:all .2s;
+}
+.page-btn:hover,.page-btn.active{background:var(--pink);color:#fff;border-color:var(--pink)}
+.page-btn:disabled{opacity:0.4;cursor:default}
+
+/* ── REPORTS ── */
+.reports-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px}
+.report-card{
+  background:#fff;border-radius:12px;padding:20px;
+  box-shadow:0 2px 8px var(--shadow);
+}
+.report-card h3{
+  font-size:0.95rem;font-weight:700;color:var(--navy);
+  margin-bottom:14px;padding-bottom:10px;
+  border-bottom:2px solid var(--pink-lt);
+  display:flex;align-items:center;gap:8px;
+}
+.report-card h3 span{
+  background:var(--pink);color:#fff;
+  border-radius:50%;width:24px;height:24px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:0.75rem;
+}
+.report-table{width:100%;border-collapse:collapse;font-size:0.82rem}
+.report-table th{
+  background:var(--blue-lt);color:var(--navy);
+  padding:7px 10px;text-align:left;font-weight:600;
+}
+.report-table td{padding:7px 10px;border-bottom:1px solid var(--gray2)}
+.report-table tr:last-child td{border-bottom:none}
+.report-table tr:hover td{background:var(--gray)}
+.total-row td{font-weight:700;background:var(--pink-lt)!important;color:var(--navy)}
+
+/* ── CHARTS ── */
+.charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px}
+.chart-card{
+  background:#fff;border-radius:12px;padding:20px;
+  box-shadow:0 2px 8px var(--shadow);
+}
+.chart-card h3{
+  font-size:0.9rem;font-weight:700;color:var(--navy);
+  margin-bottom:14px;text-transform:uppercase;letter-spacing:0.5px;
+}
+.chart-wrap{position:relative;height:240px}
+
+/* ── MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.55);
+  z-index:500;display:none;align-items:center;justify-content:center;padding:20px;
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:#fff;border-radius:16px;width:100%;max-width:680px;
+  max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);
+}
+.modal-header{
+  background:linear-gradient(135deg,var(--navy),rgb(40,40,160));
+  color:#fff;padding:20px 24px;border-radius:16px 16px 0 0;
+  display:flex;justify-content:space-between;align-items:flex-start;
+}
+.modal-header h2{font-size:1.1rem;font-weight:700}
+.modal-header p{font-size:0.8rem;opacity:0.8;margin-top:3px}
+.modal-close{
+  background:rgba(255,255,255,0.2);border:none;color:#fff;
+  width:30px;height:30px;border-radius:50%;cursor:pointer;
+  font-size:1.1rem;display:flex;align-items:center;justify-content:center;
+}
+.modal-body{padding:20px 24px}
+.modal-section{margin-bottom:18px}
+.modal-section h4{
+  font-size:0.75rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:0.8px;color:var(--pink);
+  background:var(--pink-lt);padding:5px 10px;border-radius:6px;
+  margin-bottom:10px;
+}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.modal-field label{font-size:0.72rem;color:var(--gray3);display:block;margin-bottom:2px}
+.modal-field span{font-size:0.88rem;font-weight:600;color:var(--text)}
+.alert-box{
+  background:#fff3e0;border:1px solid #ffcc02;border-radius:8px;
+  padding:10px 14px;font-size:0.85rem;color:#e65100;
+}
+
+/* ── PRINT ── */
+@media print{
+  #login-screen,#app-shell .app-header,.tabs,.toolbar,.pagination{display:none!important}
+  .content{padding:0}
+  .table-wrap,.report-card{box-shadow:none;border:1px solid #ddd}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN (hidden — portal handles auth) -->
+<div id="login-screen" style="display:none">
+  <video id="login-video" autoplay muted loop playsinline>
+    <source src="login-bg.mp4" type="video/mp4">
+  </video>
+  <div id="login-overlay"></div>
+  <div class="login-box">
+    <div class="login-title">ACTIVE Kids Sports Academy</div>
+    <div class="login-sub">2026 Registration Dashboard</div>
+    <input type="password" id="codeInput" placeholder="Enter access code" autocomplete="off"/>
+    <button class="login-btn" id="loginBtn" onclick="attemptLogin()">Sign In</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div id="app-shell">
+
+  <div class="app-header">
+    <div class="header-left"><a href="portal.html" style="color:rgba(255,255,255,0.8);text-decoration:none;font-size:0.82rem;font-weight:600;padding:6px 12px;border:1px solid rgba(255,255,255,0.3);border-radius:8px;margin-right:8px;white-space:nowrap">&#8592; Portal</a>
+      <div>
+        <div class="header-title">ACTIVE Kids Sports Academy 2026</div>
+        <div class="header-sub">Registration Dashboard</div>
+      </div>
+    </div>
+    <button class="sign-out-btn" onclick="signOut()">Sign Out</button>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-item"><div class="stat-num" id="statTotal">75</div><div class="stat-label">Registrations</div></div>
+    <div class="stat-item"><div class="stat-num" id="statTiny">37</div><div class="stat-label">Tiny Titans</div></div>
+    <div class="stat-item"><div class="stat-num" id="statJunior">38</div><div class="stat-label">Junior Jaguars</div></div>
+    <div class="stat-item"><div class="stat-num" id="statMedical">9</div><div class="stat-label">Medical Flags</div></div>
+    <div class="stat-item"><div class="stat-num">44</div><div class="stat-label">Male</div></div>
+    <div class="stat-item"><div class="stat-num">31</div><div class="stat-label">Female</div></div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" id="tab-registrations" onclick="switchTab('registrations')">Registrations</div>
+    <div class="tab" id="tab-reports" onclick="switchTab('reports')">Custom Reports</div>
+    <div class="tab" id="tab-analytics" onclick="switchTab('analytics')">Analytics</div>
+    <div class="tab" id="tab-medical" onclick="switchTab('medical')">Medical Flags</div>
+    <div class="tab" id="tab-emergency" onclick="switchTab('emergency')">Emergency Contacts</div>
+  </div>
+
+  <!-- REGISTRATIONS TAB -->
+  <div id="pane-registrations" class="content">
+    <div class="toolbar">
+      <input type="text" id="searchBox" placeholder="Search name, school, parent..." oninput="applyFilters()"/>
+      <select id="filterProgram" onchange="applyFilters()">
+        <option value="">All Programs</option>
+        <option>Tiny Titans (Ages 4–7)</option>
+        <option>Junior Jaguars (Ages 8–10)</option>
+      </select>
+      <select id="filterGender" onchange="applyFilters()">
+        <option value="">All Genders</option>
+        <option>Male</option>
+        <option>Female</option>
+      </select>
+      <select id="filterSize" onchange="applyFilters()">
+        <option value="">All T-Shirt Sizes</option>
+        <option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option>
+      </select>
+      <select id="filterMedical" onchange="applyFilters()">
+        <option value="">All</option>
+        <option value="yes">Medical Flag</option>
+        <option value="no">No Medical</option>
+      </select>
+      <span class="toolbar-count" id="countLabel">75 of 75 registrations</span>
+      <button class="btn btn-pink" onclick="exportCSV()">Export CSV</button>
+      <button class="btn btn-outline" onclick="printTable()">Print</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>#</th><th>Child's Name</th><th>Age</th><th>Gender</th>
+          <th>Program</th><th>School</th><th>T-Shirt</th>
+          <th>Parent/Guardian</th><th>Medical</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="regTableBody"></tbody>
+      </table>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div>
+
+  <!-- REPORTS TAB -->
+  <div id="pane-reports" class="content" style="display:none">
+    <div class="toolbar" style="margin-bottom:16px">
+      <strong style="color:var(--navy)">Custom Reports</strong>
+      <button class="btn btn-pink" onclick="printReports()">Print All Reports</button>
+      <button class="btn btn-outline" onclick="exportReportsCSV()">Export Reports CSV</button>
+    </div>
+    <div class="reports-grid" id="reportsGrid"></div>
+  </div>
+
+  <!-- ANALYTICS TAB -->
+  <div id="pane-analytics" class="content" style="display:none">
+    <div class="charts-grid" id="chartsGrid">
+      <div class="chart-card"><h3>Registrations by Program</h3><div class="chart-wrap"><canvas id="chartProgram"></canvas></div></div>
+      <div class="chart-card"><h3>Gender Breakdown</h3><div class="chart-wrap"><canvas id="chartGender"></canvas></div></div>
+      <div class="chart-card"><h3>Age Distribution</h3><div class="chart-wrap"><canvas id="chartAge"></canvas></div></div>
+      <div class="chart-card"><h3>T-Shirt Sizes</h3><div class="chart-wrap"><canvas id="chartTshirt"></canvas></div></div>
+      <div class="chart-card"><h3>Top Schools</h3><div class="chart-wrap"><canvas id="chartSchool"></canvas></div></div>
+      <div class="chart-card"><h3>Media Consent</h3><div class="chart-wrap"><canvas id="chartMedia"></canvas></div></div>
+    </div>
+  </div>
+
+  <!-- MEDICAL TAB -->
+  <div id="pane-medical" class="content" style="display:none">
+    <div class="toolbar">
+      <strong style="color:var(--navy)">Children with Medical Conditions or Allergies</strong>
+      <button class="btn btn-pink" onclick="printMedical()">Print Medical Report</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>#</th><th>Child's Name</th><th>Age</th><th>Program</th>
+          <th>Condition/Allergy</th><th>Medications</th><th>Physician</th><th>Physician Phone</th>
+        </tr></thead>
+        <tbody id="medTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- EMERGENCY CONTACTS TAB -->
+  <div id="pane-emergency" class="content" style="display:none">
+    <div class="toolbar">
+      <strong style="color:var(--navy)">Emergency Contact Sheet</strong>
+      <select id="filterProgEmerg" onchange="renderEmergency()">
+        <option value="">All Programs</option>
+        <option>Tiny Titans (Ages 4–7)</option>
+        <option>Junior Jaguars (Ages 8–10)</option>
+      </select>
+      <button class="btn btn-pink" onclick="printEmergency()">Print Emergency Sheet</button>
+      <button class="btn btn-outline" onclick="exportEmergencyCSV()">Export CSV</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>#</th><th>Child's Name</th><th>Age</th><th>Program</th>
+          <th>Parent/Guardian</th><th>Parent Phone</th>
+          <th>Emergency Contact</th><th>Emerg. Phone</th>
+          <th>Authorised Pickup</th><th>Medical</th>
+        </tr></thead>
+        <tbody id="emergTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /app-shell -->
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+const REGISTRATIONS = [{"id": 1, "childName": "Mason Marshall", "dob": "Jun 26, 2018", "age": "7", "gender": "Male", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Larry", "relationship": "Father", "email": "larrymarshall1@yahoo.com", "phone": "(441) 337-4433", "authorisedPickup": "Sharina Marshall\nLarry Marshall\nGary Lynch", "school": "Elliot", "yearGroup": "P3", "tshirtSize": "S", "hasMedical": true, "medicalDetail": "Asthma", "takesMeds": true, "medsDetail": "Ventolin\nSimbochord", "physicianName": "Dr. Foulton", "physicianPhone": "(441) 292-1000", "emergencyName": "Sharina Marshall", "emergencyRel": "mother", "emergencyPhone": "(441) 333-5696", "mediaConsent": "I Consent", "submissionDate": "Apr 21, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 2, "childName": "Amiah Smith", "dob": "Aug 1, 2018", "age": "7", "gender": "Female", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Carla Govia", "relationship": "Mother", "email": "carlagovia@gmail.com", "phone": "(441) 337-2212", "authorisedPickup": "Carla Govia 337-2212\nLarry Marshall 337-4433", "school": "Elliot Primary", "yearGroup": "P3", "tshirtSize": "XS", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Fulton", "physicianPhone": "(441) 292-1000", "emergencyName": "Carla Govia", "emergencyRel": "Mother", "emergencyPhone": "(441) 337-2212", "mediaConsent": "I Consent", "submissionDate": "Apr 21, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Messaging group"}, {"id": 3, "childName": "Cadence Tankard", "dob": "Jul 13, 2019", "age": "6", "gender": "Female", "program": "Tiny Titans (Ages 4–7)", "parentName": "Jonathan Tankard", "relationship": "Father", "email": "tankardtribe@gmail.com", "phone": "(441) 595-0056", "authorisedPickup": "Kathleen Wilson-Allers 332-3018\nMarilyn Allers 337-2103\nCarlos Allers - 332-0903\nLaurel Burns 535-0013\nLashay Hollinsid 704-7792\nKylah Martin 799-0215", "school": "Bermuda Institute", "yearGroup": "Grade 1/Primary 2", "tshirtSize": "XS", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Fulton", "physicianPhone": "(441) 292-1000", "emergencyName": "V. Kathleen Wilson-Allers", "emergencyRel": "Grandmother", "emergencyPhone": "(441) 338-1216", "mediaConsent": "I Consent", "submissionDate": "Apr 20, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Phone"}, {"id": 4, "childName": "Isaiah Tankard", "dob": "Aug 11, 2017", "age": "8", "gender": "Male", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Jonathan Tankard", "relationship": "Father", "email": "tankardtribe@gmail.com", "phone": "(441) 595-0056", "authorisedPickup": "Kathleen Wilson-Allers 332-3018\nMarilyn Allers 337-2103\nCarlos Allers - 332-0903\nLaurel Burns 535-0013\nLashay Hollinsid 704-7792\nKylah Martin 799-0215", "school": "Bermuda Institute", "yearGroup": "Grade 3/Primary 4", "tshirtSize": "M", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Fulton", "physicianPhone": "(441) 292-1000", "emergencyName": "V. Kathleen Wilson-Allers", "emergencyRel": "Grandmother", "emergencyPhone": "(441) 338-1216", "mediaConsent": "I Consent", "submissionDate": "Apr 20, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Phone"}, {"id": 5, "childName": "Khysen Lema-Smith", "dob": "Sep 7, 2019", "age": "6", "gender": "Male", "program": "Tiny Titans (Ages 4–7)", "parentName": "Kayjuna Lema", "relationship": "Mom", "email": "klema2@hotmail.com", "phone": "(441) 532-6978", "authorisedPickup": "Kayjuna Lema - 532-6978\nJonté Smith - 705-0858\nAmanda Hatherley - 535-2550\nPatricia Lema - 703-1755\nMahkye Steede - 707-2100", "school": "Purvis Primary", "yearGroup": "P2", "tshirtSize": "M", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. West", "physicianPhone": "(441) 296-3032", "emergencyName": "Kayjuna Lema", "emergencyRel": "Mom", "emergencyPhone": "(441) 532-6978", "mediaConsent": "I Consent", "submissionDate": "Apr 20, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Phone"}, {"id": 6, "childName": "Kamal Worrell", "dob": "Oct 31, 2018", "age": "7", "gender": "Male", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Shawnae Brangman DCFS", "relationship": "Social Worker", "email": "shbrangman@gov.bm", "phone": "(441) 246-7233", "authorisedPickup": "DCFS Staff - 705-9080 or 707-0441\nAlicia Zuill- 337-4961\nThelma Wong- 332-3088", "school": "Victor Scott", "yearGroup": "P3", "tshirtSize": "S", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr Nawab", "physicianPhone": "(441) 292-1000", "emergencyName": "Alicia Zuill", "emergencyRel": "Family Support", "emergencyPhone": "(441) 337-4961", "mediaConsent": "I do not consent", "submissionDate": "Apr 15, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 7, "childName": "Zahra Baptiste", "dob": "Nov 17, 2017", "age": "8", "gender": "Female", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Tracie Baptiste", "relationship": "Mother", "email": "tracieleebaptiste@gmail.com", "phone": "(441) 799-5683", "authorisedPickup": "Tracie Baptiste 7995683\nMalachi Hall 7994325", "school": "Harrington Sound", "yearGroup": "P4", "tshirtSize": "S", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr West", "physicianPhone": "(441) 235-2241", "emergencyName": "Tracie Baptiste", "emergencyRel": "Mother", "emergencyPhone": "(441) 799-5683", "mediaConsent": "I Consent", "submissionDate": "Apr 15, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Messaging group"}, {"id": 8, "childName": "Zahra Baptiste", "dob": "Nov 17, 2017", "age": "8", "gender": "Female", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Tracie Baptiste", "relationship": "Mother", "email": "tracieleebaptiste@gmail.com", "phone": "(441) 799-5683", "authorisedPickup": "Tracie Baptiste - 799-5683\nMalachi Hall - 799-4325", "school": "Harrington Sound", "yearGroup": "P4", "tshirtSize": "S", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr West", "physicianPhone": "(441) 235-2241", "emergencyName": "Tracie Baptiste", "emergencyRel": "Mother", "emergencyPhone": "(441) 799-5683", "mediaConsent": "I Consent", "submissionDate": "Apr 15, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Messaging group"}, {"id": 9, "childName": "Deun Usher", "dob": "Oct 10, 2017", "age": "8", "gender": "Male", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Randaé", "relationship": "Mother", "email": "Rdusher@live.com", "phone": "(441) 518-8074", "authorisedPickup": "Randaé usher\nDaren usher", "school": "Elliott parish school", "yearGroup": "P4", "tshirtSize": "M", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Sylvanys nawab", "physicianPhone": "(441) 295-8000", "emergencyName": "Daren", "emergencyRel": "Uncle", "emergencyPhone": "(441) 705-5377", "mediaConsent": "I Consent", "submissionDate": "Apr 12, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Phone"}, {"id": 10, "childName": "Azauri Scott", "dob": "Mar 17, 2017", "age": "9", "gender": "Male", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Kori Scott", "relationship": "Father", "email": "korivibes@gmail.com", "phone": "(441) 901-0290", "authorisedPickup": "Ashanta Hassell\nWinton Scott", "school": "Home school", "yearGroup": "4", "tshirtSize": "M", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Nawab", "physicianPhone": "(441) 292-1000", "emergencyName": "Kari Scott", "emergencyRel": "Sister", "emergencyPhone": "(441) 732-0912", "mediaConsent": "I Consent", "submissionDate": "Apr 12, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 11, "childName": "Taja Fox", "dob": "Aug 19, 2020", "age": "5", "gender": "Female", "program": "Tiny Titans (Ages 4–7)", "parentName": "Talia Fox", "relationship": "Mother", "email": "talia.iris17@gmail.com", "phone": "(441) 505-1498", "authorisedPickup": "Talia Fox -441-505-1498\nTyler Fox - 441-336-4386\nVida Fox - 441- 732-5770 - text/whatsapp only", "school": "St.Davids Primary", "yearGroup": "P1", "tshirtSize": "XS", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Woodward", "physicianPhone": "(441) 295-8000", "emergencyName": "Talia Fox", "emergencyRel": "Mother", "emergencyPhone": "(441) 505-1498", "mediaConsent": "I Consent", "submissionDate": "Apr 11, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 12, "childName": "Chase Hayward", "dob": "Apr 11, 2017", "age": "9", "gender": "Male", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Zjah-Quana Bean", "relationship": "Mother", "email": "quana.bean@gmail.com", "phone": "(441) 737-0726", "authorisedPickup": "Mother and father\nCoralie Hayward \nDebbie Hayward\nJo Hayward\nJahmir Durham", "school": "Paget Primary", "yearGroup": "P4", "tshirtSize": "S", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Kenny", "physicianPhone": "(441) 295-8000", "emergencyName": "Zjah-Quana Bean", "emergencyRel": "Mother", "emergencyPhone": "(441) 737-0726", "mediaConsent": "I Consent", "submissionDate": "Apr 11, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Phone"}, {"id": 13, "childName": "Ayla Lynch-Wade", "dob": "Oct 19, 2020", "age": "5", "gender": "Female", "program": "Tiny Titans (Ages 4–7)", "parentName": "Lisa Lynch-Wade", "relationship": "Mother", "email": "notroh80@yahoo.com", "phone": "(441) 705-8334", "authorisedPickup": "Lisa Lynch-Wade or Tariq Lynch-Wade", "school": "St George’s Prep", "yearGroup": "P1", "tshirtSize": "M", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr Nawab", "physicianPhone": "(441) 538-1515", "emergencyName": "Lisa Lynch-Wade", "emergencyRel": "Mother", "emergencyPhone": "(441) 705-8334", "mediaConsent": "I do not consent", "submissionDate": "Apr 10, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 14, "childName": "Zoey Trott", "dob": "Apr 27, 2019", "age": "6", "gender": "Female", "program": "Tiny Titans (Ages 4–7)", "parentName": "Kim Trott", "relationship": "Mother", "email": "kimd.johnston87@gmail.com", "phone": "(441) 705-5789", "authorisedPickup": "Kim Trott 7055789 Zeldon Trott 7041373 or 3251294", "school": "Port Royal", "yearGroup": "P2", "tshirtSize": "S", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Kristen Woodward", "physicianPhone": "(441) 292-1000", "emergencyName": "Kim Trott", "emergencyRel": "Mother", "emergencyPhone": "(441) 705-5789", "mediaConsent": "I Consent", "submissionDate": "Apr 9, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 15, "childName": "Joah Saunders", "dob": "Sep 5, 2017", "age": "8", "gender": "Male", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Randi Saunders", "relationship": "Mom", "email": "Randisaunders@yahoo.com", "phone": "(441) 504-0981", "authorisedPickup": "Randi Saunders 5040981\nJevon Saunders 3332229\nLisa lynch-wade", "school": "Francis patton", "yearGroup": "P4", "tshirtSize": "L", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Sylvan nawab", "physicianPhone": "(441) 504-0981", "emergencyName": "Randi Saunders", "emergencyRel": "Mom", "emergencyPhone": "(441) 504-0981", "mediaConsent": "I Consent", "submissionDate": "Apr 8, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Messaging group"}, {"id": 16, "childName": "Lucas Paulo Salanga", "dob": "Nov 13, 2020", "age": "5", "gender": "Male", "program": "Tiny Titans (Ages 4–7)", "parentName": "Lyka Ruiz", "relationship": "Mom", "email": "lykaruiz14@yahoo.com", "phone": "(441) 799-1994", "authorisedPickup": "Lyka Ruiz (7991994)\nRobin Salanga(7321988)\nBelinda Ruiz(5321012)", "school": "Paget Primary", "yearGroup": "P1", "tshirtSize": "S", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr.Nawab", "physicianPhone": "(441) 538-1515", "emergencyName": "Lyka Ruiz", "emergencyRel": "Mom", "emergencyPhone": "(441) 799-1994", "mediaConsent": "I Consent", "submissionDate": "Apr 8, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Phone"}, {"id": 17, "childName": "Romi Dill", "dob": "May 28, 2017", "age": "8", "gender": "Male", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Marlon Dill", "relationship": "Father", "email": "krisrindill@gmail.com", "phone": "(441) 533-3718", "authorisedPickup": "Pat Dill 441-335-3092\nShervin Dill\nMaceo Dill", "school": "Harrington Sound", "yearGroup": "4", "tshirtSize": "M", "hasMedical": true, "medicalDetail": "Asthma", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. S. West", "physicianPhone": "(441) 707-2204", "emergencyName": "Pat Dill", "emergencyRel": "Nana", "emergencyPhone": "(441) 335-3092", "mediaConsent": "I Consent", "submissionDate": "Apr 8, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Phone"}, {"id": 18, "childName": "Gideon Weeks", "dob": "Nov 13, 2019", "age": "6", "gender": "Male", "program": "Tiny Titans (Ages 4–7)", "parentName": "Shayna Weeks", "relationship": "Mother", "email": "shaynaweeks@icloud.com", "phone": "(441) 518-8025", "authorisedPickup": "Evroyd Weeks (as above)\nShayna Weeks (as above)\nAkinyi Apopa (Ethan Raynor's mom)", "school": "Harrington Sound Parish School", "yearGroup": "2", "tshirtSize": "M", "hasMedical": true, "medicalDetail": "Asthma", "takesMeds": true, "medsDetail": "Ventolin inhaler (as needed)", "physicianName": "Dr. Sylvanus Nawab", "physicianPhone": "(441) 292-1000", "emergencyName": "Evroyd Weeks", "emergencyRel": "Grandfather", "emergencyPhone": "(441) 704-8387", "mediaConsent": "I do not consent", "submissionDate": "Apr 7, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 19, "childName": "Makonnen Cabral", "dob": "Nov 12, 2020", "age": "5", "gender": "Male", "program": "Tiny Titans (Ages 4–7)", "parentName": "Antonio and Jahmelah Cabral", "relationship": "Parents", "email": "mjahmelah3@gmail.com", "phone": "(441) 777-3194", "authorisedPickup": "Antonio Cabral 4417773194 or Ayondae Fenaroli 4419016544", "school": "Purvis Primary School", "yearGroup": "1", "tshirtSize": "S", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Clinic", "physicianPhone": "(441) 278-6460", "emergencyName": "4417773194", "emergencyRel": "Father", "emergencyPhone": "(441) 777-3194", "mediaConsent": "I Consent", "submissionDate": "Apr 7, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Phone"}, {"id": 20, "childName": "Ambassa Cabral", "dob": "Apr 15, 2018", "age": "8", "gender": "Female", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Antonio and Jahmelah Cabral", "relationship": "Parents", "email": "mjahmelah3@gmail.com", "phone": "(441) 777-3194", "authorisedPickup": "Antonio Cabral 4417773194 or Ayondae Fenaroli 4419016544", "school": "Purvis Primary School", "yearGroup": "3", "tshirtSize": "L", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Clinic", "physicianPhone": "(441) 278-6460", "emergencyName": "Antonio Cabral", "emergencyRel": "Father", "emergencyPhone": "(441) 777-3194", "mediaConsent": "I Consent", "submissionDate": "Apr 7, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Phone"}, {"id": 21, "childName": "Riley Trott", "dob": "Mar 9, 2017", "age": "8", "gender": "Male", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Allissia Furbert-Adams", "relationship": "Mother", "email": "adamsallissia@gmail.com", "phone": "(441) 533-0353", "authorisedPickup": "Christine Adams 4415350053", "school": "Purvis Primary", "yearGroup": "4", "tshirtSize": "M", "hasMedical": true, "medicalDetail": "Seasonal Asthma", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. S. West", "physicianPhone": "(441) 296-3032", "emergencyName": "Christine Adams", "emergencyRel": "Nana", "emergencyPhone": "(441) 535-0053", "mediaConsent": "I Consent", "submissionDate": "Apr 7, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 22, "childName": "Maya Morris", "dob": "Sep 18, 2019", "age": "6", "gender": "Female", "program": "Tiny Titans (Ages 4–7)", "parentName": "Collice Morris", "relationship": "Mother", "email": "Collicew@gmail.com", "phone": "(441) 703-5429", "authorisedPickup": "Julia Washington- 591-9906", "school": "Port Royal Primary", "yearGroup": "2", "tshirtSize": "XS", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Richard Fulton", "physicianPhone": "(441) 295-2000", "emergencyName": "Julia Washington", "emergencyRel": "Nans", "emergencyPhone": "(441) 591-9906", "mediaConsent": "I Consent", "submissionDate": "Apr 6, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 23, "childName": "Winston Morris", "dob": "Jun 27, 2021", "age": "4", "gender": "Male", "program": "Tiny Titans (Ages 4–7)", "parentName": "Collice Morris", "relationship": "Mother", "email": "Collicew@gmail.com", "phone": "(441) 703-5429", "authorisedPickup": "Julia Washington- 591-9906", "school": "Warwick Preschool", "yearGroup": "Pre", "tshirtSize": "XS", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Richard Fulton", "physicianPhone": "(441) 295-2000", "emergencyName": "Julia Washington", "emergencyRel": "Nana", "emergencyPhone": "(441) 591-9906", "mediaConsent": "I Consent", "submissionDate": "Apr 6, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 24, "childName": "Caiden Minors", "dob": "Nov 5, 2017", "age": "8", "gender": "Male", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Darin Minors", "relationship": "Father", "email": "debigevent@gmail.com", "phone": "(441) 333-3610", "authorisedPickup": "Parents, Loren Morrissey 335-5927", "school": "Somerset Primary", "yearGroup": "2026", "tshirtSize": "L", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr Kristen Woodward", "physicianPhone": "(441) 295-8000", "emergencyName": "Loren Morrisse", "emergencyRel": "Uncle", "emergencyPhone": "(441) 335-5927", "mediaConsent": "I Consent", "submissionDate": "Apr 6, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 25, "childName": "Celà Card", "dob": "Mar 28, 2016", "age": "10", "gender": "Female", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Trina Webb-Caisey", "relationship": "Mother", "email": "cardcatrina@gmail.com", "phone": "(441) 735-0105", "authorisedPickup": "Parents ( as above )", "school": "Purvis Primary", "yearGroup": "5", "tshirtSize": "M", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Ryan Bates", "physicianPhone": "(441) 517-4151", "emergencyName": "Trina Webb-Caisey", "emergencyRel": "Mother", "emergencyPhone": "(441) 735-0105", "mediaConsent": "I Consent", "submissionDate": "Apr 6, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 26, "childName": "Kingsten Trott", "dob": "Jul 5, 2019", "age": "6", "gender": "Male", "program": "Tiny Titans (Ages 4–7)", "parentName": "Michelle Hassell", "relationship": "Mother", "email": "michelle.hassell@axaxl.com", "phone": "(441) 591-4018", "authorisedPickup": "Maria Sykes - 705-4448\nKennita Allchin - 332-6262\nLaVonne Smith - 300-4350\nGeormeeka Trott - 516-8448", "school": "Purvis", "yearGroup": "Y2", "tshirtSize": "S", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Stephen Kenney", "physicianPhone": "(441) 295-5000", "emergencyName": "Michelle Hassell", "emergencyRel": "Mother", "emergencyPhone": "(441) 591-4018", "mediaConsent": "I Consent", "submissionDate": "Apr 6, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Messaging group"}, {"id": 27, "childName": "Mahni Piper-Richardson", "dob": "Jan 20, 2022", "age": "4", "gender": "Male", "program": "Tiny Titans (Ages 4–7)", "parentName": "Mornay Piper", "relationship": "Mother", "email": "mornaypiper@live.com", "phone": "(441) 517-1188", "authorisedPickup": "Mom - Mornay Piper 517-1188\nGrandmother- Keva Piper 599-0084\nSister - Sanaya Piper 707-1251\nDad - Ryan Richardson 519-1701", "school": "Abraham's Little Seeds", "yearGroup": "Nursery", "tshirtSize": "XS", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Stephen West", "physicianPhone": "(441) 296-3230", "emergencyName": "Keva Piper", "emergencyRel": "Grandmother", "emergencyPhone": "(441) 599-0084", "mediaConsent": "I Consent", "submissionDate": "Apr 5, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Phone"}, {"id": 28, "childName": "Kohta Wilkinson", "dob": "Sep 11, 2016", "age": "9", "gender": "Male", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Garon Wilkinson", "relationship": "Father", "email": "441will@gmail.com", "phone": "(441) 747-8495", "authorisedPickup": "Kana Wilkinson - 7378485\nGaron Wilkinson - 7478495\nSharon Wilkinson - 7372313\nGarry Wilkinson - 531-0520\nGabriel Wilkinson - 737-2313", "school": "Warwick Academy", "yearGroup": "5", "tshirtSize": "M", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Nawab", "physicianPhone": "(441) 292-1000", "emergencyName": "Garon Wilkinson", "emergencyRel": "Father", "emergencyPhone": "(441) 747-8495", "mediaConsent": "I Consent", "submissionDate": "Apr 5, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Phone"}, {"id": 29, "childName": "Sebastian Izaguirre", "dob": "Aug 30, 2019", "age": "6", "gender": "Male", "program": "Tiny Titans (Ages 4–7)", "parentName": "Maria Gabriela Mena", "relationship": "Mother", "email": "mariamena19@gmail.com", "phone": "(441) 518-9285", "authorisedPickup": "Paulo Izaguirre/ 7030185\nMaría Mena / 5189285", "school": "Francis Patton School", "yearGroup": "P2", "tshirtSize": "S", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Samantha DeCouto", "physicianPhone": "(441) 295-1110", "emergencyName": "Maria Gabriela Mena", "emergencyRel": "Mother", "emergencyPhone": "(441) 518-9285", "mediaConsent": "I Consent", "submissionDate": "Apr 4, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Phone"}, {"id": 30, "childName": "Andre Izaguirre", "dob": "Apr 29, 2016", "age": "9", "gender": "Male", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Maria Mena", "relationship": "Mother", "email": "mariamena19@gmail.com", "phone": "(441) 518-9285", "authorisedPickup": "Paulo Izaguirre / 7040185\nMaría Mena / 5189285", "school": "Francis Patton", "yearGroup": "P5", "tshirtSize": "M", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Samantha DeCouto", "physicianPhone": "(441) 295-1110", "emergencyName": "Maria Mena", "emergencyRel": "Mother", "emergencyPhone": "(441) 518-9285", "mediaConsent": "I Consent", "submissionDate": "Apr 4, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 31, "childName": "Rafaela Revilla", "dob": "Aug 20, 2020", "age": "5", "gender": "Female", "program": "Tiny Titans (Ages 4–7)", "parentName": "Alejandra Vera", "relationship": "Mother", "email": "alevera_d@hotmail.com", "phone": "(441) 533-3384", "authorisedPickup": "Maria Gabriela Mena +1 (441) 518-9285\nSeiichiro Nishi +44 7920 184642", "school": "Francis patton", "yearGroup": "P1", "tshirtSize": "M", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Leke", "physicianPhone": "(144) 129-7006", "emergencyName": "Alejandra Vera", "emergencyRel": "Mother", "emergencyPhone": "(441) 533-3384", "mediaConsent": "I Consent", "submissionDate": "Apr 4, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 32, "childName": "Valentina Revilla", "dob": "Jul 20, 2016", "age": "9", "gender": "Female", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Alejandra Vera", "relationship": "Mother", "email": "alevera_d@hotmail.com", "phone": "(441) 533-3384", "authorisedPickup": "Maria Gabriela Mena +1 (441) 518-9285\nSeiichiro Nishi +44 7920 184642", "school": "Francis Patton", "yearGroup": "P5", "tshirtSize": "L", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Leke", "physicianPhone": "(144) 129-7006", "emergencyName": "Alejandra Vera", "emergencyRel": "Mother", "emergencyPhone": "(441) 533-3384", "mediaConsent": "I Consent", "submissionDate": "Apr 4, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 33, "childName": "Iolanda Leivas", "dob": "Nov 17, 2015", "age": "10", "gender": "Female", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Luciano de Freitas Leivas", "relationship": "Father", "email": "lucianoleivas@gmail.com", "phone": "(441) 777-8027", "authorisedPickup": "Luciano de Freitas Leivas 7778027\nTamara Queiroz Sperotto 7778027", "school": "Elliot Parish School", "yearGroup": "P5", "tshirtSize": "XL", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Isabel C. Santos +55 51 3341-2151 Brazil", "physicianPhone": "(441) 777-8027", "emergencyName": "Tamara Queiroz Sperotto", "emergencyRel": "Mother", "emergencyPhone": "(441) 777-8027", "mediaConsent": "I Consent", "submissionDate": "Apr 4, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 34, "childName": "Leonora Leivas", "dob": "Mar 10, 2018", "age": "8", "gender": "Female", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Luciano de Freitas Leivas", "relationship": "Father", "email": "lucianoleivas@gmail.com", "phone": "(441) 777-8027", "authorisedPickup": "Tamara Queiroz Sperotto 7778027\nLuciano de Freitas Leivas 7778027", "school": "Elliot Parish School", "yearGroup": "P3", "tshirtSize": "XL", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Isabel C. Santos +55 51 33412151 - Brazil", "physicianPhone": "(441) 777-8027", "emergencyName": "Tamara Queiroz Sperotto", "emergencyRel": "Mother", "emergencyPhone": "(441) 777-8027", "mediaConsent": "I Consent", "submissionDate": "Apr 4, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 35, "childName": "Saer Augustus", "dob": "Oct 4, 2018", "age": "7", "gender": "Male", "program": "Tiny Titans (Ages 4–7)", "parentName": "Sanshae Morrissey", "relationship": "Mother", "email": "sl_morrissey@hotmail.com", "phone": "(441) 536-7423", "authorisedPickup": "Calvin Augustus- 338-5533", "school": "Purvis Primart", "yearGroup": "P3", "tshirtSize": "M", "hasMedical": true, "medicalDetail": "Allergies - cashews and pistachios", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Fulton", "physicianPhone": "(441) 292-1000", "emergencyName": "Sanshae Morrissey", "emergencyRel": "Mother", "emergencyPhone": "(441) 536-7423", "mediaConsent": "I Consent", "submissionDate": "Apr 4, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 36, "childName": "Soul Smith-Astwood", "dob": "Apr 4, 2022", "age": "4", "gender": "Male", "program": "Tiny Titans (Ages 4–7)", "parentName": "Ashley Smith", "relationship": "Mother", "email": "ae.smith@live.com", "phone": "(441) 531-0223", "authorisedPickup": "Ashley Smith - Mother - 531-0222\nJay Astwood - Father - 599-1627\nNatercia Jimenez - Grandmother - 516-2223", "school": "Little Scholars Academy", "yearGroup": "Pre-School", "tshirtSize": "XS", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Bates", "physicianPhone": "(441) 296-3032", "emergencyName": "Ashley Smith", "emergencyRel": "Mother", "emergencyPhone": "(441) 531-0222", "mediaConsent": "I Consent", "submissionDate": "Apr 4, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 37, "childName": "Mase Piper", "dob": "Dec 16, 2018", "age": "7", "gender": "Male", "program": "Tiny Titans (Ages 4–7)", "parentName": "Terran Simmons-Talbot", "relationship": "Mother", "email": "terrankst@gmail.com", "phone": "(441) 747-0570", "authorisedPickup": "Mom\nTerran Simmons-Talbot\n(441) 747-0570\n\nDad\nMarco Piper \n(441) 591-0763 \n\nGrandmothers\nKeva Piper \n(441) 599-0084\n\nKama Simons \n(441) 799-5262", "school": "Purvis Parish School", "yearGroup": "P3", "tshirtSize": "XS", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Stephen Kenny", "physicianPhone": "(441) 295-8000", "emergencyName": "Keva Piper", "emergencyRel": "Grandmother", "emergencyPhone": "(441) 599-0084", "mediaConsent": "I Consent", "submissionDate": "Apr 4, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 38, "childName": "Ethan Raynor", "dob": "Jun 13, 2020", "age": "5", "gender": "Male", "program": "Tiny Titans (Ages 4–7)", "parentName": "Akinyi Apopa", "relationship": "Mother", "email": "akinyi.apopa@gmail.com", "phone": "(441) 332-0014", "authorisedPickup": "Akinyi Apopa\nBlake Raynor\nDarnell Raynor (747-1234)", "school": "Northlands", "yearGroup": "P1", "tshirtSize": "XS", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr Kenny", "physicianPhone": "(441) 295-8000", "emergencyName": "Akinyi Apopa", "emergencyRel": "Mother", "emergencyPhone": "(441) 332-0014", "mediaConsent": "I Consent", "submissionDate": "Apr 3, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 39, "childName": "Connor Johnson", "dob": "Jun 17, 2017", "age": "8", "gender": "Male", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Avita O'Connor", "relationship": "Mother", "email": "avitaoconnor@gmail.com", "phone": "(441) 331-3906", "authorisedPickup": "Avita O'Connor - 331-3906 \nMarcus Johnson - 332-2651\nJoanne Simmons - 705-1110\nBrenda Johnson - 336-5768", "school": "Northlands Primary School", "yearGroup": "P4", "tshirtSize": "L", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr Richard Fulton", "physicianPhone": "(441) 292-1000", "emergencyName": "Avita O'Connor", "emergencyRel": "Mother", "emergencyPhone": "(441) 331-3906", "mediaConsent": "I Consent", "submissionDate": "Apr 3, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Messaging group"}, {"id": 40, "childName": "Ruby Evans", "dob": "Mar 18, 2020", "age": "6", "gender": "Female", "program": "Tiny Titans (Ages 4–7)", "parentName": "Petra Evans", "relationship": "Mother", "email": "sovcikova.petra@hotmail.com", "phone": "(441) 591-8066", "authorisedPickup": "Ariell Evans 5340980\nGina and Freddie Evans \nPetra Evans 5918066", "school": "Harrington Sound Primary", "yearGroup": "P1", "tshirtSize": "XS", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Woodworde", "physicianPhone": "(441) 236-8000", "emergencyName": "Petra Evans", "emergencyRel": "Mother", "emergencyPhone": "(441) 591-8066", "mediaConsent": "I Consent", "submissionDate": "Apr 3, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 41, "childName": "Na’Lah Payne", "dob": "Sep 30, 2018", "age": "7", "gender": "Female", "program": "Tiny Titans (Ages 4–7)", "parentName": "Daisha Payne", "relationship": "Mother", "email": "daishafpayne@gmail.com", "phone": "(441) 516-5873", "authorisedPickup": "Cejae Payne 441-704-2127\nTeresa Gibson 441-732-0645\nDwayne Gibson 441-704-0329\nCathy Payne 441-735-6666", "school": "Dalton E Tucker Primary", "yearGroup": "P3", "tshirtSize": "S", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Woodward", "physicianPhone": "(441) 295-8000", "emergencyName": "Daisha Payne", "emergencyRel": "Mother", "emergencyPhone": "(441) 516-5873", "mediaConsent": "I Consent", "submissionDate": "Apr 3, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Phone"}, {"id": 42, "childName": "Denver Griffiths", "dob": "Dec 8, 2016", "age": "9", "gender": "Male", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Rodericka Griffiths", "relationship": "Mother", "email": "rodericka_82@yahoo.com", "phone": "(441) 531-1616", "authorisedPickup": "Mom & Dad", "school": "Home School", "yearGroup": "Grade 5", "tshirtSize": "S", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Richard Fulton", "physicianPhone": "(441) 292-1000", "emergencyName": "Rodericka Griffiths", "emergencyRel": "Mother", "emergencyPhone": "(441) 531-1616", "mediaConsent": "I Consent", "submissionDate": "Apr 3, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 43, "childName": "Taije Flood-Robinson", "dob": "Oct 22, 2021", "age": "5", "gender": "Male", "program": "Tiny Titans (Ages 4–7)", "parentName": "Justin W. Robinson", "relationship": "Father", "email": "jwrobinson59@hotmail.com", "phone": "(441) 332-1731", "authorisedPickup": "Timae Flood 3312006\nJustin W Robinson 3321731", "school": "Tender Care Nursery", "yearGroup": "Pre school", "tshirtSize": "XS", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Fulton", "physicianPhone": "(441) 292-1000", "emergencyName": "Timae Flood", "emergencyRel": "Mother", "emergencyPhone": "(441) 331-2006", "mediaConsent": "I Consent", "submissionDate": "Apr 3, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 44, "childName": "Tavie Flood-Robinson", "dob": "Mar 23, 2018", "age": "8", "gender": "Female", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Justin W. Robinson", "relationship": "Father", "email": "jwrobinson59@hotmail.com", "phone": "(441) 332-1731", "authorisedPickup": "Justin W Robinson    332-1731 \nTimae Flood 3312006", "school": "Elliott Primary", "yearGroup": "3", "tshirtSize": "S", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Fulton", "physicianPhone": "(441) 292-1000", "emergencyName": "Timae Flood", "emergencyRel": "Mother", "emergencyPhone": "(441) 331-2006", "mediaConsent": "I Consent", "submissionDate": "Apr 3, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 45, "childName": "Oliver Noyes", "dob": "Sep 10, 2021", "age": "4", "gender": "Male", "program": "Tiny Titans (Ages 4–7)", "parentName": "Kaitlin Noyes", "relationship": "Mother", "email": "kmariebrd@gmail.com", "phone": "(441) 705-0040", "authorisedPickup": "Cathy Cosham +1 (848) 234-8076\nLiz Smith+1 (441) 734-0048\nJenn white +1 (441) 535-3961", "school": "St George's Preschool", "yearGroup": "Preschool going into P1", "tshirtSize": "XS", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr Richard Fulton", "physicianPhone": "(441) 292-1000", "emergencyName": "Kaitlin Noyes", "emergencyRel": "Mother", "emergencyPhone": "(441) 705-0040", "mediaConsent": "I Consent", "submissionDate": "Apr 2, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Messaging group"}, {"id": 46, "childName": "Capri Minors", "dob": "Jun 10, 2019", "age": "6", "gender": "Female", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Erica Minors", "relationship": "Mother", "email": "debigevent@gmail.com", "phone": "(441) 704-1417", "authorisedPickup": "Darin & Erica Minors", "school": "Somerset Primary", "yearGroup": "2025", "tshirtSize": "S", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Kristen Woodward", "physicianPhone": "(441) 295-8000", "emergencyName": "Loren Morrissey", "emergencyRel": "Uncle", "emergencyPhone": "(441) 335-5927", "mediaConsent": "I Consent", "submissionDate": "Apr 2, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 47, "childName": "Ashlee Clay Jr", "dob": "Aug 2, 2015", "age": "10", "gender": "Male", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Vinu Clay", "relationship": "Mother", "email": "newy.clay@gmail.com", "phone": "(441) 707-5430", "authorisedPickup": "Ashlee Clay Sr and Vinu Clay", "school": "Port Royal Primary", "yearGroup": "P6", "tshirtSize": "XL", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Woodward", "physicianPhone": "(441) 295-8000", "emergencyName": "Vinu Clay", "emergencyRel": "Mother", "emergencyPhone": "(441) 707-5430", "mediaConsent": "I Consent", "submissionDate": "Apr 2, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 48, "childName": "Koen Matthews", "dob": "Aug 30, 2017", "age": "8", "gender": "Male", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Ronelle Matthews", "relationship": "Mother", "email": "ronellematthews@gmail.com", "phone": "(441) 333-1277", "authorisedPickup": "Ronelle Matthews 333-1277\nJamal Matthews 333-0843\nRobert Or Cindernel Burgess 236-3712\nDaniel Burgess 505-0192\nDiann Matthews 534-4518", "school": "Harrington Sound Primary", "yearGroup": "P4", "tshirtSize": "M", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Bates", "physicianPhone": "(441) 296-3032", "emergencyName": "Cindernel Burgess", "emergencyRel": "Grandmother", "emergencyPhone": "(441) 236-3712", "mediaConsent": "I Consent", "submissionDate": "Apr 2, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Messaging group"}, {"id": 49, "childName": "Kheo Robinson", "dob": "Jan 2, 2020", "age": "6", "gender": "Male", "program": "Tiny Titans (Ages 4–7)", "parentName": "Amanda Robinson", "relationship": "Mother", "email": "mandajs2002@yahoo.com", "phone": "(441) 704-2379", "authorisedPickup": "Amanda Robinson 704-2379\nKaya Robinson 537-2544\nJonathan Simons 905-5064\nTanya Raynor 536-1660", "school": "Paget Primary", "yearGroup": "P1", "tshirtSize": "S", "hasMedical": true, "medicalDetail": "Nut Allergy\nAsthma", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Ryan Bates", "physicianPhone": "(441) 296-3032", "emergencyName": "Amanda Robinson", "emergencyRel": "Mother", "emergencyPhone": "(441) 704-2379", "mediaConsent": "I Consent", "submissionDate": "Apr 2, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 50, "childName": "Aminata Ming", "dob": "Nov 30, 2020", "age": "5", "gender": "Female", "program": "Tiny Titans (Ages 4–7)", "parentName": "Sheikia Ming", "relationship": "Mother", "email": "kia.ming02@gmail.com", "phone": "(441) 336-6185", "authorisedPickup": "Adwina Ming 441 599-3270", "school": "BI", "yearGroup": "1", "tshirtSize": "XS", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Kirsten woodward", "physicianPhone": "(441) 295-8000", "emergencyName": "Sheikia Ming", "emergencyRel": "Mother", "emergencyPhone": "(441) 336-6185", "mediaConsent": "I do not consent", "submissionDate": "Apr 2, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 51, "childName": "Kareem Hill", "dob": "Oct 15, 2021", "age": "4", "gender": "Male", "program": "Tiny Titans (Ages 4–7)", "parentName": "Chrishunte Hill", "relationship": "Mom", "email": "shunnhill20@gmail.com", "phone": "(441) 705-8128", "authorisedPickup": "Chrishunte Hill, Jelani Hollis 7058128\nSharmette Pond 5325500\nTameisha Hill 7471296", "school": "Devonshire Preschool", "yearGroup": "Preschool", "tshirtSize": "XS", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Stephen Kenny", "physicianPhone": "(441) 295-8000", "emergencyName": "Chrishunte Hill", "emergencyRel": "Mom", "emergencyPhone": "(441) 705-8128", "mediaConsent": "I Consent", "submissionDate": "Apr 2, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Messaging group"}, {"id": 52, "childName": "Sienna Hansen", "dob": "Sep 4, 2020", "age": "5", "gender": "Female", "program": "Tiny Titans (Ages 4–7)", "parentName": "Claudine Pullen", "relationship": "Mother", "email": "claudine.pullen@gmail.com", "phone": "(441) 599-3318", "authorisedPickup": "Claudine Pullen and Anthony Hansen 5993318 7072104", "school": "Port Royal", "yearGroup": "P1", "tshirtSize": "XS", "hasMedical": true, "medicalDetail": "Asthma but only when she has a cold.", "takesMeds": true, "medsDetail": "Asthma pump, red and blue one", "physicianName": "Dr Fulton", "physicianPhone": "(441) 292-1000", "emergencyName": "Sharon Heinsdiek", "emergencyRel": "Aunt", "emergencyPhone": "(441) 533-4361", "mediaConsent": "I Consent", "submissionDate": "Apr 2, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 53, "childName": "Skylar Hanna", "dob": "Jul 29, 2019", "age": "6", "gender": "Female", "program": "Tiny Titans (Ages 4–7)", "parentName": "Christal Hanna", "relationship": "Mother", "email": "christalnhanna@gmail.com", "phone": "(441) 532-6223", "authorisedPickup": "Christal Hanna 5326223\nMarvin Hanna 7070635\nCathy Payne 7356666\nAminah Simmons 7991016", "school": "Port Royal", "yearGroup": "P2", "tshirtSize": "S", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Kristen Woodward", "physicianPhone": "(441) 295-8000", "emergencyName": "Christal Hanna", "emergencyRel": "Mother", "emergencyPhone": "(441) 532-6223", "mediaConsent": "I Consent", "submissionDate": "Apr 2, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Messaging group"}, {"id": 54, "childName": "Life Chitrananda", "dob": "Dec 22, 2021", "age": "4", "gender": "Male", "program": "Tiny Titans (Ages 4–7)", "parentName": "Dereika Lee", "relationship": "Mom", "email": "dereikazlee@gmail.com", "phone": "(441) 756-5434", "authorisedPickup": "Dereika Lee- 756-5433\nNicole Hassell- 777-3962\nDerrick Lee- 799-6529", "school": "Victor Scott", "yearGroup": "Preschool", "tshirtSize": "XS", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Woodward", "physicianPhone": "(441) 295-8000", "emergencyName": "Nicole Hassell", "emergencyRel": "Nana", "emergencyPhone": "(441) 777-3962", "mediaConsent": "I Consent", "submissionDate": "Apr 2, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Phone"}, {"id": 55, "childName": "Lux Paynter", "dob": "Dec 11, 2015", "age": "10", "gender": "Male", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Ari-Jenay Tucker", "relationship": "Mother", "email": "arijenaytucker@gmail.com", "phone": "(441) 504-5525", "authorisedPickup": "Lamelle Paynter 538-1280\nRoberta Tucker 532-3023\nCarol Paynter 534-0108", "school": "Harrington Sound Academy", "yearGroup": "P6", "tshirtSize": "XL", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Ryan Bates", "physicianPhone": "(441) 296-3032", "emergencyName": "Ari-Jenay Tucker", "emergencyRel": "Mother", "emergencyPhone": "(441) 504-5525", "mediaConsent": "I Consent", "submissionDate": "Apr 2, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 56, "childName": "Aya Paynter", "dob": "Nov 19, 2020", "age": "5", "gender": "Female", "program": "Tiny Titans (Ages 4–7)", "parentName": "Ari-Jenay Tucker", "relationship": "Mother", "email": "arijenaytucker@gmail.com", "phone": "(441) 504-5525", "authorisedPickup": "Lamelle Paynter 538-1280\nRoberta Tucker 532-3023\nCarol Paynter 534-0108\nRenee Riley 333-7517", "school": "Harrington Sound Academy", "yearGroup": "P1", "tshirtSize": "M", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Ryan Bates", "physicianPhone": "(441) 296-3032", "emergencyName": "Ari-Jenay Tucker", "emergencyRel": "Mother", "emergencyPhone": "(441) 504-5525", "mediaConsent": "I Consent", "submissionDate": "Apr 2, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 57, "childName": "Kez Hayward", "dob": "Nov 22, 2017", "age": "8", "gender": "Male", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Brendell Hayward", "relationship": "Mother", "email": "brendellhayward@gmail.com", "phone": "(441) 518-7397", "authorisedPickup": "Kinra Hayward-sister", "school": "DET", "yearGroup": "P4", "tshirtSize": "S", "hasMedical": false, "medicalDetail": "", "takesMeds": true, "medsDetail": "G6PD- if medical care is needed, medical personnel must be informed that he has G6PD.", "physicianName": "Dr. Bates", "physicianPhone": "(441) 296-3032", "emergencyName": "Brendell Hayward", "emergencyRel": "Mother", "emergencyPhone": "(441) 518-7397", "mediaConsent": "I Consent", "submissionDate": "Apr 2, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Messaging group"}, {"id": 58, "childName": "Ada Bradshaw", "dob": "Jun 1, 2018", "age": "7", "gender": "Female", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Dorota Wysocka", "relationship": "Mother", "email": "wysocka.dorota@gmail.com", "phone": "(441) 331-2906", "authorisedPickup": "Dorota Wysocka 4413312906\nKumi Bradshaw 4413335864", "school": "Purvis", "yearGroup": "3", "tshirtSize": "S", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr R Fulton", "physicianPhone": "(441) 292-1000", "emergencyName": "Dorota Wysocka", "emergencyRel": "Mother", "emergencyPhone": "(441) 331-2906", "mediaConsent": "I do not consent", "submissionDate": "Apr 2, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 59, "childName": "Adonis Young", "dob": "Nov 23, 2020", "age": "5", "gender": "Male", "program": "Tiny Titans (Ages 4–7)", "parentName": "Noelle Young", "relationship": "Mother", "email": "adonis.x.young@icloud.com", "phone": "(441) 799-4411", "authorisedPickup": "Noelle Young: 799-4411 (Mother)\nKelly Young: 799 - 6661 (Father)\nGino Brangman: 335 - 9415 (Grandfather)\nJoanne Brangman: 735-8618 ( Grandmother)\nRichard Brown: 734-0201 (Brother)", "school": "Home Educated", "yearGroup": "P2", "tshirtSize": "XS", "hasMedical": true, "medicalDetail": "Adonis has sensory processing difficulties, currently on watch for ASD/ADHD. \n\nHearing/auditory is what he has the most difficulty with. The best approach is speak loudly and clearly. It is also helpful if he is looking at you when you give him directions.", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Stephen Kenny", "physicianPhone": "(441) 295-8000", "emergencyName": "Gino Brangman", "emergencyRel": "Grandfather", "emergencyPhone": "(441) 335-9415", "mediaConsent": "I Consent", "submissionDate": "Apr 2, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Messaging group"}, {"id": 60, "childName": "Jemma Miller", "dob": "Feb 19, 2021", "age": "5", "gender": "Female", "program": "Tiny Titans (Ages 4–7)", "parentName": "Emma Miller", "relationship": "Mother", "email": "3mmadavison@gmail.com", "phone": "(441) 518-8174", "authorisedPickup": "Emma Miller \nJeftha Miller", "school": "St Paul’s Preschool", "yearGroup": "Preschool", "tshirtSize": "S", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr fulton", "physicianPhone": "(441) 292-1000", "emergencyName": "Emma Miller", "emergencyRel": "Mother", "emergencyPhone": "(441) 518-8174", "mediaConsent": "I Consent", "submissionDate": "Apr 2, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 61, "childName": "Jayce Durham", "dob": "Jul 7, 2017", "age": "8", "gender": "Male", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Jahmir Durham", "relationship": "Mother", "email": "jahmir.durham@gmail.com", "phone": "(441) 704-8559", "authorisedPickup": "Jahmir Durham 7048559\nLisa Smith 7072469\nDante Durham 9013279\nMyniia Gales 5360811", "school": "MSA", "yearGroup": "P4", "tshirtSize": "L", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr Ryan bates", "physicianPhone": "(441) 296-3032", "emergencyName": "Jahmir Durham", "emergencyRel": "Mother", "emergencyPhone": "(441) 704-8559", "mediaConsent": "I Consent", "submissionDate": "Apr 2, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Messaging group"}, {"id": 62, "childName": "Emma Butler", "dob": "Aug 20, 2019", "age": "6", "gender": "Female", "program": "Tiny Titans (Ages 4–7)", "parentName": "Sam butler", "relationship": "Dad", "email": "sam.butler0201@gmail.com", "phone": "(441) 901-0201", "authorisedPickup": "Sam butler Sioned butler", "school": "Somersfield", "yearGroup": "P2", "tshirtSize": "XS", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr fulton", "physicianPhone": "(441) 294-8015", "emergencyName": "Sioned butler", "emergencyRel": "Mum", "emergencyPhone": "(441) 901-9626", "mediaConsent": "I Consent", "submissionDate": "Apr 2, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 63, "childName": "Myliyah Lopes", "dob": "Aug 26, 2015", "age": "10", "gender": "Female", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Aristia Lopes", "relationship": "Mother", "email": "thelopes2020@gmail.com", "phone": "(441) 777-4160", "authorisedPickup": "Aristia Lopes Mother 777-4160\nMiguel Lopes Father 599-4707\nNolette Webb Grandma  325-1204 \nStephanie Wilson Aunt 599-0299", "school": "Somerset Primary School", "yearGroup": "P6", "tshirtSize": "XL", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr Fulton", "physicianPhone": "(441) 292-1000", "emergencyName": "Nolette Webb", "emergencyRel": "Grandmother", "emergencyPhone": "(441) 325-1204", "mediaConsent": "I Consent", "submissionDate": "Apr 2, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 64, "childName": "Alissa Smith", "dob": "Apr 16, 2018", "age": "7", "gender": "Female", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Jayne' Smith", "relationship": "Mom", "email": "smith.jayne@outlook.com", "phone": "(441) 336-2565", "authorisedPickup": "DeForest Evans  717-0860\nKenji Griffith 707-5365  \nKathy Smith 333-4306", "school": "Harrington Sound", "yearGroup": "Year 3", "tshirtSize": "S", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Richard Fulton", "physicianPhone": "(441) 295-1000", "emergencyName": "Jayne' Smith", "emergencyRel": "Mom", "emergencyPhone": "(441) 336-2565", "mediaConsent": "I Consent", "submissionDate": "Apr 2, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Messaging group"}, {"id": 65, "childName": "Amir Smith", "dob": "Oct 1, 2016", "age": "9", "gender": "Male", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Jayne' Smith", "relationship": "Mom", "email": "smith.jayne@outlook.com", "phone": "(441) 336-2565", "authorisedPickup": "DeForest Evans 717-0860\nKenji Griffith 707-5365", "school": "Harrington Sound", "yearGroup": "Year 5", "tshirtSize": "M", "hasMedical": true, "medicalDetail": "Mild Asthma", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Richard Fulton", "physicianPhone": "(441) 295-1000", "emergencyName": "Jayne' Smith", "emergencyRel": "Mom", "emergencyPhone": "(441) 336-2565", "mediaConsent": "I Consent", "submissionDate": "Apr 2, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Messaging group"}, {"id": 66, "childName": "Miles Harris", "dob": "Jun 28, 2017", "age": "8", "gender": "Male", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Muwanda Cassidy", "relationship": "Mother", "email": "muwanda.cassidy@outlook.com", "phone": "(441) 705-3071", "authorisedPickup": "Muwanda Cassidy - 705-3071\nLuVaughn Harris 705-1289\nJasmine Simmons 905-2277", "school": "Dalton E Tucker", "yearGroup": "P4", "tshirtSize": "M", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Nawab", "physicianPhone": "(441) 295-8000", "emergencyName": "Muwanda Cassidy", "emergencyRel": "Mother", "emergencyPhone": "(441) 705-3071", "mediaConsent": "I Consent", "submissionDate": "Apr 1, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Phone"}, {"id": 67, "childName": "Davi Eve-Burgess", "dob": "Jul 27, 1991", "age": "4", "gender": "Male", "program": "Tiny Titans (Ages 4–7)", "parentName": "Deidre Morgan", "relationship": "Mother", "email": "dei0727@gmail.com", "phone": "(441) 777-1464", "authorisedPickup": "Doya Butterfield 599-3692\nDonnaMae Morgan 516-2028\nMacQuille Walker 532-1417", "school": "Devonshire Preschool", "yearGroup": "PreK", "tshirtSize": "XS", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Nawab", "physicianPhone": "(441) 292-1000", "emergencyName": "Doya Butterfield", "emergencyRel": "Aunt", "emergencyPhone": "(441) 599-3692", "mediaConsent": "I Consent", "submissionDate": "Apr 1, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 68, "childName": "Liam Cann", "dob": "Jun 25, 2021", "age": "4", "gender": "Male", "program": "Tiny Titans (Ages 4–7)", "parentName": "Cam", "relationship": "Mom", "email": "cannfamily94@gmail.com", "phone": "(441) 705-1391", "authorisedPickup": "Cam Cann 7051391\nMike Cann 7050764", "school": "Somersfield Academy", "yearGroup": "1", "tshirtSize": "S", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Sylvanus Newab", "physicianPhone": "(441) 292-1000", "emergencyName": "Cam and Mike Cann", "emergencyRel": "Parents", "emergencyPhone": "(441) 705-1391", "mediaConsent": "I Consent", "submissionDate": "Apr 1, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 69, "childName": "Saiya Tuzo", "dob": "Aug 10, 2019", "age": "6", "gender": "Female", "program": "Tiny Titans (Ages 4–7)", "parentName": "Leiah Tuzo", "relationship": "Mother", "email": "leiah.tuzo@gmail.com", "phone": "(441) 732-0902", "authorisedPickup": "Leiah Tuzo\nReuben Burnett", "school": "Saltus", "yearGroup": "Grade 1", "tshirtSize": "M", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Kristen Woodward", "physicianPhone": "(441) 295-8000", "emergencyName": "Leiah Tuzo", "emergencyRel": "Mother", "emergencyPhone": "(441) 732-0902", "mediaConsent": "I Consent", "submissionDate": "Apr 1, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 70, "childName": "A'Zae DeShields", "dob": "May 10, 2021", "age": "4", "gender": "Male", "program": "Tiny Titans (Ages 4–7)", "parentName": "Glennisha DeShields", "relationship": "Mother", "email": "azaeschoolinfo@gmail.com", "phone": "(441) 599-1699", "authorisedPickup": "Glennisha DeShields  599-1699 mom\nCalvin Bean Jr 519 0842 dad\nKennisha DeShields 705-0595 Auntie \nWendy DeShields 3322864 Nana\nGlenville DeShields 3378418 Papa", "school": "Prospect preschool", "yearGroup": "Preschool", "tshirtSize": "S", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. West", "physicianPhone": "(441) 296-3032", "emergencyName": "Glennisha DeShields", "emergencyRel": "Mother", "emergencyPhone": "(441) 599-1699", "mediaConsent": "I Consent", "submissionDate": "Apr 1, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 71, "childName": "Ava DeShields", "dob": "Jan 2, 2020", "age": "6", "gender": "Female", "program": "Tiny Titans (Ages 4–7)", "parentName": "Glennisha DeShields", "relationship": "Mother", "email": "Avaschoolinfo@gmail.com", "phone": "(441) 599-1699", "authorisedPickup": "Glennisha DeShields  599-1699 mom\nCalvin Bean Jr 519 0842 dad\nKennisha DeShields 705-0595 Auntie \nWendy DeShields 3322864 Nana\nGlenville DeShields 3378418 Papa", "school": "West pembroke", "yearGroup": "P1", "tshirtSize": "S", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. West", "physicianPhone": "(441) 296-3032", "emergencyName": "Glennisha DeShields", "emergencyRel": "Mother", "emergencyPhone": "(441) 599-1699", "mediaConsent": "I Consent", "submissionDate": "Apr 1, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 72, "childName": "Takudzwa Benza", "dob": "Jul 22, 2016", "age": "9", "gender": "Male", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Mitchell Benza", "relationship": "Mom", "email": "mitchellmupuka@gmail.com", "phone": "(441) 517-7710", "authorisedPickup": "Mom and dad numbers above", "school": "Elliot Primary", "yearGroup": "Year 5", "tshirtSize": "M", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr Nawab", "physicianPhone": "(441) 292-1000", "emergencyName": "Cosmas Benza", "emergencyRel": "Dad", "emergencyPhone": "(441) 707-1041", "mediaConsent": "I Consent", "submissionDate": "Apr 1, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 73, "childName": "Kaius Smith", "dob": "May 15, 1979", "age": "8", "gender": "Female", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Kammy", "relationship": "Mother", "email": "kammy150579@gmail.com", "phone": "(441) 518-3183", "authorisedPickup": "Kammy, Anthony, albertha Smith\n5183183,7036339, 3347336", "school": "Northlands primary", "yearGroup": "P4", "tshirtSize": "M", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Richard Fulton", "physicianPhone": "(441) 518-3183", "emergencyName": "Albertha Smith", "emergencyRel": "Nana", "emergencyPhone": "(441) 334-7336", "mediaConsent": "I Consent", "submissionDate": "Apr 1, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Email"}, {"id": 74, "childName": "James Clarke", "dob": "Feb 13, 2017", "age": "9", "gender": "Male", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Ramon Clarke", "relationship": "Father", "email": "mr.ramonclarke@gmail.com", "phone": "(441) 532-5275", "authorisedPickup": "Joslynn Clarke 336-918-5648\nRamon Clarke 441-532-5275\nCarol-Ann Henderickson  (441) 704-7085\nRicardo Clarke (441) 704-3113\nNicole Clarke(441) 799-6432", "school": "BCCL", "yearGroup": "Y4", "tshirtSize": "M", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Edgewood Pediatrics", "physicianPhone": "(441) 295-8000", "emergencyName": "Carol Ann Henderickson", "emergencyRel": "Grandmother", "emergencyPhone": "(441) 704-7085", "mediaConsent": "I Consent", "submissionDate": "Apr 1, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Phone"}, {"id": 75, "childName": "Logan Smith", "dob": "Apr 20, 2016", "age": "10", "gender": "Female", "program": "Junior Jaguars (Ages 8–10)", "parentName": "Nikki Fagan", "relationship": "mom", "email": "nikki@thebrandlion.com", "phone": "(441) 536-9343", "authorisedPickup": "Nikki Fagan, Glenda Simons, Jason Smith", "school": "bhs", "yearGroup": "p5", "tshirtSize": "M", "hasMedical": false, "medicalDetail": "", "takesMeds": false, "medsDetail": "", "physicianName": "Dr. Nawab", "physicianPhone": "(441) 292-1000", "emergencyName": "nikki fagan", "emergencyRel": "mother", "emergencyPhone": "(441) 536-9343", "mediaConsent": "I Consent", "submissionDate": "Apr 1, 2026", "flowStatus": "In Progress", "latePickupAck": "Yes", "contactMethod": "Phone"}];
+
+// ── AUTH ──────────────────────────────────────────────────────────────────
+const ACCESS_CODES = ['juren','safehands'];
+let currentUserCode = null;
+
+function normaliseCode(c) { return (c||'').trim().toLowerCase(); }
+
+function attemptLogin() {
+  const code = normaliseCode(document.getElementById('codeInput').value);
+  const err  = document.getElementById('loginErr');
+  const btn  = document.getElementById('loginBtn');
+  err.textContent = '';
+  if (!ACCESS_CODES.includes(code)) {
+    err.textContent = 'Invalid access code. Please try again.';
+    document.getElementById('codeInput').value = '';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Signing in…';
+  sessionStorage.setItem('aks_auth','1');
+  sessionStorage.setItem('aks_code', code);
+  currentUserCode = code;
+  bootApp();
+  btn.disabled = false;
+  btn.textContent = 'Sign In';
+}
+
+function bootApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app-shell').style.display = 'block';
+  filtered = [...REGISTRATIONS];
+  renderTable();
+  renderReports();
+  renderMedical();
+  renderEmergency();
+}
+
+function signOut() {
+  ['portal_auth','portal_code'].forEach(k => sessionStorage.removeItem(k));
+  currentUserCode = null;
+  window.location.href = 'index.html';
+} else {
+    window.location.href = 'index.html';
+  }
+}
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+let filtered = [...REGISTRATIONS];
+let currentPage = 1;
+const PAGE_SIZE = 20;
+let chartsInitialized = false;
+
+// ── TABS ──────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  ['registrations','reports','analytics','medical','emergency'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+    document.getElementById('pane-' + t).style.display = t === tab ? 'block' : 'none';
+  });
+  if (tab === 'analytics' && !chartsInitialized) {
+    chartsInitialized = true;
+    initCharts();
+  }
+}
+
+// ── FILTERS ───────────────────────────────────────────────────────────────
+function applyFilters() {
+  const q       = document.getElementById('searchBox').value.toLowerCase();
+  const prog    = document.getElementById('filterProgram').value;
+  const gender  = document.getElementById('filterGender').value;
+  const size    = document.getElementById('filterSize').value;
+  const medical = document.getElementById('filterMedical').value;
+
+  filtered = REGISTRATIONS.filter(r => {
+    const matchQ = !q || [r.childName, r.school, r.parentName, r.email].join(' ').toLowerCase().includes(q);
+    const matchP = !prog   || r.program === prog;
+    const matchG = !gender || r.gender  === gender;
+    const matchS = !size   || r.tshirtSize === size;
+    const matchM = !medical || (medical === 'yes' ? r.hasMedical : !r.hasMedical);
+    return matchQ && matchP && matchG && matchS && matchM;
+  });
+  currentPage = 1;
+  renderTable();
+}
+
+// ── TABLE ─────────────────────────────────────────────────────────────────
+function renderTable() {
+  const tbody = document.getElementById('regTableBody');
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const page  = filtered.slice(start, start + PAGE_SIZE);
+
+  document.getElementById('countLabel').textContent =
+    filtered.length + ' of ' + REGISTRATIONS.length + ' registrations';
+
+  tbody.innerHTML = page.map(r => {
+    const progBadge = r.program.includes('Tiny')
+      ? '<span class="badge badge-tiny">Tiny Titans</span>'
+      : '<span class="badge badge-junior">Junior Jaguars</span>';
+    const genderBadge = r.gender === 'Female'
+      ? '<span class="badge badge-female">F</span>'
+      : '<span class="badge badge-male">M</span>';
+    const medBadge = r.hasMedical
+      ? '<span class="badge badge-medical">Medical</span>' : '';
+    return `<tr class="${r.hasMedical ? 'has-medical' : ''}">
+      <td>${r.id}</td>
+      <td><strong>${r.childName}</strong></td>
+      <td>${r.age}</td>
+      <td>${genderBadge}</td>
+      <td>${progBadge}</td>
+      <td>${r.school}</td>
+      <td><span class="badge badge-size">${r.tshirtSize}</span></td>
+      <td>${r.parentName}</td>
+      <td>${medBadge}</td>
+      <td><button class="btn btn-navy" style="padding:5px 10px;font-size:0.75rem" onclick="openModal(${r.id})">View</button></td>
+    </tr>`;
+  }).join('');
+
+  renderPagination();
+}
+
+function renderPagination() {
+  const total = Math.ceil(filtered.length / PAGE_SIZE);
+  const pg    = document.getElementById('pagination');
+  if (total <= 1) { pg.innerHTML = ''; return; }
+  let html = '';
+  html += `<button class="page-btn" ${currentPage===1?'disabled':''} onclick="goPage(${currentPage-1})">&#8249;</button>`;
+  for (let i = 1; i <= total; i++) {
+    if (i === 1 || i === total || Math.abs(i - currentPage) <= 2)
+      html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+    else if (Math.abs(i - currentPage) === 3)
+      html += `<span style="padding:0 4px">…</span>`;
+  }
+  html += `<button class="page-btn" ${currentPage===total?'disabled':''} onclick="goPage(${currentPage+1})">&#8250;</button>`;
+  pg.innerHTML = html;
+}
+
+function goPage(p) { currentPage = p; renderTable(); window.scrollTo(0,0); }
+
+// ── MODAL ─────────────────────────────────────────────────────────────────
+function openModal(id) {
+  const r = REGISTRATIONS.find(x => x.id === id);
+  if (!r) return;
+  const medAlert = r.hasMedical
+    ? `<div class="alert-box" style="margin-bottom:10px">
+        <strong>Medical Condition:</strong> ${r.medicalDetail || 'See details below'}<br>
+        ${r.takesMeds ? '<strong>Medications:</strong> ' + r.medsDetail : ''}
+       </div>` : '';
+
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-header">
+      <div>
+        <h2>${r.childName}</h2>
+        <p>${r.program} &bull; Age ${r.age} &bull; ${r.gender} &bull; ${r.school}</p>
+      </div>
+      <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      ${medAlert}
+      <div class="modal-section">
+        <h4>Child Information</h4>
+        <div class="modal-grid">
+          <div class="modal-field"><label>Date of Birth</label><span>${r.dob}</span></div>
+          <div class="modal-field"><label>Age</label><span>${r.age}</span></div>
+          <div class="modal-field"><label>Gender</label><span>${r.gender}</span></div>
+          <div class="modal-field"><label>T-Shirt Size</label><span>${r.tshirtSize}</span></div>
+          <div class="modal-field"><label>School</label><span>${r.school}</span></div>
+          <div class="modal-field"><label>Year Group</label><span>${r.yearGroup || '—'}</span></div>
+          <div class="modal-field"><label>Program</label><span>${r.program}</span></div>
+          <div class="modal-field"><label>Submission Date</label><span>${r.submissionDate}</span></div>
+        </div>
+      </div>
+      <div class="modal-section">
+        <h4>Parent / Guardian</h4>
+        <div class="modal-grid">
+          <div class="modal-field"><label>Name</label><span>${r.parentName}</span></div>
+          <div class="modal-field"><label>Relationship</label><span>${r.relationship}</span></div>
+          <div class="modal-field"><label>Email</label><span>${r.email}</span></div>
+          <div class="modal-field"><label>Phone</label><span>${r.phone}</span></div>
+          <div class="modal-field"><label>Preferred Contact</label><span>${r.contactMethod || '—'}</span></div>
+        </div>
+      </div>
+      <div class="modal-section">
+        <h4>Emergency Contact</h4>
+        <div class="modal-grid">
+          <div class="modal-field"><label>Name</label><span>${r.emergencyName}</span></div>
+          <div class="modal-field"><label>Relationship</label><span>${r.emergencyRel}</span></div>
+          <div class="modal-field"><label>Phone</label><span>${r.emergencyPhone}</span></div>
+        </div>
+      </div>
+      <div class="modal-section">
+        <h4>Authorised Pickup</h4>
+        <p style="font-size:0.88rem">${r.authorisedPickup || '—'}</p>
+      </div>
+      <div class="modal-section">
+        <h4>Medical Information</h4>
+        <div class="modal-grid">
+          <div class="modal-field"><label>Medical Condition</label><span>${r.hasMedical ? 'Yes' : 'No'}</span></div>
+          <div class="modal-field"><label>Details</label><span>${r.medicalDetail || '—'}</span></div>
+          <div class="modal-field"><label>Takes Medications</label><span>${r.takesMeds ? 'Yes' : 'No'}</span></div>
+          <div class="modal-field"><label>Medication Details</label><span>${r.medsDetail || '—'}</span></div>
+          <div class="modal-field"><label>Physician</label><span>${r.physicianName || '—'}</span></div>
+          <div class="modal-field"><label>Physician Phone</label><span>${r.physicianPhone || '—'}</span></div>
+        </div>
+      </div>
+      <div class="modal-section">
+        <h4>Consents</h4>
+        <div class="modal-grid">
+          <div class="modal-field"><label>Media Consent</label><span>${r.mediaConsent}</span></div>
+          <div class="modal-field"><label>Late Pickup Acknowledged</label><span>${r.latePickupAck || '—'}</span></div>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modalOverlay'))
+    document.getElementById('modalOverlay').classList.remove('open');
+}
+
+// ── REPORTS ───────────────────────────────────────────────────────────────
+function renderReports() {
+  const grid = document.getElementById('reportsGrid');
+
+  // T-Shirt report by program
+  const sizes = ['XS','S','M','L','XL'];
+  const programs = ['Tiny Titans (Ages 4–7)','Junior Jaguars (Ages 8–10)'];
+  let tshirtRows = sizes.map(sz => {
+    const tiny   = REGISTRATIONS.filter(r => r.tshirtSize===sz && r.program.includes('Tiny')).length;
+    const junior = REGISTRATIONS.filter(r => r.tshirtSize===sz && r.program.includes('Junior')).length;
+    const total  = tiny + junior;
+    return `<tr><td>${sz}</td><td>${tiny}</td><td>${junior}</td><td><strong>${total}</strong></td></tr>`;
+  }).join('');
+  const tinyTotal   = REGISTRATIONS.filter(r=>r.program.includes('Tiny')).length;
+  const juniorTotal = REGISTRATIONS.filter(r=>r.program.includes('Junior')).length;
+
+  // School breakdown
+  const schoolCounts = {};
+  REGISTRATIONS.forEach(r => {
+    const s = r.school.trim();
+    schoolCounts[s] = (schoolCounts[s]||0) + 1;
+  });
+  const schoolRows = Object.entries(schoolCounts)
+    .sort((a,b)=>b[1]-a[1])
+    .map(([s,c]) => `<tr><td>${s}</td><td><strong>${c}</strong></td></tr>`).join('');
+
+  // Age breakdown by program
+  const ageMap = {};
+  REGISTRATIONS.forEach(r => {
+    const a = r.age;
+    if (!ageMap[a]) ageMap[a] = {tiny:0,junior:0};
+    if (r.program.includes('Tiny')) ageMap[a].tiny++;
+    else ageMap[a].junior++;
+  });
+  const ageRows = Object.entries(ageMap)
+    .sort((a,b)=>parseInt(a[0])-parseInt(b[0]))
+    .map(([age,v]) => `<tr><td>Age ${age}</td><td>${v.tiny}</td><td>${v.junior}</td><td><strong>${v.tiny+v.junior}</strong></td></tr>`).join('');
+
+  // Media consent
+  const mediaYes = REGISTRATIONS.filter(r=>r.mediaConsent.includes('Consent') && !r.mediaConsent.includes('not')).length;
+  const mediaNo  = REGISTRATIONS.filter(r=>r.mediaConsent.includes('not')).length;
+
+  // Gender by program
+  const genderRows = programs.map(p => {
+    const male   = REGISTRATIONS.filter(r=>r.program===p && r.gender==='Male').length;
+    const female = REGISTRATIONS.filter(r=>r.program===p && r.gender==='Female').length;
+    const label  = p.includes('Tiny') ? 'Tiny Titans' : 'Junior Jaguars';
+    return `<tr><td>${label}</td><td>${male}</td><td>${female}</td><td><strong>${male+female}</strong></td></tr>`;
+  }).join('');
+
+  grid.innerHTML = `
+    <div class="report-card">
+      <h3><span>1</span> T-Shirt Sizes by Program</h3>
+      <table class="report-table">
+        <thead><tr><th>Size</th><th>Tiny Titans</th><th>Junior Jaguars</th><th>Total</th></tr></thead>
+        <tbody>
+          ${tshirtRows}
+          <tr class="total-row"><td>TOTAL</td><td>${tinyTotal}</td><td>${juniorTotal}</td><td>${REGISTRATIONS.length}</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="report-card">
+      <h3><span>2</span> Registrations by School</h3>
+      <table class="report-table">
+        <thead><tr><th>School</th><th>Count</th></tr></thead>
+        <tbody>${schoolRows}</tbody>
+      </table>
+    </div>
+
+    <div class="report-card">
+      <h3><span>3</span> Age Distribution by Program</h3>
+      <table class="report-table">
+        <thead><tr><th>Age</th><th>Tiny Titans</th><th>Junior Jaguars</th><th>Total</th></tr></thead>
+        <tbody>
+          ${ageRows}
+          <tr class="total-row"><td>TOTAL</td><td>${tinyTotal}</td><td>${juniorTotal}</td><td>${REGISTRATIONS.length}</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="report-card">
+      <h3><span>4</span> Gender by Program</h3>
+      <table class="report-table">
+        <thead><tr><th>Program</th><th>Male</th><th>Female</th><th>Total</th></tr></thead>
+        <tbody>
+          ${genderRows}
+          <tr class="total-row"><td>TOTAL</td><td>44</td><td>31</td><td>${REGISTRATIONS.length}</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="report-card">
+      <h3><span>5</span> Media Consent Summary</h3>
+      <table class="report-table">
+        <thead><tr><th>Consent Status</th><th>Count</th><th>%</th></tr></thead>
+        <tbody>
+          <tr><td>I Consent</td><td>${mediaYes}</td><td>${Math.round(mediaYes/REGISTRATIONS.length*100)}%</td></tr>
+          <tr><td>I Do Not Consent</td><td>${mediaNo}</td><td>${Math.round(mediaNo/REGISTRATIONS.length*100)}%</td></tr>
+          <tr class="total-row"><td>TOTAL</td><td>${REGISTRATIONS.length}</td><td>100%</td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:12px;font-size:0.8rem;color:var(--gray3)">
+        Children without media consent: ${REGISTRATIONS.filter(r=>r.mediaConsent.includes('not')).map(r=>r.childName).join(', ')}
+      </div>
+    </div>
+
+    <div class="report-card">
+      <h3><span>6</span> Medical Conditions Summary</h3>
+      <table class="report-table">
+        <thead><tr><th>Child</th><th>Program</th><th>Condition</th></tr></thead>
+        <tbody>
+          ${REGISTRATIONS.filter(r=>r.hasMedical).map(r=>`<tr><td>${r.childName}</td><td>${r.program.includes('Tiny')?'Tiny Titans':'Junior Jaguars'}</td><td>${r.medicalDetail||'See record'}</td></tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+// ── MEDICAL TAB ───────────────────────────────────────────────────────────
+function renderMedical() {
+  const tbody = document.getElementById('medTableBody');
+  const medical = REGISTRATIONS.filter(r => r.hasMedical);
+  tbody.innerHTML = medical.map((r,i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td><strong>${r.childName}</strong></td>
+      <td>${r.age}</td>
+      <td>${r.program.includes('Tiny')?'Tiny Titans':'Junior Jaguars'}</td>
+      <td>${r.medicalDetail || '—'}</td>
+      <td>${r.takesMeds ? r.medsDetail || 'Yes' : '—'}</td>
+      <td>${r.physicianName || '—'}</td>
+      <td>${r.physicianPhone || '—'}</td>
+    </tr>`).join('');
+}
+
+// ── EMERGENCY CONTACTS ────────────────────────────────────────────────────
+function renderEmergency() {
+  const prog  = document.getElementById('filterProgEmerg').value;
+  const tbody = document.getElementById('emergTableBody');
+  const list  = prog ? REGISTRATIONS.filter(r=>r.program===prog) : REGISTRATIONS;
+  tbody.innerHTML = list.map((r,i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td><strong>${r.childName}</strong></td>
+      <td>${r.age}</td>
+      <td>${r.program.includes('Tiny')?'Tiny Titans':'Junior Jaguars'}</td>
+      <td>${r.parentName}</td>
+      <td>${r.phone}</td>
+      <td>${r.emergencyName}</td>
+      <td>${r.emergencyPhone}</td>
+      <td style="font-size:0.78rem">${r.authorisedPickup||'—'}</td>
+      <td>${r.hasMedical?'<span class="badge badge-medical">Medical</span>':''}</td>
+    </tr>`).join('');
+}
+
+// ── CHARTS ────────────────────────────────────────────────────────────────
+function initCharts() {
+  const PINK  = '#E91E8C';
+  const NAVY  = 'rgb(25,25,112)';
+  const BLUE  = '#3f51b5';
+  const GREEN = '#43a047';
+  const AMBER = '#fb8c00';
+  const TEAL  = '#00897b';
+  const palette = [PINK, NAVY, BLUE, GREEN, AMBER, TEAL, '#9c27b0','#e53935'];
+
+  // Program
+  new Chart(document.getElementById('chartProgram'), {
+    type:'doughnut',
+    data:{
+      labels:['Tiny Titans','Junior Jaguars'],
+      datasets:[{data:[37,38],backgroundColor:[PINK,NAVY]}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}
+  });
+
+  // Gender
+  new Chart(document.getElementById('chartGender'), {
+    type:'doughnut',
+    data:{
+      labels:['Male','Female'],
+      datasets:[{data:[44,31],backgroundColor:[NAVY,PINK]}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}
+  });
+
+  // Age
+  const ageCounts = {};
+  REGISTRATIONS.forEach(r => { ageCounts[r.age] = (ageCounts[r.age]||0)+1; });
+  const ageLabels = Object.keys(ageCounts).sort((a,b)=>parseInt(a)-parseInt(b));
+  new Chart(document.getElementById('chartAge'), {
+    type:'bar',
+    data:{
+      labels:ageLabels.map(a=>'Age '+a),
+      datasets:[{label:'Children',data:ageLabels.map(a=>ageCounts[a]),backgroundColor:PINK}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}
+  });
+
+  // T-Shirt
+  const szCounts = {};
+  REGISTRATIONS.forEach(r => { szCounts[r.tshirtSize] = (szCounts[r.tshirtSize]||0)+1; });
+  const szOrder = ['XS','S','M','L','XL'];
+  new Chart(document.getElementById('chartTshirt'), {
+    type:'bar',
+    data:{
+      labels:szOrder,
+      datasets:[{label:'Count',data:szOrder.map(s=>szCounts[s]||0),backgroundColor:NAVY}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}
+  });
+
+  // Top Schools
+  const schoolCounts = {};
+  REGISTRATIONS.forEach(r => { const s=r.school.trim(); schoolCounts[s]=(schoolCounts[s]||0)+1; });
+  const topSchools = Object.entries(schoolCounts).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  new Chart(document.getElementById('chartSchool'), {
+    type:'bar',
+    data:{
+      labels:topSchools.map(s=>s[0]),
+      datasets:[{label:'Registrations',data:topSchools.map(s=>s[1]),backgroundColor:BLUE}]
+    },
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}}
+    }
+  });
+
+  // Media Consent
+  const mediaYes = REGISTRATIONS.filter(r=>r.mediaConsent.includes('Consent')&&!r.mediaConsent.includes('not')).length;
+  const mediaNo  = REGISTRATIONS.filter(r=>r.mediaConsent.includes('not')).length;
+  new Chart(document.getElementById('chartMedia'), {
+    type:'doughnut',
+    data:{
+      labels:['Consented','Not Consented'],
+      datasets:[{data:[mediaYes,mediaNo],backgroundColor:[GREEN,'#e53935']}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}
+  });
+}
+
+// ── EXPORTS ───────────────────────────────────────────────────────────────
+function toCSVRow(arr) {
+  return arr.map(c => '"' + String(c||'').replace(/"/g,'""') + '"').join(',');
+}
+
+function exportCSV() {
+  const headers = ['#','Child Name','DOB','Age','Gender','Program','School','T-Shirt','Parent','Email','Phone','Medical','Condition','Submitted'];
+  const rows = filtered.map(r => [
+    r.id, r.childName, r.dob, r.age, r.gender, r.program, r.school,
+    r.tshirtSize, r.parentName, r.email, r.phone,
+    r.hasMedical?'Yes':'No', r.medicalDetail, r.submissionDate
+  ]);
+  const csv = [headers, ...rows].map(toCSVRow).join('\n');
+  downloadCSV(csv, 'ACTIVE_Kids_Registrations_2026.csv');
+}
+
+function exportEmergencyCSV() {
+  const headers = ['#','Child Name','Age','Program','Parent','Parent Phone','Emergency Contact','Emerg Phone','Authorised Pickup','Medical'];
+  const prog = document.getElementById('filterProgEmerg').value;
+  const list = prog ? REGISTRATIONS.filter(r=>r.program===prog) : REGISTRATIONS;
+  const rows = list.map((r,i) => [
+    i+1, r.childName, r.age, r.program, r.parentName, r.phone,
+    r.emergencyName, r.emergencyPhone, r.authorisedPickup, r.hasMedical?'Yes':'No'
+  ]);
+  const csv = [headers, ...rows].map(toCSVRow).join('\n');
+  downloadCSV(csv, 'ACTIVE_Kids_Emergency_Contacts_2026.csv');
+}
+
+function exportReportsCSV() {
+  // Export T-shirt summary
+  const sizes = ['XS','S','M','L','XL'];
+  const headers = ['Size','Tiny Titans','Junior Jaguars','Total'];
+  const rows = sizes.map(sz => [
+    sz,
+    REGISTRATIONS.filter(r=>r.tshirtSize===sz&&r.program.includes('Tiny')).length,
+    REGISTRATIONS.filter(r=>r.tshirtSize===sz&&r.program.includes('Junior')).length,
+    REGISTRATIONS.filter(r=>r.tshirtSize===sz).length
+  ]);
+  const csv = [headers, ...rows].map(toCSVRow).join('\n');
+  downloadCSV(csv, 'ACTIVE_Kids_TShirt_Report_2026.csv');
+}
+
+function downloadCSV(csv, filename) {
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function printTable()    { window.print(); }
+function printReports()  { switchTab('reports');   setTimeout(()=>window.print(),200); }
+function printMedical()  { switchTab('medical');   setTimeout(()=>window.print(),200); }
+function printEmergency(){ switchTab('emergency'); setTimeout(()=>window.print(),200); }
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+document.getElementById('codeInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') attemptLogin();
+});
+initSession();
+</script>
+
+<script>
+window.attemptLogin = attemptLogin;
+window.signOut      = signOut;
+window.switchTab    = switchTab;
+window.openModal    = openModal;
+window.closeModal   = closeModal;
+window.applyFilters = applyFilters;
+window.goPage       = goPage;
+window.exportCSV    = exportCSV;
+window.exportEmergencyCSV = exportEmergencyCSV;
+window.exportReportsCSV   = exportReportsCSV;
+window.printTable   = printTable;
+window.printReports = printReports;
+window.printMedical = printMedical;
+window.printEmergency = printEmergency;
+window.renderEmergency = renderEmergency;
+</script>
+
+</body>
+</html>
