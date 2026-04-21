@@ -34,75 +34,8 @@
       min-height: 100vh;
     }
 
-    /* ===== LOGIN SCREEN ===== */
-    #login-screen {
-      position: fixed; inset: 0; z-index: 9999;
-      background: rgb(25,25,112);
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden;
-    }
-    #login-video-bg {
-      position: absolute; inset: 0;
-      width: 100%; height: 100%;
-      object-fit: cover;
-      z-index: 0;
-      opacity: 0.55;
-    }
-    #login-video-overlay {
-      position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(233,30,140,0.40) 0%, rgba(25,25,112,0.40) 100%);
-      z-index: 1;
-    }
-    .login-box {
-      position: relative;
-      z-index: 2;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.20);
-      border-radius: 20px;
-      padding: 48px 40px;
-      width: 100%; max-width: 420px;
-      text-align: center;
-      backdrop-filter: blur(16px);
-      box-shadow: 0 8px 48px rgba(0,0,0,0.5);
-    }
-    .login-logo {
-      display: none;
-    }
-    .login-box h1 {
-      color: #fff; font-size: 1.5rem; font-weight: 700; margin-bottom: 6px;
-    }
-    .login-box p {
-      color: rgba(255,255,255,0.6); font-size: 0.88rem; margin-bottom: 28px;
-    }
-    .login-input {
-      width: 100%; padding: 14px 18px;
-      background: rgba(255,255,255,0.1);
-      border: 1.5px solid rgba(255,255,255,0.2);
-      border-radius: 10px; color: #fff;
-      font-size: 1.1rem; text-align: center;
-      letter-spacing: 4px; font-weight: 700;
-      outline: none; transition: border-color 0.2s;
-      margin-bottom: 14px;
-    }
-    .login-input::placeholder { letter-spacing: 1px; font-weight: 400; color: rgba(255,255,255,0.4); }
-    .login-input:focus { border-color: var(--gold2); box-shadow: 0 0 0 3px rgba(233,30,140,0.18); }
-    .login-input.error { border-color: #ef5350; box-shadow: 0 0 0 3px rgba(239,83,80,0.18); animation: shake 0.4s; }
-    @keyframes shake {
-      0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 60%{transform:translateX(8px)}
-    }
-    .login-btn {
-      width: 100%; padding: 14px;
-      background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
-      color: #fff; border: none; border-radius: 10px;
-      font-size: 1rem; font-weight: 700; cursor: pointer;
-      letter-spacing: 0.05em; transition: opacity 0.2s;
-    }
-    .login-btn:hover { opacity: 0.9; }
+    /* Login handled exclusively by index.html */
     .login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-    .login-error {
-      color: #ef9a9a; font-size: 0.82rem;
-      margin-top: 10px; min-height: 20px;
-    }
 
     /* ===== APP SHELL ===== */
     #app-shell { display: none; }
@@ -470,25 +403,6 @@
 <body>
 
 <!-- ===== LOGIN SCREEN ===== -->
-<div id="login-screen">
-  <!-- Video background -->
-  <video id="login-video-bg" autoplay muted loop playsinline preload="auto">
-    <source src="login-bg.mp4" type="video/mp4">
-  </video>
-  <!-- Color overlay -->
-  <div id="login-video-overlay"></div>
-  <div class="login-box">
-    <div class="login-logo"></div>
-    <h1>Elite Athlete Sponsorship</h1>
-    <p>Bermuda Department of Youth, Sport &amp; Recreation<br>2026 Applications Dashboard</p>
-    <input class="login-input" id="access-code-input" type="password"
-      placeholder="Enter Access Code"
-      onkeydown="if(event.key==='Enter')attemptLogin()"
-      autocomplete="off" />
-    <button class="login-btn" id="login-btn" onclick="attemptLogin()">Sign In</button>
-    <div class="login-error" id="login-error"></div>
-  </div>
-</div>
 
 <!-- ===== APP SHELL ===== -->
 <div id="app-shell">
@@ -1378,39 +1292,14 @@ async function bootApp(code) {
   // Then sync from Supabase (per-user scoped by access code)
   await dbLoadUserData(code);
   // Show app, hide login
-  document.getElementById('login-screen').style.display = 'none';
+  // login screen removed — portal handles auth
   document.getElementById('app-shell').style.display = 'block';
   renderTable();
   updateStats();
   document.getElementById('shortlist-count-badge').textContent = shortlisted.size + ' shortlisted';
 }
 
-async function attemptLogin() {
-  const input = document.getElementById('access-code-input');
-  const errEl = document.getElementById('login-error');
-  const btn   = document.getElementById('login-btn');
-  const code  = normaliseCode(input.value);
 
-  if (ACCESS_CODES.includes(code)) {
-    // Valid — show loading state and boot
-    btn.textContent = 'Loading…'; btn.disabled = true;
-    errEl.textContent = '';
-    try {
-      await bootApp(code);
-    } catch (e) {
-      console.error('Boot error:', e);
-      showToast('Login error — please try again', 'info');
-    } finally {
-      btn.textContent = 'Sign In'; btn.disabled = false;
-    }
-  } else {
-    // Invalid — shake and clear
-    errEl.textContent = 'Invalid access code. Please try again.';
-    input.classList.add('error');
-    input.value = '';
-    setTimeout(() => { input.classList.remove('error'); input.focus(); }, 600);
-  }
-}
 
 function signOut() {
   // Clear all session state
@@ -1427,33 +1316,21 @@ function signOut() {
 }
 
 // Auto-restore session on page load
-(async function initSession() {
-    // Check portal session first
+(function initSession() {
     const portalAuth = sessionStorage.getItem('portal_auth');
     const portalCode = normaliseCode(sessionStorage.getItem('portal_code'));
     if (portalAuth === '1' && ACCESS_CODES.includes(portalCode)) {
-      sessionStorage.setItem('eas_auth', '1');
-      sessionStorage.setItem('eas_code', portalCode);
       bootApp(portalCode);
       return;
     }
-    const auth = sessionStorage.getItem('eas_auth');
-    const code = normaliseCode(sessionStorage.getItem('eas_code'));
-    if (auth === '1' && ACCESS_CODES.includes(code)) {
-      bootApp(code);
-    }
-  }
-})();
+    // Not authenticated via portal — redirect to login
+    window.location.href = 'index.html';
+  })();
 </script>
 </div><!-- /app-shell -->
 
-<!-- NOTE: Script block is intentionally placed inside app-shell for DOM access.
-     All auth functions (attemptLogin, signOut, bootApp) are globally scoped
-     via the window object assignment below. -->
 <script>
-  // Re-expose auth functions to global scope for onclick handlers on login screen
-  // (which lives outside #app-shell)
-  window.attemptLogin = attemptLogin;
+  // Re-expose signOut to global scope
   window.signOut = signOut;
 </script>
 </body>

@@ -22,11 +22,6 @@
 body{font-family:'Segoe UI',Arial,sans-serif;background:var(--gray);color:var(--text);min-height:100vh}
 
 /* ── LOGIN ── */
-#login-screen{
-  position:fixed;inset:0;z-index:1000;
-  display:flex;align-items:center;justify-content:center;
-  background:var(--navy);
-}
 #login-video{
   position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;
 }
@@ -34,36 +29,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:var(--gray);color:var(--
   position:absolute;inset:0;z-index:1;
   background:linear-gradient(135deg,rgba(233,30,140,0.40) 0%,rgba(25,25,112,0.40) 100%);
 }
-.login-box{
-  position:relative;z-index:2;
-  background:rgba(255,255,255,0.12);
-  backdrop-filter:blur(16px);
-  border:1px solid rgba(255,255,255,0.25);
-  border-radius:20px;
-  padding:48px 40px;
-  width:100%;max-width:420px;
-  text-align:center;
-  box-shadow:0 8px 40px rgba(0,0,0,0.3);
-}
 .login-title{color:#fff;font-size:1.7rem;font-weight:700;margin-bottom:6px;letter-spacing:-0.5px}
 .login-sub{color:rgba(255,255,255,0.75);font-size:0.9rem;margin-bottom:28px}
-.login-box input{
-  width:100%;padding:13px 16px;border-radius:10px;
-  border:2px solid rgba(255,255,255,0.3);
-  background:rgba(255,255,255,0.15);color:#fff;
-  font-size:1rem;margin-bottom:14px;outline:none;
-  transition:border-color .2s;
-}
-.login-box input::placeholder{color:rgba(255,255,255,0.55)}
-.login-box input:focus{border-color:var(--pink)}
-.login-btn{
-  width:100%;padding:13px;border:none;border-radius:10px;
-  background:var(--pink);color:#fff;font-size:1rem;font-weight:700;
-  cursor:pointer;transition:opacity .2s;
-}
-.login-btn:hover{opacity:0.88}
-.login-err{color:#ff8a80;font-size:0.85rem;margin-top:10px;min-height:20px}
-
 /* ── APP SHELL ── */
 #app-shell{display:none}
 #app-shell.visible{display:block!important}
@@ -249,7 +216,7 @@ td{padding:9px 12px;vertical-align:middle}
 
 /* ── PRINT ── */
 @media print{
-  #login-screen,#app-shell .app-header,.tabs,.toolbar,.pagination{display:none!important}
+  #app-shell .app-header,.tabs,.toolbar,.pagination{display:none!important}
   .content{padding:0}
   .table-wrap,.report-card{box-shadow:none;border:1px solid #ddd}
 }
@@ -258,19 +225,7 @@ td{padding:9px 12px;vertical-align:middle}
 <body>
 
 <!-- LOGIN (hidden — portal handles auth) -->
-<div id="login-screen" style="display:none">
-  <video id="login-video" autoplay muted loop playsinline>
-    <source src="login-bg.mp4" type="video/mp4">
-  </video>
-  <div id="login-overlay"></div>
-  <div class="login-box">
-    <div class="login-title">ACTIVE Kids Sports Academy</div>
-    <div class="login-sub">2026 Registration Dashboard</div>
-    <input type="password" id="codeInput" placeholder="Enter access code" autocomplete="off"/>
-    <button class="login-btn" id="loginBtn" onclick="attemptLogin()">Sign In</button>
-    <div class="login-err" id="loginErr"></div>
-  </div>
-</div>
+
 
 <!-- APP SHELL -->
 <div id="app-shell">
@@ -423,30 +378,10 @@ let currentUserCode = null;
 
 function normaliseCode(c) { return (c||'').trim().toLowerCase(); }
 
-function attemptLogin() {
-  const code = normaliseCode(document.getElementById('codeInput').value);
-  const err  = document.getElementById('loginErr');
-  const btn  = document.getElementById('loginBtn');
-  err.textContent = '';
-  if (!ACCESS_CODES.includes(code)) {
-    err.textContent = 'Invalid access code. Please try again.';
-    document.getElementById('codeInput').value = '';
-    return;
-  }
-  btn.disabled = true;
-  btn.textContent = 'Signing in…';
-  sessionStorage.setItem('aks_auth','1');
-  sessionStorage.setItem('aks_code', code);
-  currentUserCode = code;
-  bootApp();
-  btn.disabled = false;
-  btn.textContent = 'Sign In';
-}
+
 
 function bootApp() {
-  const ls = document.getElementById('login-screen');
   const shell = document.getElementById('app-shell');
-  if (ls) ls.style.display = 'none';
   if (shell) shell.classList.add('visible');
   filtered = [...REGISTRATIONS];
   renderTable();
@@ -931,14 +866,11 @@ function printMedical()  { switchTab('medical');   setTimeout(()=>window.print()
 function printEmergency(){ switchTab('emergency'); setTimeout(()=>window.print(),200); }
 
 // ── INIT ──────────────────────────────────────────────────────────────────
-document.getElementById('codeInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') attemptLogin();
 });
 initSession();
 </script>
 
 <script>
-window.attemptLogin = attemptLogin;
 window.signOut      = signOut;
 window.switchTab    = switchTab;
 window.openModal    = openModal;
