@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Sport Investment Program (SIP) — FY 2026/2027</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --navy: rgb(25,25,112);
+            --pink: #E91E8C;
+            --pink-light: rgba(233,30,140,0.08);
+            --blue: #1976D2;
+            --blue-light: #E3F2FD;
+            --white: #FFFFFF;
+            --gray: #F8F9FA;
+            --gray-mid: #E9ECEF;
+            --dark: #212529;
+            --text: #495057;
+            --green: #28a745;
+            --shadow: 0 4px 20px rgba(25,25,112,0.10);
+            --shadow-hover: 0 8px 32px rgba(25,25,112,0.18);
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--gray);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ── Header ── */
+        .site-header {
+            background: linear-gradient(135deg, var(--navy) 0%, #2d2d8e 100%);
+            color: var(--white);
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(25,25,112,0.3);
+        }
+        .site-header .header-left { display: flex; align-items: center; gap: 16px; }
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,0.12); color: var(--white);
+            border: 1px solid rgba(255,255,255,0.25); border-radius: 8px;
+            padding: 7px 14px; font-size: 0.85rem; font-weight: 500;
+            text-decoration: none; cursor: pointer; transition: background 0.2s;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.22); }
+        .site-header h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: 0.3px; }
+        .site-header .subtitle-tag {
+            font-size: 0.78rem; background: var(--pink); color: white;
+            padding: 3px 10px; border-radius: 20px; font-weight: 600;
+        }
+        .signout-btn {
+            background: rgba(255,255,255,0.12); color: var(--white);
+            border: 1px solid rgba(255,255,255,0.25); border-radius: 8px;
+            padding: 7px 16px; font-size: 0.85rem; font-weight: 500;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .signout-btn:hover { background: rgba(233,30,140,0.35); }
+
+        /* ── Main layout ── */
+        .page-wrap { max-width: 1400px; margin: 0 auto; padding: 28px 20px 60px; }
+
+        /* ── Hero card ── */
+        .hero-card {
+            background: var(--white); border-radius: 16px;
+            box-shadow: var(--shadow); padding: 32px 36px; margin-bottom: 28px;
+            border-top: 5px solid var(--pink);
+        }
+        .hero-card h2 { color: var(--navy); font-size: 1.9rem; font-weight: 800; margin-bottom: 6px; }
+        .hero-card .fy-badge {
+            display: inline-block; background: var(--pink); color: white;
+            font-size: 0.82rem; font-weight: 700; padding: 4px 12px;
+            border-radius: 20px; margin-bottom: 16px;
+        }
+        .hero-card p { color: var(--text); line-height: 1.7; max-width: 860px; }
+        .priorities-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+            gap: 14px; margin-top: 22px;
+        }
+        .priority-item {
+            background: var(--gray); border-radius: 10px; padding: 16px 18px;
+            border-left: 4px solid var(--pink);
+        }
+        .priority-item strong { color: var(--navy); display: block; margin-bottom: 4px; font-size: 0.9rem; }
+        .priority-item span { color: var(--text); font-size: 0.85rem; line-height: 1.5; }
+
+        /* ── Stats bar ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px; margin-bottom: 28px;
+        }
+        .stat-card {
+            background: var(--white); border-radius: 14px;
+            box-shadow: var(--shadow); padding: 20px 16px; text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+        .stat-card .value {
+            font-size: 1.6rem; font-weight: 800;
+            background: linear-gradient(135deg, var(--pink), var(--navy));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .stat-card .label { color: var(--text); font-size: 0.82rem; font-weight: 500; }
+
+        /* ── Section headings ── */
+        .section-title {
+            font-size: 1.15rem; font-weight: 700; color: var(--navy);
+            margin-bottom: 18px; padding-bottom: 10px;
+            border-bottom: 2px solid var(--pink-light);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .section-title::before { content: ''; display: block; width: 4px; height: 20px; background: var(--pink); border-radius: 2px; }
+
+        /* ── Filter bar ── */
+        .filter-bar {
+            background: var(--white); border-radius: 12px;
+            box-shadow: var(--shadow); padding: 16px 20px;
+            display: flex; gap: 14px; flex-wrap: wrap; align-items: center;
+            margin-bottom: 24px;
+        }
+        .filter-bar label { font-size: 0.85rem; font-weight: 600; color: var(--navy); }
+        .filter-bar select, .filter-bar input {
+            padding: 8px 12px; border: 2px solid var(--gray-mid); border-radius: 8px;
+            font-size: 0.9rem; outline: none; transition: border-color 0.2s; color: var(--dark);
+        }
+        .filter-bar select:focus, .filter-bar input:focus { border-color: var(--pink); }
+        .btn-primary {
+            padding: 9px 20px;
+            background: linear-gradient(135deg, var(--pink), var(--navy));
+            color: white; border: none; border-radius: 8px;
+            cursor: pointer; font-size: 0.9rem; font-weight: 600;
+            transition: opacity 0.2s, transform 0.15s;
+        }
+        .btn-primary:hover { opacity: 0.9; transform: scale(1.03); }
+        .btn-outline {
+            padding: 9px 20px; background: white;
+            color: var(--navy); border: 2px solid var(--navy); border-radius: 8px;
+            cursor: pointer; font-size: 0.9rem; font-weight: 600;
+            transition: background 0.2s, color 0.2s;
+        }
+        .btn-outline:hover { background: var(--navy); color: white; }
+
+        /* ── Chart panels ── */
+        .charts-row {
+            display: grid; grid-template-columns: 1fr 2fr;
+            gap: 20px; margin-bottom: 24px;
+        }
+        .chart-panel {
+            background: var(--white); border-radius: 14px;
+            box-shadow: var(--shadow); padding: 24px;
+        }
+        .chart-panel h3 { color: var(--navy); font-size: 1rem; font-weight: 700; margin-bottom: 18px; }
+        .chart-wrapper { position: relative; height: 320px; }
+        .chart-full {
+            background: var(--white); border-radius: 14px;
+            box-shadow: var(--shadow); padding: 24px; margin-bottom: 24px;
+        }
+        .chart-full h3 { color: var(--navy); font-size: 1rem; font-weight: 700; margin-bottom: 18px; }
+        .chart-wrapper-tall { position: relative; height: 380px; }
+
+        /* ── Analysis grid ── */
+        .analysis-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr));
+            gap: 18px; margin-bottom: 24px;
+        }
+        .analysis-card {
+            background: var(--white); border-radius: 14px;
+            box-shadow: var(--shadow); padding: 22px;
+            border-top: 4px solid var(--pink);
+        }
+        .analysis-card h3 { color: var(--navy); font-size: 0.95rem; font-weight: 700; margin-bottom: 14px; }
+        .analysis-metric {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 0; border-bottom: 1px solid var(--gray-mid);
+        }
+        .analysis-metric:last-child { border-bottom: none; }
+        .analysis-label { color: var(--text); font-size: 0.88rem; }
+        .analysis-value { color: var(--navy); font-weight: 700; font-size: 0.95rem; }
+        .participation-bar {
+            width: 100%; height: 26px; background: var(--gray-mid);
+            border-radius: 6px; overflow: hidden; margin: 10px 0;
+        }
+        .participation-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--pink), var(--navy));
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 700; font-size: 0.8rem;
+            transition: width 0.6s ease;
+        }
+
+        /* ── NSGB detail cards ── */
+        .nsgb-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(380px,1fr));
+            gap: 20px; margin-bottom: 28px;
+        }
+        .nsgb-card {
+            background: var(--white); border-radius: 14px;
+            box-shadow: var(--shadow); padding: 22px;
+            transition: box-shadow 0.2s, transform 0.2s;
+            border-left: 5px solid var(--navy);
+        }
+        .nsgb-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-3px); }
+        .nsgb-card-header {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            margin-bottom: 14px; gap: 10px;
+        }
+        .nsgb-name { color: var(--navy); font-size: 1rem; font-weight: 700; flex: 1; }
+        .total-badge {
+            background: linear-gradient(135deg, var(--pink), var(--navy));
+            color: white; padding: 5px 12px; border-radius: 20px;
+            font-size: 0.82rem; font-weight: 700; white-space: nowrap;
+        }
+        .nsgb-projects {
+            font-size: 0.82rem; color: var(--text); margin-bottom: 14px;
+            line-height: 1.5; font-style: italic;
+        }
+        .funding-breakdown {
+            display: grid; grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px; margin-bottom: 14px;
+        }
+        .funding-item {
+            background: var(--gray); border-radius: 8px; padding: 10px 8px; text-align: center;
+        }
+        .funding-item .fi-label { font-size: 0.72rem; color: var(--text); margin-bottom: 4px; font-weight: 600; }
+        .funding-item .fi-value { font-size: 0.9rem; color: var(--navy); font-weight: 700; }
+        .nsgb-links { display: flex; gap: 8px; flex-wrap: wrap; }
+        .doc-link {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;
+            text-decoration: none; transition: opacity 0.2s, transform 0.15s;
+        }
+        .doc-link:hover { opacity: 0.85; transform: scale(1.04); }
+        .doc-link.pdf { background: var(--pink-light); color: var(--pink); border: 1px solid var(--pink); }
+        .doc-link.sheet { background: var(--blue-light); color: var(--blue); border: 1px solid var(--blue); }
+        .external-funding {
+            font-size: 0.8rem; color: var(--green); font-weight: 600;
+            margin-top: 8px; padding: 5px 10px; background: rgba(40,167,69,0.08);
+            border-radius: 6px; display: inline-block;
+        }
+
+        /* ── Table ── */
+        .table-panel {
+            background: var(--white); border-radius: 14px;
+            box-shadow: var(--shadow); padding: 24px; margin-bottom: 28px;
+            overflow-x: auto;
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+        thead th {
+            background: var(--navy); color: white;
+            padding: 12px 14px; text-align: left; font-weight: 600;
+            cursor: pointer; white-space: nowrap; user-select: none;
+        }
+        thead th:hover { background: #2d2d8e; }
+        tbody td { padding: 11px 14px; border-bottom: 1px solid var(--gray-mid); color: var(--dark); }
+        tbody tr:hover { background: var(--gray); }
+        tbody tr:last-child td { border-bottom: none; }
+        .td-amount { font-weight: 700; color: var(--navy); }
+        .td-total { font-weight: 800; color: var(--pink); }
+        .td-link {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 4px 10px; border-radius: 5px; font-size: 0.78rem; font-weight: 600;
+            text-decoration: none; transition: opacity 0.2s;
+        }
+        .td-link:hover { opacity: 0.8; }
+        .td-link.pdf { background: var(--pink-light); color: var(--pink); }
+        .td-link.sheet { background: var(--blue-light); color: var(--blue); }
+        .td-none { color: #aaa; font-style: italic; font-size: 0.8rem; }
+
+        /* ── Insight box ── */
+        .insight-box {
+            background: linear-gradient(135deg, rgba(233,30,140,0.05), rgba(25,25,112,0.05));
+            border: 2px solid rgba(233,30,140,0.2); border-radius: 14px;
+            padding: 22px; margin-bottom: 28px;
+        }
+        .insight-box h3 { color: var(--navy); font-size: 1rem; font-weight: 700; margin-bottom: 14px; }
+        .insight-list { list-style: none; padding: 0; }
+        .insight-list li {
+            padding: 8px 0 8px 28px; position: relative;
+            color: var(--text); line-height: 1.6; border-bottom: 1px solid var(--gray-mid);
+        }
+        .insight-list li:last-child { border-bottom: none; }
+        .insight-list li::before { content: "💡"; position: absolute; left: 0; }
+
+        /* ── Footer ── */
+        .page-footer {
+            text-align: center; color: var(--text); font-size: 0.82rem;
+            padding: 20px; border-top: 1px solid var(--gray-mid); margin-top: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .stats-grid { grid-template-columns: repeat(2,1fr); }
+            .charts-row { grid-template-columns: 1fr; }
+            .nsgb-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 600px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .site-header h1 { font-size: 0.95rem; }
+            .page-wrap { padding: 16px 12px 40px; }
+            .hero-card { padding: 20px 18px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="site-header">
+    <div class="header-left">
+        <a href="portal.html" class="back-btn">← Portal</a>
+        <h1>Sport Investment Program (SIP)</h1>
+        <span class="subtitle-tag">FY 2026/2027</span>
+    </div>
+    <button class="signout-btn" onclick="signOut()">Sign Out</button>
+</header>
+
+<div class="page-wrap" id="app-shell">
+
+    <!-- Hero -->
+    <div class="hero-card">
+        <h2>Sport Investment Program</h2>
+        <span class="fy-badge">Funding Analysis Dashboard — FY 2026/2027</span>
+        <p>The Sport Investment Program (SIP), led by Bermuda's Department of Sport &amp; Recreation, strengthens the development of local sports through targeted funding to National Sport Governing Bodies (NSGBs). Guided by the National Sports Policy (2022–2027), the program aims to increase participation, improve performance, and build sustainable athlete pathways.</p>
+        <div class="priorities-grid">
+            <div class="priority-item">
+                <strong>High Performance</strong>
+                <span>Supports elite athlete and national team development</span>
+            </div>
+            <div class="priority-item">
+                <strong>Junior Development &amp; Programming</strong>
+                <span>Grows youth participation and long-term sustainability</span>
+            </div>
+            <div class="priority-item">
+                <strong>Coach &amp; Official Development</strong>
+                <span>Elevates coaching standards and officiating quality</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-card"><div class="value" id="totalFunding">$0</div><div class="label">Total Funding Requested</div></div>
+        <div class="stat-card"><div class="value" id="totalNSGBs">0</div><div class="label">NSGBs Applying</div></div>
+        <div class="stat-card"><div class="value" id="highPerformanceTotal">$0</div><div class="label">High Performance</div></div>
+        <div class="stat-card"><div class="value" id="juniorDevTotal">$0</div><div class="label">Junior Development</div></div>
+        <div class="stat-card"><div class="value" id="coachingTotal">$0</div><div class="label">Coach Development</div></div>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="filter-bar">
+        <label for="fiscalYear">Fiscal Year:</label>
+        <select id="fiscalYear">
+            <option value="all">All Years</option>
+            <option value="2026/2027" selected>2026/2027</option>
+        </select>
+        <label for="nsgbFilter">NSGB:</label>
+        <select id="nsgbFilter"><option value="all">All NSGBs</option></select>
+        <button class="btn-primary" onclick="applyFilters()">Apply Filters</button>
+        <button class="btn-outline" onclick="exportData()">Export CSV</button>
+    </div>
+
+    <!-- Program Analysis -->
+    <div class="section-title">Program Category Analysis</div>
+    <div id="programAnalysis"></div>
+
+    <!-- Charts row -->
+    <div class="charts-row">
+        <div class="chart-panel">
+            <h3>Funding Distribution by Program</h3>
+            <div class="chart-wrapper"><canvas id="programChart"></canvas></div>
+        </div>
+        <div class="chart-panel">
+            <h3>Program Participation by NSGB</h3>
+            <div class="chart-wrapper"><canvas id="participationChart"></canvas></div>
+        </div>
+    </div>
+
+    <!-- Full-width bar chart -->
+    <div class="chart-full">
+        <h3>Funding Breakdown by NSGB</h3>
+        <div class="chart-wrapper-tall"><canvas id="nsgbChart"></canvas></div>
+    </div>
+
+    <!-- NSGB Cards -->
+    <div class="section-title">NSGB Detail Cards</div>
+    <div class="nsgb-grid" id="nsgbDetailsContainer"></div>
+
+    <!-- Insights -->
+    <div class="insight-box" id="insightBox">
+        <h3>Key Insights</h3>
+        <ul class="insight-list" id="insightList"></ul>
+    </div>
+
+    <!-- Table -->
+    <div class="table-panel">
+        <div class="section-title">Detailed Funding Breakdown</div>
+        <table id="fundingTable">
+            <thead>
+                <tr>
+                    <th onclick="sortTable(0)">NSGB ↕</th>
+                    <th onclick="sortTable(1)">Fiscal Year ↕</th>
+                    <th onclick="sortTable(2)">High Performance ↕</th>
+                    <th onclick="sortTable(3)">Junior Development ↕</th>
+                    <th onclick="sortTable(4)">Coach Development ↕</th>
+                    <th onclick="sortTable(5)">Total Request ↕</th>
+                    <th>External Funding</th>
+                    <th>Full Request PDF</th>
+                    <th>Spreadsheet</th>
+                    <th>Projects</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <div class="page-footer">© 2026 Bermuda Department of Sport &amp; Recreation — Sport Investment Program</div>
+</div>
+
+<script>
+/* ── Data ── */
+const sipData = [
+    {"Name of NSGB":"Bermuda Paralympic Association","Fiscal Year:":"2026/2027","Name of Proposed Project(s):":"World Boccia World's","Amount requested for High Performance":"30000","Amount requested for Junior Development & Programming":"","Amount requested for Coach":{"Official Development":""},"Total amount requested for the selected fiscal year ":"30000","funding recived outside of the sip":"","pdfUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_25623b08c86d447ea02066cab59e178e.pdf","spreadsheetUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_efd00e4f8e8444a095ca384cb30c5060.pdf","approvedFunding":""},
+    {"Name of NSGB":"Bermuda Sailing Association","Fiscal Year:":"2026/2027","Name of Proposed Project(s):":"Junior/Youth Development; High Performance Sailing; Coaching/Race Management Officials","Amount requested for High Performance":"31000","Amount requested for Junior Development & Programming":"28000","Amount requested for Coach":{"Official Development":"11000"},"Total amount requested for the selected fiscal year ":"70000","funding recived outside of the sip":"","pdfUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_67e571d9a063457f8118623477701443.pdf","spreadsheetUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_37af71dbaa094f548780473db8de2ff8.pdf","approvedFunding":""},
+    {"Name of NSGB":"Boccia Bermuda","Fiscal Year:":"2026/2027","Name of Proposed Project(s):":"International competitions","Amount requested for High Performance":"25000","Amount requested for Junior Development & Programming":"0","Amount requested for Coach":{"Official Development":"5000"},"Total amount requested for the selected fiscal year ":"30000","funding recived outside of the sip":"","pdfUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_49301309ba35432688388cd336de2028.pdf","spreadsheetUrl":"","approvedFunding":""},
+    {"Name of NSGB":"Bermuda Equestrian Federation","Fiscal Year:":"2026/2027","Name of Proposed Project(s):":"Equestrian Sport Development","Amount requested for High Performance":"20000","Amount requested for Junior Development & Programming":"30000","Amount requested for Coach":{"Official Development":"15000"},"Total amount requested for the selected fiscal year ":"65000","funding recived outside of the sip":"","pdfUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_c041e7c455a64168b4e70e0f46ee416d.pdf","spreadsheetUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_3934ddfb05824503981f85d7fbfd5202.pdf","approvedFunding":""},
+    {"Name of NSGB":"National Archery Association of Bermuda","Fiscal Year:":"2026/2027","Name of Proposed Project(s):":"Coaching & Officials; Fair Play Archery Judge Program","Amount requested for High Performance":"22000","Amount requested for Junior Development & Programming":"18000","Amount requested for Coach":{"Official Development":"10000"},"Total amount requested for the selected fiscal year ":"50000","funding recived outside of the sip":"30000","pdfUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_8a0b540ecd4945459a23da0a8f0c9582.pdf","spreadsheetUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_77dc78c3efd24bd1a7b83e6bf2859e49.pdf","approvedFunding":""},
+    {"Name of NSGB":"Bermuda Squash Racquets Association","Fiscal Year:":"2026/2027","Name of Proposed Project(s):":"Bermuda Junior Squash Program","Amount requested for High Performance":"12000","Amount requested for Junior Development & Programming":"10000","Amount requested for Coach":{"Official Development":"10000"},"Total amount requested for the selected fiscal year ":"32000","funding recived outside of the sip":"","pdfUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_016986c07cfd4d17b26e7f92197ebf1c.pdf","spreadsheetUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_b8d5d2ec52ce4d10be8c8fa5eadfca7b.pdf","approvedFunding":""},
+    {"Name of NSGB":"Bermuda Bicycle Association","Fiscal Year:":"2026/2027","Name of Proposed Project(s):":"Cycling for Life: Pathway to Performance and Participation","Amount requested for High Performance":"92920","Amount requested for Junior Development & Programming":"54000","Amount requested for Coach":{"Official Development":"10000"},"Total amount requested for the selected fiscal year ":"156920","funding recived outside of the sip":"","pdfUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_322c4b31d4fc41618ec67ff455e2848c.pdf","spreadsheetUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_613b188d04a640dab68af5db837411aa.pdf","approvedFunding":""},
+    {"Name of NSGB":"Bermuda Football Association","Fiscal Year:":"2026/2027","Name of Proposed Project(s):":"BFA Initiatives and Strategic Goals","Amount requested for High Performance":"375000","Amount requested for Junior Development & Programming":"60000","Amount requested for Coach":{"Official Development":"95000"},"Total amount requested for the selected fiscal year ":"530000","funding recived outside of the sip":"$3,666","pdfUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_e1536eeb427e4b4089e93a6006828d49.pdf","spreadsheetUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_9535d0d761124dce9a7f57501080d8bb.pdf","approvedFunding":""},
+    {"Name of NSGB":"Bermuda Motorcycle Racing Association","Fiscal Year:":"2026/2027","Name of Proposed Project(s):":"Youth Development Program","Amount requested for High Performance":"10000","Amount requested for Junior Development & Programming":"20000","Amount requested for Coach":{"Official Development":"5000"},"Total amount requested for the selected fiscal year ":"35000","funding recived outside of the sip":"","pdfUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_e83cf0fa57e3413f9d25c127318c824f.pdf","spreadsheetUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_e2adeadf9e464e7cab01b5228e5855ba.pdf","approvedFunding":""},
+    {"Name of NSGB":"Bermuda Hockey Federation","Fiscal Year:":"2026/2027","Name of Proposed Project(s):":"CAC Games - Senior Women 2026; Junior Development","Amount requested for High Performance":"145000","Amount requested for Junior Development & Programming":"23000","Amount requested for Coach":{"Official Development":"198865"},"Total amount requested for the selected fiscal year ":"366865","funding recived outside of the sip":"","pdfUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_c95ff7e338d144a19ace21a5ece85ac2.pdf","spreadsheetUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_85f6a9a7a2284c7fad728a5084756572.pdf","approvedFunding":""},
+    {"Name of NSGB":"Bermuda Boxing Federation","Fiscal Year:":"2026/2027","Name of Proposed Project(s):":"Boxing Infrastructure; Coaches Training + Development; Junior Development Events","Amount requested for High Performance":"","Amount requested for Junior Development & Programming":"6000","Amount requested for Coach":{"Official Development":"19050"},"Total amount requested for the selected fiscal year ":"25050","funding recived outside of the sip":"","pdfUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_8222f3ff929b4d3697c13e10b44a88b2.pdf","spreadsheetUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_26335842f0c64c01aa010134e9ad8930.pdf","approvedFunding":""},
+    {"Name of NSGB":"Bermuda Cricket Board","Fiscal Year:":"2026/2027","Name of Proposed Project(s):":"BCB Annual Sport Investment Grant Application 2026-2027","Amount requested for High Performance":"300000","Amount requested for Junior Development & Programming":"30000","Amount requested for Coach":{"Official Development":"25000"},"Total amount requested for the selected fiscal year ":"355000","funding recived outside of the sip":"tbc","pdfUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_d9cf58ff559c4d40b71f784c3d535341.pdf","spreadsheetUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_01ca51690c0048ad8cf2554dc8d63198.pdf","approvedFunding":""},
+    {"Name of NSGB":"Bermuda Lawn Tennis Association","Fiscal Year:":"2026/2027","Name of Proposed Project(s):":"BLTA National Training Program - High Performance","Amount requested for High Performance":"47000","Amount requested for Junior Development & Programming":"35000","Amount requested for Coach":{"Official Development":"15000"},"Total amount requested for the selected fiscal year ":"97000","funding recived outside of the sip":"100,000.00","pdfUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_25519c4d1d9343c79dbfab49bf91efba.pdf","spreadsheetUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_d0ceeb83b92345b0accf0b86c55f95c8.pdf","approvedFunding":""},
+    {"Name of NSGB":"Bermuda Golf Association","Fiscal Year:":"2026/2027","Name of Proposed Project(s):":"Birth to Podium BGA Strategic Plan for Golf Development (A LTAD Approach)","Amount requested for High Performance":"83000","Amount requested for Junior Development & Programming":"44000","Amount requested for Coach":{"Official Development":"10000"},"Total amount requested for the selected fiscal year ":"137000","funding recived outside of the sip":"","pdfUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_d2e5fd412e2e4f938eb00b9927846fc9.pdf","spreadsheetUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_0a72640119644cb58e31908d1155bf00.pdf","approvedFunding":""},
+    {"Name of NSGB":"Bermuda Basketball Association","Fiscal Year:":"2026/2027","Name of Proposed Project(s):":"BBA Referee Clinic; FIBA Americas-CBC","Amount requested for High Performance":"61615","Amount requested for Junior Development & Programming":"15459","Amount requested for Coach":{"Official Development":"9750"},"Total amount requested for the selected fiscal year ":"86824","funding recived outside of the sip":"","pdfUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_42f56d0148b2496d83cd325b7856c67b.pdf","spreadsheetUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_218f0aaf799a497d983d11e6c9678806.pdf","approvedFunding":""},
+    {"Name of NSGB":"Bermuda Amateur Swimming Association","Fiscal Year:":"2026/2027","Name of Proposed Project(s):":"World Aquatics officials; Youth coaches training","Amount requested for High Performance":"104500","Amount requested for Junior Development & Programming":"53000","Amount requested for Coach":{"Official Development":"7400"},"Total amount requested for the selected fiscal year ":"164900","funding recived outside of the sip":"","pdfUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_08ea1d50d644413f9ea50f126cf4654c.pdf","spreadsheetUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_cbad6271e7524ef4aeba238fc528817a.pdf","approvedFunding":""},
+    {"Name of NSGB":"Bermuda Rugby Football Union","Fiscal Year:":"2026/2027","Name of Proposed Project(s):":"Rugby Operations & Pathway Development Programme (Year 2 Implementation)","Amount requested for High Performance":"5000","Amount requested for Junior Development & Programming":"15000","Amount requested for Coach":{"Official Development":"15000"},"Total amount requested for the selected fiscal year ":"35000","funding recived outside of the sip":"","pdfUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_3f777fc71f66466ebfb8c3f2086689bc.pdf","spreadsheetUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_9376c068ca0f498f8519912c4cc95694.pdf","approvedFunding":""},
+    {"Name of NSGB":"Bermuda Sanshou Association","Fiscal Year:":"2026/2027","Name of Proposed Project(s):":"10th Junior World Wushu Championships","Amount requested for High Performance":"26500","Amount requested for Junior Development & Programming":"46800","Amount requested for Coach":{"Official Development":"37800"},"Total amount requested for the selected fiscal year ":"111100","funding recived outside of the sip":"","pdfUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_36558796bf694bc5a75de156553f94da.pdf","spreadsheetUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_bf616ecf61624c69a3c82c86986997c6.pdf","approvedFunding":""},
+    {"Name of NSGB":"Bermuda Triathlon Association","Fiscal Year:":"2026/2027","Name of Proposed Project(s):":"Junior Summer Camp; Tri-hedz; Youth Development Squad","Amount requested for High Performance":"40000","Amount requested for Junior Development & Programming":"70000","Amount requested for Coach":{"Official Development":"8000"},"Total amount requested for the selected fiscal year ":"118000","funding recived outside of the sip":"","pdfUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_9cab004971854da0a9536817ec08dfc8.pdf","spreadsheetUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_30899f897a054187af5dc7ce8dd3b0b9.pdf","approvedFunding":""},
+    {"Name of NSGB":"Bermuda Karting Association","Fiscal Year:":"2026/2027","Name of Proposed Project(s):":"Junior Development & Programming - safety barriers","Amount requested for High Performance":"","Amount requested for Junior Development & Programming":"25000","Amount requested for Coach":{"Official Development":""},"Total amount requested for the selected fiscal year ":"25000","funding recived outside of the sip":"","pdfUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_5c8a43328437416ba18d4cebb7b6d73c.pdf","spreadsheetUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_07b7ad69cf0b43af8e1b12d048adb2b4.pdf","approvedFunding":""},
+    {"Name of NSGB":"Bermuda Karate Federation","Fiscal Year:":"2026/2027","Name of Proposed Project(s):":"Karate Development","Amount requested for High Performance":"10000","Amount requested for Junior Development & Programming":"15000","Amount requested for Coach":{"Official Development":"5000"},"Total amount requested for the selected fiscal year ":"30000","funding recived outside of the sip":"","pdfUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_3f014eb4535343ee9f11033f9dc795aa.pdf","spreadsheetUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_70fc4fc4f8594125a077543ba637e947.pdf","approvedFunding":""},
+    {"Name of NSGB":"Bermuda Volleyball Association","Fiscal Year:":"2026/2027","Name of Proposed Project(s):":"Elite Pathway; Junior Development Expansion; Coach & Official Development","Amount requested for High Performance":"61500","Amount requested for Junior Development & Programming":"24000","Amount requested for Coach":{"Official Development":"55295"},"Total amount requested for the selected fiscal year ":"140795","funding recived outside of the sip":"","pdfUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_19dd9f57b5b2427c8f32cccbffb2eb6b.pdf","spreadsheetUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_a2650e08c8a44ac49f083689b41dd5d6.pdf","approvedFunding":""},
+    {"Name of NSGB":"Bermuda National Athletics Association","Fiscal Year:":"2026/2027","Name of Proposed Project(s):":"Coaching and Development; Junior Festivals; Junior Combine; Kids Festivals; High Performance","Amount requested for High Performance":"35000","Amount requested for Junior Development & Programming":"27000","Amount requested for Coach":{"Official Development":"20000"},"Total amount requested for the selected fiscal year ":"82000","funding recived outside of the sip":"","pdfUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_6fdc167a7beb40da8d0cee6fdcf93c95.pdf","spreadsheetUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_5f8d723f92724bde971efc364d9e085c.pdf","approvedFunding":""},
+    {"Name of NSGB":"Gymnastics Federation of Bermuda","Fiscal Year:":"2026/2027","Name of Proposed Project(s):":"Carifta Team; Coach Development; Equipment for Int'l Meet","Amount requested for High Performance":"54308","Amount requested for Junior Development & Programming":"57500","Amount requested for Coach":{"Official Development":"7840"},"Total amount requested for the selected fiscal year ":"119648","funding recived outside of the sip":"","pdfUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_9c36b9d121b54e1082eae3cd2c15c0a7.pdf","spreadsheetUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_8bb54d114cbd4349a5fb06f38cb8b599.pdf","approvedFunding":""},
+    {"Name of NSGB":"Bermuda Motocross Association","Fiscal Year:":"2026/2027","Name of Proposed Project(s):":"Increase youth participation","Amount requested for High Performance":"11500","Amount requested for Junior Development & Programming":"7000","Amount requested for Coach":{"Official Development":"5500"},"Total amount requested for the selected fiscal year ":"24000","funding recived outside of the sip":"","pdfUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_2ba1f3d4175249c784ac5a6bed1e93f1.pdf","spreadsheetUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_daea1c4eec0347339bde7321f512481a.pdf","approvedFunding":""},
+    {"Name of NSGB":"Pickleball Association of Bermuda","Fiscal Year:":"2026/2027","Name of Proposed Project(s):":"Sport Investment Program","Amount requested for High Performance":"60000","Amount requested for Junior Development & Programming":"30000","Amount requested for Coach":{"Official Development":"10000"},"Total amount requested for the selected fiscal year ":"100000","funding recived outside of the sip":"","pdfUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_2b62ef8543a744449c65bae6bd9fa838.pdf","spreadsheetUrl":"https://e1474911-6356-4260-995f-b7a1dde6289f.usrfiles.com/ugd/e14749_d877c858256642aab08717b565a9b37f.pdf","approvedFunding":""}
+];
+
+/* ── State ── */
+let currentData = [...sipData];
+let programChart = null, nsgbChart = null, participationChart = null;
+let sortDir = {};
+
+/* ── Auth ── */
+function signOut() {
+    ['portal_auth','portal_code','sip_auth','sip_code'].forEach(k => sessionStorage.removeItem(k));
+    window.location.href = 'index.html';
+}
+
+/* ── Helpers ── */
+function getNumericValue(v) {
+    if (v === undefined || v === null || v === '' || typeof v === 'object') return 0;
+    const n = parseInt(v.toString().replace(/[^0-9-]/g,''), 10);
+    return isNaN(n) ? 0 : n;
+}
+function getCoachAmount(item) {
+    const c = item["Amount requested for Coach"];
+    if (!c || c === '') return 0;
+    if (typeof c !== 'object') return getNumericValue(c);
+    return Object.values(c).reduce((s,v) => s + getNumericValue(v), 0);
+}
+function formatCurrency(n) {
+    return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:0}).format(n);
+}
+function safePct(a,b) { return b ? ((a/b)*100).toFixed(1) : '0.0'; }
+
+/* ── Stats ── */
+function updateStatistics() {
+    let total=0, hp=0, jd=0, coach=0;
+    currentData.forEach(item => {
+        total += getNumericValue(item["Total amount requested for the selected fiscal year "]);
+        hp += getNumericValue(item["Amount requested for High Performance"]);
+        jd += getNumericValue(item["Amount requested for Junior Development & Programming"]);
+        coach += getCoachAmount(item);
+    });
+    document.getElementById('totalFunding').textContent = formatCurrency(total);
+    document.getElementById('totalNSGBs').textContent = currentData.length;
+    document.getElementById('highPerformanceTotal').textContent = formatCurrency(hp);
+    document.getElementById('juniorDevTotal').textContent = formatCurrency(jd);
+    document.getElementById('coachingTotal').textContent = formatCurrency(coach);
+}
+
+/* ── Charts ── */
+function createCharts() {
+    if (programChart) programChart.destroy();
+    if (nsgbChart) nsgbChart.destroy();
+    if (participationChart) participationChart.destroy();
+
+    let hp=0, jd=0, coach=0;
+    currentData.forEach(item => {
+        hp += getNumericValue(item["Amount requested for High Performance"]);
+        jd += getNumericValue(item["Amount requested for Junior Development & Programming"]);
+        coach += getCoachAmount(item);
+    });
+
+    programChart = new Chart(document.getElementById('programChart').getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: ['High Performance','Junior Development','Coach Development'],
+            datasets: [{ data: [hp,jd,coach], backgroundColor: ['#E91E8C','rgb(25,25,112)','#87CEEB'], borderColor:'#fff', borderWidth:3 }]
+        },
+        options: { responsive:true, maintainAspectRatio:false, plugins: { legend:{position:'bottom',labels:{padding:16,font:{size:12}}}, tooltip:{callbacks:{label:ctx => ctx.label+': '+formatCurrency(ctx.parsed)+' ('+safePct(ctx.parsed,hp+jd+coach)+'%)' }} } }
+    });
+
+    const names = currentData.map(d => d["Name of NSGB"] || 'Unknown');
+    nsgbChart = new Chart(document.getElementById('nsgbChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: names,
+            datasets: [
+                { label:'High Performance', data: currentData.map(d => getNumericValue(d["Amount requested for High Performance"])), backgroundColor:'#E91E8C' },
+                { label:'Junior Development', data: currentData.map(d => getNumericValue(d["Amount requested for Junior Development & Programming"])), backgroundColor:'rgb(25,25,112)' },
+                { label:'Coach Development', data: currentData.map(d => getCoachAmount(d)), backgroundColor:'#87CEEB' }
+            ]
+        },
+        options: { responsive:true, maintainAspectRatio:false, scales:{ x:{stacked:true,ticks:{autoSkip:false,maxRotation:50,minRotation:40,font:{size:11}}}, y:{stacked:true,ticks:{callback:v=>formatCurrency(v)}} }, plugins:{ legend:{position:'bottom'}, tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+formatCurrency(ctx.parsed.y??ctx.parsed)}} } }
+    });
+
+    const pData = currentData.map(item => {
+        let c=0;
+        if (getNumericValue(item["Amount requested for High Performance"])>0) c++;
+        if (getNumericValue(item["Amount requested for Junior Development & Programming"])>0) c++;
+        if (getCoachAmount(item)>0) c++;
+        return c;
+    });
+    participationChart = new Chart(document.getElementById('participationChart').getContext('2d'), {
+        type: 'bar',
+        data: { labels: names, datasets:[{label:'Programs Funded',data:pData,backgroundColor:'#E91E8C',borderRadius:4}] },
+        options: { responsive:true, maintainAspectRatio:false, scales:{ x:{ticks:{autoSkip:false,maxRotation:50,minRotation:40,font:{size:11}}}, y:{beginAtZero:true,max:3,ticks:{stepSize:1,callback:v=>v+' programs'}} }, plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.parsed.y+' program(s) funded'}}} }
+    });
+}
+
+/* ── Program Analysis ── */
+function generateProgramAnalysis() {
+    let hpT=0,hpC=0,jdT=0,jdC=0,coachT=0,coachC=0,all3=0,two=0,one=0;
+    currentData.forEach(item => {
+        const hp=getNumericValue(item["Amount requested for High Performance"]);
+        const jd=getNumericValue(item["Amount requested for Junior Development & Programming"]);
+        const c=getCoachAmount(item);
+        let cnt=0;
+        if(hp>0){hpT+=hp;hpC++;cnt++;}
+        if(jd>0){jdT+=jd;jdC++;cnt++;}
+        if(c>0){coachT+=c;coachC++;cnt++;}
+        if(cnt===3)all3++; else if(cnt===2)two++; else if(cnt===1)one++;
+    });
+    const totalF=hpT+jdT+coachT, n=currentData.length||1;
+    document.getElementById('programAnalysis').innerHTML = `
+    <div class="analysis-grid">
+        <div class="analysis-card">
+            <h3>High Performance</h3>
+            <div class="analysis-metric"><span class="analysis-label">Total Funding</span><span class="analysis-value">${formatCurrency(hpT)}</span></div>
+            <div class="analysis-metric"><span class="analysis-label">NSGBs Participating</span><span class="analysis-value">${hpC} of ${n}</span></div>
+            <div class="analysis-metric"><span class="analysis-label">Average Request</span><span class="analysis-value">${formatCurrency(hpC?hpT/hpC:0)}</span></div>
+            <div class="analysis-metric"><span class="analysis-label">% of Total Budget</span><span class="analysis-value">${safePct(hpT,totalF)}%</span></div>
+            <div class="participation-bar"><div class="participation-fill" style="width:${(hpC/n)*100}%">${((hpC/n)*100).toFixed(0)}%</div></div>
+        </div>
+        <div class="analysis-card">
+            <h3>Junior Development</h3>
+            <div class="analysis-metric"><span class="analysis-label">Total Funding</span><span class="analysis-value">${formatCurrency(jdT)}</span></div>
+            <div class="analysis-metric"><span class="analysis-label">NSGBs Participating</span><span class="analysis-value">${jdC} of ${n}</span></div>
+            <div class="analysis-metric"><span class="analysis-label">Average Request</span><span class="analysis-value">${formatCurrency(jdC?jdT/jdC:0)}</span></div>
+            <div class="analysis-metric"><span class="analysis-label">% of Total Budget</span><span class="analysis-value">${safePct(jdT,totalF)}%</span></div>
+            <div class="participation-bar"><div class="participation-fill" style="width:${(jdC/n)*100}%">${((jdC/n)*100).toFixed(0)}%</div></div>
+        </div>
+        <div class="analysis-card">
+            <h3>Coach &amp; Official Development</h3>
+            <div class="analysis-metric"><span class="analysis-label">Total Funding</span><span class="analysis-value">${formatCurrency(coachT)}</span></div>
+            <div class="analysis-metric"><span class="analysis-label">NSGBs Participating</span><span class="analysis-value">${coachC} of ${n}</span></div>
+            <div class="analysis-metric"><span class="analysis-label">Average Request</span><span class="analysis-value">${formatCurrency(coachC?coachT/coachC:0)}</span></div>
+            <div class="analysis-metric"><span class="analysis-label">% of Total Budget</span><span class="analysis-value">${safePct(coachT,totalF)}%</span></div>
+            <div class="participation-bar"><div class="participation-fill" style="width:${(coachC/n)*100}%">${((coachC/n)*100).toFixed(0)}%</div></div>
+        </div>
+        <div class="analysis-card">
+            <h3>Program Participation</h3>
+            <div class="analysis-metric"><span class="analysis-label">All 3 Programs</span><span class="analysis-value">${all3} NSGBs</span></div>
+            <div class="analysis-metric"><span class="analysis-label">2 Programs</span><span class="analysis-value">${two} NSGBs</span></div>
+            <div class="analysis-metric"><span class="analysis-label">1 Program Only</span><span class="analysis-value">${one} NSGBs</span></div>
+            <div class="analysis-metric"><span class="analysis-label">Total NSGBs</span><span class="analysis-value">${n}</span></div>
+        </div>
+    </div>`;
+}
+
+/* ── NSGB Cards ── */
+function renderNSGBCards() {
+    const container = document.getElementById('nsgbDetailsContainer');
+    container.innerHTML = currentData.map(item => {
+        const name = item["Name of NSGB"] || 'Unknown';
+        const total = getNumericValue(item["Total amount requested for the selected fiscal year "]);
+        const hp = getNumericValue(item["Amount requested for High Performance"]);
+        const jd = getNumericValue(item["Amount requested for Junior Development & Programming"]);
+        const coach = getCoachAmount(item);
+        const projects = (item["Name of Proposed Project(s):"] || '').replace(/\n/g,' ').substring(0,120);
+        const ext = item["funding recived outside of the sip"] || '';
+        const pdfUrl = item.pdfUrl || '';
+        const sheetUrl = item.spreadsheetUrl || '';
+        return `<div class="nsgb-card">
+            <div class="nsgb-card-header">
+                <div class="nsgb-name">${name}</div>
+                <div class="total-badge">${formatCurrency(total)}</div>
+            </div>
+            ${projects ? `<div class="nsgb-projects">${projects}${projects.length>=120?'...':''}</div>` : ''}
+            <div class="funding-breakdown">
+                <div class="funding-item"><div class="fi-label">High Perf.</div><div class="fi-value">${hp>0?formatCurrency(hp):'—'}</div></div>
+                <div class="funding-item"><div class="fi-label">Junior Dev.</div><div class="fi-value">${jd>0?formatCurrency(jd):'—'}</div></div>
+                <div class="funding-item"><div class="fi-label">Coach Dev.</div><div class="fi-value">${coach>0?formatCurrency(coach):'—'}</div></div>
+            </div>
+            <div class="nsgb-links">
+                ${pdfUrl ? `<a href="${pdfUrl}" target="_blank" class="doc-link pdf">📄 Full Request</a>` : ''}
+                ${sheetUrl ? `<a href="${sheetUrl}" target="_blank" class="doc-link sheet">📊 Spreadsheet</a>` : ''}
+            </div>
+            ${ext && ext.toLowerCase()!=='tbc' ? `<div class="external-funding">External Funding: ${ext}</div>` : ''}
+            ${ext.toLowerCase()==='tbc' ? `<div class="external-funding" style="background:rgba(255,193,7,0.1);color:#856404;">External Funding: TBC</div>` : ''}
+        </div>`;
+    }).join('');
+}
+
+/* ── Table ── */
+function renderTable() {
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = currentData.map(item => {
+        const hp = getNumericValue(item["Amount requested for High Performance"]);
+        const jd = getNumericValue(item["Amount requested for Junior Development & Programming"]);
+        const coach = getCoachAmount(item);
+        const total = getNumericValue(item["Total amount requested for the selected fiscal year "]);
+        const ext = item["funding recived outside of the sip"] || '';
+        const pdfUrl = item.pdfUrl || '';
+        const sheetUrl = item.spreadsheetUrl || '';
+        const projects = (item["Name of Proposed Project(s):"] || '').replace(/\n/g,'; ').substring(0,80);
+        return `<tr>
+            <td><strong>${item["Name of NSGB"]||''}</strong></td>
+            <td>${item["Fiscal Year:"]||''}</td>
+            <td class="td-amount">${hp>0?formatCurrency(hp):'—'}</td>
+            <td class="td-amount">${jd>0?formatCurrency(jd):'—'}</td>
+            <td class="td-amount">${coach>0?formatCurrency(coach):'—'}</td>
+            <td class="td-total">${formatCurrency(total)}</td>
+            <td>${ext||'<span class="td-none">—</span>'}</td>
+            <td>${pdfUrl?`<a href="${pdfUrl}" target="_blank" class="td-link pdf">📄 PDF</a>`:'<span class="td-none">—</span>'}</td>
+            <td>${sheetUrl?`<a href="${sheetUrl}" target="_blank" class="td-link sheet">📊 Sheet</a>`:'<span class="td-none">—</span>'}</td>
+            <td style="font-size:0.8rem;color:var(--text);">${projects}${projects.length>=80?'...':''}</td>
+        </tr>`;
+    }).join('');
+}
+
+/* ── Insights ── */
+function renderInsights() {
+    const sorted = [...currentData].sort((a,b) => getNumericValue(b["Total amount requested for the selected fiscal year "]) - getNumericValue(a["Total amount requested for the selected fiscal year "]));
+    const top3 = sorted.slice(0,3).map(d => d["Name of NSGB"]);
+    let total=0; currentData.forEach(d => total+=getNumericValue(d["Total amount requested for the selected fiscal year "]));
+    let hp=0,jd=0,coach=0; currentData.forEach(d=>{hp+=getNumericValue(d["Amount requested for High Performance"]);jd+=getNumericValue(d["Amount requested for Junior Development & Programming"]);coach+=getCoachAmount(d);});
+    const withExt = currentData.filter(d => d["funding recived outside of the sip"] && d["funding recived outside of the sip"]!=='tbc' && d["funding recived outside of the sip"]!=='');
+    document.getElementById('insightList').innerHTML = [
+        `Top 3 highest requests: <strong>${top3.join(', ')}</strong>`,
+        `Total SIP funding requested across all ${currentData.length} NSGBs: <strong>${formatCurrency(total)}</strong>`,
+        `High Performance accounts for <strong>${safePct(hp,total)}%</strong> of total requests (${formatCurrency(hp)})`,
+        `Junior Development accounts for <strong>${safePct(jd,total)}%</strong> of total requests (${formatCurrency(jd)})`,
+        `Coach & Official Development accounts for <strong>${safePct(coach,total)}%</strong> of total requests (${formatCurrency(coach)})`,
+        `${withExt.length} NSGB${withExt.length!==1?'s':''} reported external funding sources outside of SIP`
+    ].map(t => `<li>${t}</li>`).join('');
+}
+
+/* ── Filters ── */
+function populateNSGBFilter() {
+    const sel = document.getElementById('nsgbFilter');
+    sipData.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item["Name of NSGB"];
+        opt.textContent = item["Name of NSGB"];
+        sel.appendChild(opt);
+    });
+}
+function applyFilters() {
+    const fy = document.getElementById('fiscalYear').value;
+    const nsgb = document.getElementById('nsgbFilter').value;
+    currentData = sipData.filter(item => {
+        const fyMatch = fy==='all' || item["Fiscal Year:"]=== fy;
+        const nsgbMatch = nsgb==='all' || item["Name of NSGB"]===nsgb;
+        return fyMatch && nsgbMatch;
+    });
+    updateStatistics(); createCharts(); generateProgramAnalysis(); renderNSGBCards(); renderTable(); renderInsights();
+}
+
+/* ── Sort ── */
+function sortTable(col) {
+    sortDir[col] = !sortDir[col];
+    currentData.sort((a,b) => {
+        const keys = ["Name of NSGB","Fiscal Year:","Amount requested for High Performance","Amount requested for Junior Development & Programming","_coach","Total amount requested for the selected fiscal year ","approvedFunding"];
+        let va, vb;
+        if (col===4) { va=getCoachAmount(a); vb=getCoachAmount(b); }
+        else { va=a[keys[col]]||''; vb=b[keys[col]]||''; }
+        if (col>=2) { va=getNumericValue(va); vb=getNumericValue(vb); }
+        if (va<vb) return sortDir[col]?-1:1;
+        if (va>vb) return sortDir[col]?1:-1;
+        return 0;
+    });
+    renderTable();
+}
+
+/* ── Export ── */
+function exportData() {
+    const rows = [['NSGB','Fiscal Year','High Performance','Junior Development','Coach Development','Total Request','External Funding','Projects']];
+    currentData.forEach(item => {
+        rows.push([
+            item["Name of NSGB"]||'',
+            item["Fiscal Year:"]||'',
+            getNumericValue(item["Amount requested for High Performance"]),
+            getNumericValue(item["Amount requested for Junior Development & Programming"]),
+            getCoachAmount(item),
+            getNumericValue(item["Total amount requested for the selected fiscal year "]),
+            item["funding recived outside of the sip"]||'',
+            (item["Name of Proposed Project(s):"]||'').replace(/\n/g,'; ')
+        ]);
+    });
+    const csv = rows.map(r => r.map(c => '"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+    const a = document.createElement('a');
+    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+    a.download = 'SIP_Funding_2026_2027.csv';
+    a.click();
+}
+
+/* ── Init ── */
+document.addEventListener('DOMContentLoaded', function() {
+    const auth = sessionStorage.getItem('portal_auth') || sessionStorage.getItem('sip_auth');
+    if (!auth) { window.location.href = 'index.html'; return; }
+    populateNSGBFilter();
+    updateStatistics();
+    createCharts();
+    generateProgramAnalysis();
+    renderNSGBCards();
+    renderTable();
+    renderInsights();
+});
+</script>
+</body>
+</html>
